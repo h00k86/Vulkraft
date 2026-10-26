@@ -1,0 +1,3772 @@
+{
+  "source_root": "/home/h00k/CODING/C/GAME/VULKAN_3D/VULKAN_PROJECT_SERIO/ENGINE",
+  "source_commit": "943670f2c71ff6b66f51f34478f322787bd8a88f",
+  "functions": [
+    {
+      "file": "examples/main.c",
+      "function": "main",
+      "source_file": "src/main.c",
+      "source_function": "main",
+      "source_line": 50,
+      "source_definition_sha256": "f38f55b6bbd2db9e2256ba042f050c440332dced71e0e8bbee1afe39f4f891d8"
+    },
+    {
+      "file": "examples/starter.c",
+      "function": "app_draw",
+      "source_file": "src/game/game.c",
+      "source_function": "game_draw_hud",
+      "source_line": 2928,
+      "source_definition_sha256": "bc2d189f0f90e2f43d983fae908e321bc308936277f982b35d3c95b5a1477976"
+    },
+    {
+      "file": "include/platform/platform_str.h",
+      "function": "strtok_r",
+      "source_file": "include/platform/platform_str.h",
+      "source_function": "strtok_r",
+      "source_line": 20,
+      "source_definition_sha256": "b23b35f75fa7c77939ff073303735e2b8b75bc55b3b8f868d334a997420bcade"
+    },
+    {
+      "file": "include/platform/platform_str.h",
+      "function": "strcasecmp",
+      "source_file": "include/platform/platform_str.h",
+      "source_function": "strcasecmp",
+      "source_line": 24,
+      "source_definition_sha256": "199b3423b0286580b65ef0091ca9e5819dde48d761d70d98d09c5705746d2e83"
+    },
+    {
+      "file": "include/platform/platform_str.h",
+      "function": "strncasecmp",
+      "source_file": "include/platform/platform_str.h",
+      "source_function": "strncasecmp",
+      "source_line": 28,
+      "source_definition_sha256": "9e253f6f05791e2876c1b4cc2c36bcfa844179086f6707ffd8d25385457d9ce4"
+    },
+    {
+      "file": "include/render/gfx_vulkan.h",
+      "function": "gfx_vk_context_empty",
+      "source_file": "include/render/gfx_vulkan.h",
+      "source_function": "gfx_vk_context_empty",
+      "source_line": 480,
+      "source_definition_sha256": "849f31ce3332e6baae45f73a8d56546f7253726c5fd87047851a2817c6d0c0e4"
+    },
+    {
+      "file": "shaders/tri.frag",
+      "function": "median",
+      "source_file": "shaders/tri.frag",
+      "source_function": "median",
+      "source_line": 75,
+      "source_definition_sha256": "1f573898650a2b3e605cfa61dba4d17b9af049ade13aa75d25e37866276a2dbd"
+    },
+    {
+      "file": "shaders/tri.frag",
+      "function": "main",
+      "source_file": "shaders/tri.frag",
+      "source_function": "main",
+      "source_line": 206,
+      "source_definition_sha256": "54d45b48dace64f9c2db162c2f1ab974da73dd3bab0f05034a4935005fc7ae1c"
+    },
+    {
+      "file": "shaders/tri.vert",
+      "function": "main",
+      "source_file": "shaders/tri.vert",
+      "source_function": "main",
+      "source_line": 52,
+      "source_definition_sha256": "e86a1014fd23b46c7a07312109608269e8737724ca1db31c5418453390dd2ab6"
+    },
+    {
+      "file": "src/app/application.c",
+      "function": "app_init",
+      "source_file": "src/game/game.c",
+      "source_function": "game_init",
+      "source_line": 804,
+      "source_definition_sha256": "eacee7361bf601d1489c7dfd7c7feb944712b996b85292c747c08ca3ade464fc"
+    },
+    {
+      "file": "src/app/application.c",
+      "function": "app_shutdown",
+      "source_file": "src/game/game.c",
+      "source_function": "game_shutdown",
+      "source_line": 1246,
+      "source_definition_sha256": "080f804ef616bb1f015d1c5346bb97e04d6a4aa01fd5cfa71d3ebf01d5069d48"
+    },
+    {
+      "file": "src/app/application.c",
+      "function": "app_autostart_frame_hook",
+      "source_file": "src/game/game.c",
+      "source_function": "game_autostart_frame_hook",
+      "source_line": 2961,
+      "source_definition_sha256": "dfe01ada3cc480f10470dd6b1cfe2e5efddb8baf85bcc585d4de6c7655094cf1"
+    },
+    {
+      "file": "src/app/application.c",
+      "function": "app_loop",
+      "source_file": "src/game/game.c",
+      "source_function": "game_loop",
+      "source_line": 3347,
+      "source_definition_sha256": "d12ce86de916143d05653a0b303b7c5f463562f3a9d528b85feb470796dbc2cc"
+    },
+    {
+      "file": "src/input/mouse.c",
+      "function": "get_mouse_coordinate",
+      "source_file": "src/input/mouse.c",
+      "source_function": "get_mouse_coordinate",
+      "source_line": 7,
+      "source_definition_sha256": "b23ff91db2bf09f783ae17c6fffb7eee48558545da2295b08c87e2b9e988abeb"
+    },
+    {
+      "file": "src/input/scroll.c",
+      "function": "input_scroll_callback",
+      "source_file": "src/input/input.c",
+      "source_function": "input_scroll_callback",
+      "source_line": 636,
+      "source_definition_sha256": "4d054ff345e1fe188e986ffcf1bc30495f50d8b35b3493188b46e45f9cf428ab"
+    },
+    {
+      "file": "src/input/scroll.c",
+      "function": "input_scroll_register",
+      "source_file": "src/input/input.c",
+      "source_function": "input_scroll_register",
+      "source_line": 642,
+      "source_definition_sha256": "5141c1ad94e7a1c3b7745c29e165ba22cd0ad7b1bc05e19bdb6f2d3d4ab19873"
+    },
+    {
+      "file": "src/input/scroll.c",
+      "function": "input_scroll_take",
+      "source_file": "src/input/input.c",
+      "source_function": "input_scroll_take",
+      "source_line": 647,
+      "source_definition_sha256": "4516f35b3f6612e151b56e0661eb2d2980845e7a0f5efede7f0395c8e6c4ba68"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_identity",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_identity",
+      "source_line": 4,
+      "source_definition_sha256": "8ab165552a33d8f2f7f153da7fe8fd0ce8393f0897b34d78fdc07ae5f3a6f2ea"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_ortho",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_ortho",
+      "source_line": 13,
+      "source_definition_sha256": "8b7e34fcb0b5410b571c70b4e63df43dd0dedf86324e5290deda297f6471450a"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_ortho_world_z",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_ortho_world_z",
+      "source_line": 25,
+      "source_definition_sha256": "cb0c4695ea9860c92005a66258b36cbdfb793587e3293b49782bb0e326ce2dc2"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_translate",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_translate",
+      "source_line": 39,
+      "source_definition_sha256": "38606c3ae3c05c85962deff593c010d45c30c466d04480a91fb0d51928a9c635"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_scale_around",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_scale_around",
+      "source_line": 47,
+      "source_definition_sha256": "8fdeeefbe9ee8c5be6e87d7a997105fbc1d474e33ab97c4ecaaff1ff7e0ef32f"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_multiply",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_multiply",
+      "source_line": 66,
+      "source_definition_sha256": "12bb926d49a0da6cb350223dc339c687d964317c4a824e5456866c4cfbeeec5a"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_translation",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_translation",
+      "source_line": 79,
+      "source_definition_sha256": "85c3c696e15248adb0c3116a91fd95ad0b3cfb903aafd778cbc18c3e8622743e"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_scaling",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_scaling",
+      "source_line": 87,
+      "source_definition_sha256": "3c32be1f6573b2dd0bacaaea28bd0d84b4fe52c81c066cf901ea4b3a5b5446c6"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "deg_to_rad",
+      "source_file": "src/math/matrix.c",
+      "source_function": "deg_to_rad",
+      "source_line": 95,
+      "source_definition_sha256": "4be73e118d56d7feb5e803950d016c24435c41740ffe9edbe948cc6d1f929b0f"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_rotation_x",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_rotation_x",
+      "source_line": 99,
+      "source_definition_sha256": "44ab6f3bd718b607c87b49d96f05597622ab2aceda6ebf34bdf942bc5b3907be"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_rotation_y",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_rotation_y",
+      "source_line": 109,
+      "source_definition_sha256": "1413509ae30e1eca27c811f4bf0eae81f5008c556b5ac6a95e3338eb63d9fd71"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_rotation_z",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_rotation_z",
+      "source_line": 119,
+      "source_definition_sha256": "14f76bf9377e100275febacf1b81afbf6d4dbd68cb239437df74aaa6ea3b5f03"
+    },
+    {
+      "file": "src/math/matrix.c",
+      "function": "mat4_transform_point",
+      "source_file": "src/math/matrix.c",
+      "source_function": "mat4_transform_point",
+      "source_line": 129,
+      "source_definition_sha256": "ea301da47f43e381256b85986c4239db9107363bae324b3d57d6b868086b90de"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "path_write",
+      "source_file": "src/game/paths.c",
+      "source_function": "path_write",
+      "source_line": 15,
+      "source_definition_sha256": "6a7e9e503ca424226bab6f40fc3691af97e13fa3fbaaf00d97eec6bd2a4c674f"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "mkdir_recursive",
+      "source_file": "src/game/paths.c",
+      "source_function": "mkdir_recursive",
+      "source_line": 24,
+      "source_definition_sha256": "8306be794a3d393a36866fc319dac80221f7e1bc88fe9655bd1024b7be008d85"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_engine_dir_init",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_engine_dir_init",
+      "source_line": 52,
+      "source_definition_sha256": "06b8b899351044658a81e2159a33f0d4e65dcc58f510d20651f7bd1f979745bd"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_engine_dir",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_engine_dir",
+      "source_line": 67,
+      "source_definition_sha256": "8700e830d2c95579077a9c4ca317d13f6b7904cdc9ae942c7c7a9402aa6b41ca"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_engine_file",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_engine_file",
+      "source_line": 72,
+      "source_definition_sha256": "06000f748ff1a9c1b5c1835954a39661bd90f0e03c5e47759fec21cc39c47fa3"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_xdg_dir",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_xdg_dir",
+      "source_line": 227,
+      "source_definition_sha256": "385cd9d034d383c67343cd6da61bca6591ec3737cbdd82efcda69c681840d096"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_user_config_dir",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_user_config_dir",
+      "source_line": 247,
+      "source_definition_sha256": "bf3d1a9c68b092d830303827661bc041d9e1dbceadc74882104539f0a0d65915"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_settings_file",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_settings_file",
+      "source_line": 252,
+      "source_definition_sha256": "854a8bdc3b63a8f7915ca60c61e4cfe22196e32d57e760ff0623e11f388f754c"
+    },
+    {
+      "file": "src/platform/paths.c",
+      "function": "paths_user_data_dir",
+      "source_file": "src/game/paths.c",
+      "source_function": "paths_user_data_dir",
+      "source_line": 260,
+      "source_definition_sha256": "9615b8b88aba3c7a5fb0f5f97369b9eec7e16f9aaa89c7b523869ae595b557c6"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_path_exists",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_path_exists",
+      "source_line": 35,
+      "source_definition_sha256": "d856b1bbdde3c97a75ea70e34b02219ae21fb20c84b496e05553de7d9c359d8e"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_file_exists",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_file_exists",
+      "source_line": 39,
+      "source_definition_sha256": "5ba5f61f9bb9672627081ec8d90fb9aa91e7bc1b1207aebe988b016e0243dc61"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_exists",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_exists",
+      "source_line": 46,
+      "source_definition_sha256": "c8dc25cddc1ed384d60ef1c4aee72cfc05a644ab3cf5be11d59ff845abf8d196"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_file_size",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_file_size",
+      "source_line": 53,
+      "source_definition_sha256": "0e0ee4f4301e20e8ccdd09e5b43afd63ff12f461b9acc3fc13620aed1422f49c"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_file_mtime",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_file_mtime",
+      "source_line": 63,
+      "source_definition_sha256": "3a9dfbf2364a33fa3ecfda0b61a3099d3f2e67fd5466b4a039686c7434aee0d9"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_make_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_make_dir",
+      "source_line": 79,
+      "source_definition_sha256": "7ee22a9f936854303c5f4e14148e38fcdda33e9466bc06d42cbb74f432760003"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_remove_file",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_remove_file",
+      "source_line": 87,
+      "source_definition_sha256": "d56809d9bb56b254365d31c781fa59ac1a9b19c3f36986f3ec676770ecbadec5"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_remove_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_remove_dir",
+      "source_line": 91,
+      "source_definition_sha256": "70ab230772d4a8406ec3507c49ae3b0c88e24d6f0edf81adb7f331f590132241"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_get_cwd",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_get_cwd",
+      "source_line": 95,
+      "source_definition_sha256": "9be570ba2dbe6c014497cf2f44aed4616addab4a270db90f33143a0ebd07d171"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_set_cwd",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_set_cwd",
+      "source_line": 104,
+      "source_definition_sha256": "2cf095f81ac7af0d19fe093f470fd5ba33786e989197f818b0012d50486e52d3"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_real_path",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_real_path",
+      "source_line": 106,
+      "source_definition_sha256": "dc1bcce48307271c81c330b688f72abcb54ccbcce56e577c63ee364aeea5a10a"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_exe_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_exe_dir",
+      "source_line": 119,
+      "source_definition_sha256": "65a3c5a112437392832986b671c252f420f3e67539638f8bd9e5430b1a439a25"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_open",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_open",
+      "source_line": 134,
+      "source_definition_sha256": "601ee24fb6c50bd81885fac9edb0a7d330a3ef346a21dbc12608c02d6642cee3"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_next",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_next",
+      "source_line": 151,
+      "source_definition_sha256": "37dbab9417f598ea78e80e2a4133381d1ec8c19ff8bd479c4322106639049efa"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_close",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_close",
+      "source_line": 170,
+      "source_definition_sha256": "11fa71d7c4e23f24d79e6c2e294613fd0437eb8250339b65f41aa1cbbadf0a06"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_setenv",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_setenv",
+      "source_line": 177,
+      "source_definition_sha256": "e1021994b87fa0be66a9ceb4496429146b6031573d750f64c4686e26c17dead3"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_path_exists",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_path_exists",
+      "source_line": 35,
+      "source_definition_sha256": "d856b1bbdde3c97a75ea70e34b02219ae21fb20c84b496e05553de7d9c359d8e"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_file_exists",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_file_exists",
+      "source_line": 39,
+      "source_definition_sha256": "5ba5f61f9bb9672627081ec8d90fb9aa91e7bc1b1207aebe988b016e0243dc61"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_exists",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_exists",
+      "source_line": 46,
+      "source_definition_sha256": "c8dc25cddc1ed384d60ef1c4aee72cfc05a644ab3cf5be11d59ff845abf8d196"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_file_size",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_file_size",
+      "source_line": 53,
+      "source_definition_sha256": "0e0ee4f4301e20e8ccdd09e5b43afd63ff12f461b9acc3fc13620aed1422f49c"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_file_mtime",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_file_mtime",
+      "source_line": 63,
+      "source_definition_sha256": "3a9dfbf2364a33fa3ecfda0b61a3099d3f2e67fd5466b4a039686c7434aee0d9"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_make_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_make_dir",
+      "source_line": 79,
+      "source_definition_sha256": "7ee22a9f936854303c5f4e14148e38fcdda33e9466bc06d42cbb74f432760003"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_remove_file",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_remove_file",
+      "source_line": 87,
+      "source_definition_sha256": "d56809d9bb56b254365d31c781fa59ac1a9b19c3f36986f3ec676770ecbadec5"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_remove_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_remove_dir",
+      "source_line": 91,
+      "source_definition_sha256": "70ab230772d4a8406ec3507c49ae3b0c88e24d6f0edf81adb7f331f590132241"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_get_cwd",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_get_cwd",
+      "source_line": 95,
+      "source_definition_sha256": "9be570ba2dbe6c014497cf2f44aed4616addab4a270db90f33143a0ebd07d171"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_set_cwd",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_set_cwd",
+      "source_line": 104,
+      "source_definition_sha256": "2cf095f81ac7af0d19fe093f470fd5ba33786e989197f818b0012d50486e52d3"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_real_path",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_real_path",
+      "source_line": 106,
+      "source_definition_sha256": "dc1bcce48307271c81c330b688f72abcb54ccbcce56e577c63ee364aeea5a10a"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_exe_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_exe_dir",
+      "source_line": 119,
+      "source_definition_sha256": "65a3c5a112437392832986b671c252f420f3e67539638f8bd9e5430b1a439a25"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_open",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_open",
+      "source_line": 134,
+      "source_definition_sha256": "601ee24fb6c50bd81885fac9edb0a7d330a3ef346a21dbc12608c02d6642cee3"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_next",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_next",
+      "source_line": 151,
+      "source_definition_sha256": "37dbab9417f598ea78e80e2a4133381d1ec8c19ff8bd479c4322106639049efa"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_close",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_close",
+      "source_line": 170,
+      "source_definition_sha256": "11fa71d7c4e23f24d79e6c2e294613fd0437eb8250339b65f41aa1cbbadf0a06"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_setenv",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_setenv",
+      "source_line": 177,
+      "source_definition_sha256": "e1021994b87fa0be66a9ceb4496429146b6031573d750f64c4686e26c17dead3"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_fs_normalize_separators",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_fs_normalize_separators",
+      "source_line": 347,
+      "source_definition_sha256": "a2c8e6f7f88ec90cd44b5d7696b2015b2bb40f847c4fa543ca608e9e44d2c6f5"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_make_dirs",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_make_dirs",
+      "source_line": 355,
+      "source_definition_sha256": "32d3f6d23155bc150b52a6256cd7f5fdeb8a0c3da1209a5dede9d4aaad0dd752"
+    },
+    {
+      "file": "src/platform/platform_fs.c",
+      "function": "platform_dir_entry_is_dir",
+      "source_file": "src/platform/platform_fs.c",
+      "source_function": "platform_dir_entry_is_dir",
+      "source_line": 377,
+      "source_definition_sha256": "ca8f9eaaa672daa98b8fa76084019b6e2cefd7377f75b630c6c01501712f9aad"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "glfw_helper_get_window_monitor",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "glfw_helper_get_window_monitor",
+      "source_line": 10,
+      "source_definition_sha256": "063e6e794364f0d3bc75be7d8e2101e07cb90b9ad4fee894fd312fdc9c1e3b45"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "glfw_helper_get_monitor_index",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "glfw_helper_get_monitor_index",
+      "source_line": 53,
+      "source_definition_sha256": "4b8972d673f7f891d335ad50f263e33d49b4992a6355f55e7a7b03c573cf1b92"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "find_supported_video_mode",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "find_supported_video_mode",
+      "source_line": 63,
+      "source_definition_sha256": "556dd5869fe70a0fc8dbc9bcdea8489011b84f9c531b6427d3cd1d0f1fd85b0a"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "glfw_helper_window_size",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "glfw_helper_window_size",
+      "source_line": 97,
+      "source_definition_sha256": "05c0a656a38c97be1c96acc3f9307d989d30c4236cc4ab8f3a3adc59183802ad"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "windowSizeCallback",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "windowSizeCallback",
+      "source_line": 102,
+      "source_definition_sha256": "f17ed85331d0d5fb901d2949eff9e3d9b2fc2e67ab61b6d89c4d546ce19f7b36"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "framebufferResizeCallback",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "framebufferResizeCallback",
+      "source_line": 108,
+      "source_definition_sha256": "7b73c22d088c1ba0634eac518d5c5d91cb362d6636ccb40aaeaf074ee3e95865"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "create_window",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "create_window",
+      "source_line": 116,
+      "source_definition_sha256": "584830f08d24484684ae3d9a7f8f25dda5d31e663de5e0ba08ed2568fd2f07b2"
+    },
+    {
+      "file": "src/platform/window.c",
+      "function": "destroy_window",
+      "source_file": "src/render/glfw_helper.c",
+      "source_function": "destroy_window",
+      "source_line": 188,
+      "source_definition_sha256": "b71167b5ecb32c769cfaf5e89137a6518fbf93481ebb534bf2d09c83551941cd"
+    },
+    {
+      "file": "src/render/font.c",
+      "function": "font_get",
+      "source_file": "src/render/font.c",
+      "source_function": "font_get",
+      "source_line": 8,
+      "source_definition_sha256": "d6ee829d829ff7f98988a17496d0ecc640daf6f3be6a753be33c61faf0a7aca0"
+    },
+    {
+      "file": "src/render/font.c",
+      "function": "font_load",
+      "source_file": "src/render/font.c",
+      "source_function": "font_load",
+      "source_line": 18,
+      "source_definition_sha256": "91d3f3cf805d12fa460de2d59e6f5b8f3b3ca93b67966d7697e50366ef71b8df"
+    },
+    {
+      "file": "src/render/font.c",
+      "function": "font_load_at",
+      "source_file": "src/render/font.c",
+      "source_function": "font_load_at",
+      "source_line": 26,
+      "source_definition_sha256": "e127bba0efaa982351347ac4bd041a18ddc0e4d6457e2c5251181c8a03fedae5"
+    },
+    {
+      "file": "src/render/frame_dump.c",
+      "function": "init_once",
+      "source_file": "src/render/frame_dump.c",
+      "source_function": "init_once",
+      "source_line": 27,
+      "source_definition_sha256": "8d3a7117b5fbdf7ca216b150926b5a87b1365af28a9b623c7b0801e6b3825682"
+    },
+    {
+      "file": "src/render/frame_dump.c",
+      "function": "slot_ensure",
+      "source_file": "src/render/frame_dump.c",
+      "source_function": "slot_ensure",
+      "source_line": 44,
+      "source_definition_sha256": "5cfb87af11e6e3e924906fc69ffee63e8865269b7b401a29e9d6c26fd60d4929"
+    },
+    {
+      "file": "src/render/frame_dump.c",
+      "function": "frame_dump_record",
+      "source_file": "src/render/frame_dump.c",
+      "source_function": "frame_dump_record",
+      "source_line": 60,
+      "source_definition_sha256": "61e53af80d3c971b94508c01574d0f330aa18bc31d0dd7d6813772bae565db2e"
+    },
+    {
+      "file": "src/render/frame_dump.c",
+      "function": "frame_dump_collect",
+      "source_file": "src/render/frame_dump.c",
+      "source_function": "frame_dump_collect",
+      "source_line": 119,
+      "source_definition_sha256": "d7a6a4dac2e4736207fd7a3c0d06cd97d1351ccccd858f4d95bc0b91fe54db24"
+    },
+    {
+      "file": "src/render/frame_dump.c",
+      "function": "frame_dump_shutdown",
+      "source_file": "src/render/frame_dump.c",
+      "source_function": "frame_dump_shutdown",
+      "source_line": 159,
+      "source_definition_sha256": "f9cfb9aefc6dc2020902040834b1f9033bbfe00f3e1675b3e8b9d7316f4edab6"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_current_frame",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_current_frame",
+      "source_line": 35,
+      "source_definition_sha256": "5c8a4fbd4e6c45c07ac679b7e3c51a735aad94ffa721c2aa73840c2487899fdb"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_device_ready",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_device_ready",
+      "source_line": 41,
+      "source_definition_sha256": "ebacedef83653d1b8942dcef4a4ca193bb44f8055029a880aa1dd41187944f31"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_wait_idle",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_wait_idle",
+      "source_line": 46,
+      "source_definition_sha256": "933532a92fa7112202e3acd12d0dcc039eec90497286ce2bfc4eaadb89c21169"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_init",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_init",
+      "source_line": 51,
+      "source_definition_sha256": "dcd3dfdac2c356a817fa980549b56ca96570b9f0510050f10241b16b3d5ab62d"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_shutdown",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_shutdown",
+      "source_line": 83,
+      "source_definition_sha256": "a865fb399d4679352a45bcf714d716061d8113b281f273c28eabb61c498959f2"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_recreate_surface",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_recreate_surface",
+      "source_line": 93,
+      "source_definition_sha256": "877196b74549cb3b642824c050566170854fcf29cab8c9cd00ccf5737a431883"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_surface_size",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_surface_size",
+      "source_line": 98,
+      "source_definition_sha256": "04077e25444f23f39c092eb167f91c0ddead9e9737da5bf3b8779eb0759143da"
+    },
+    {
+      "file": "src/render/gfx.c",
+      "function": "gfx_selected_gpu_name",
+      "source_file": "src/render/gfx.c",
+      "source_function": "gfx_selected_gpu_name",
+      "source_line": 239,
+      "source_definition_sha256": "12ebf99f1d3da46ad3b29c0ba855021c998664804591b36600e77166b023ade6"
+    },
+    {
+      "file": "src/render/init_vulkan.c",
+      "function": "init_vulkan",
+      "source_file": "src/render/init_vulkan.c",
+      "source_function": "init_vulkan",
+      "source_line": 19,
+      "source_definition_sha256": "76b938be62d6471665088d94a586cca5a83ea91e5f66cca6d13b5a70091ce70f"
+    },
+    {
+      "file": "src/render/init_vulkan.c",
+      "function": "destroy_vulkan",
+      "source_file": "src/render/init_vulkan.c",
+      "source_function": "destroy_vulkan",
+      "source_line": 182,
+      "source_definition_sha256": "56313945b71b71c228a35b7c6f98e5a75195121237b79e3a24dde8668ebc9df5"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_reserve_vertices",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_reserve_vertices",
+      "source_line": 29,
+      "source_definition_sha256": "5cd1eff1c490b35f2f6926986bcfe6bccb8e29630f7bc66730bfca78699cff04"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_append_vertices",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_append_vertices",
+      "source_line": 72,
+      "source_definition_sha256": "e7894c96ad8544941ecffd3b4420e9eb71b62f6663ae0b866984c8b67a2dc3e6"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_reserve_batches",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_reserve_batches",
+      "source_line": 95,
+      "source_definition_sha256": "1373def8a0840b99d346387efdeb5cad2ec4de9c1c18b0508c1c698f4e3717ed"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_clip_intersect",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_clip_intersect",
+      "source_line": 116,
+      "source_definition_sha256": "39d44f56b4f895edcee773ce2366559aacd4193b9793c5e2168c34f334876687"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_begin_batch",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_begin_batch",
+      "source_line": 130,
+      "source_definition_sha256": "eaa727c41e2a90851473e1f6982afc696b191f484cd234d2242c5d13e0afc8a6"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_finish_batch",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_finish_batch",
+      "source_line": 143,
+      "source_definition_sha256": "d37d0b71151fa00c9873866dba9215fb93d1061ef999515e12e51c4fb4b101d0"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_hud_transform",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_hud_transform",
+      "source_line": 153,
+      "source_definition_sha256": "a10efb0c3a429ee93222cba58528f90f5ff14481bf82c4a19d607e1d9deccc1f"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_make_vertex",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_make_vertex",
+      "source_line": 159,
+      "source_definition_sha256": "05ccf499ea8778b2758c80a2a38927a0c6341dfb4e298de581dd961695641df7"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_char_colored",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_char_colored",
+      "source_line": 175,
+      "source_definition_sha256": "d08602ffc4c9eee283a9c5b194dee467027c7c6d469f94a486ee2ec20bc71ebe"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_begin",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_begin",
+      "source_line": 318,
+      "source_definition_sha256": "2274a4bf75b0c3f9c6eada09881f50f5df2e3762a10fcb8ffa9915aaa5751868"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_end",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_end",
+      "source_line": 329,
+      "source_definition_sha256": "2bdbab35ab95cbb9c4b34dd4d3a0b8362e474f62669548e21a4598d7d820ae85"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_renderer_shutdown",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_renderer_shutdown",
+      "source_line": 347,
+      "source_definition_sha256": "777c82e3b7dfe7b388b6919db36d8a0d8a49a86b73bda6cf90aee0b555a612ab"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_hud_get_geometry_diagnostics",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_hud_get_geometry_diagnostics",
+      "source_line": 362,
+      "source_definition_sha256": "e2411eb4fcc6dc52018b07b6d7f2ab609e64fe8ff74b54730a73c6956eede34f"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_clip_push",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_clip_push",
+      "source_line": 373,
+      "source_definition_sha256": "0f8885f8e77458ae5912968b50c90441e5717d3a8b15bb4d3d47503511e82afd"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_clip_pop",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_clip_pop",
+      "source_line": 389,
+      "source_definition_sha256": "c9ab5fe6d199d9e6cefffa5d37f976f1f5b67aa192f7a727c0e554c8528e1dc7"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_hud_batch_count",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_hud_batch_count",
+      "source_line": 400,
+      "source_definition_sha256": "6c5b6bd6784bc9647e431c7500dfbab222e89cc656e50f4927484fa5b5da37a4"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_hud_batch_at",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_hud_batch_at",
+      "source_line": 401,
+      "source_definition_sha256": "635e792af60c8c137ffc289e8906c81dbd7256bac2370517726cf7d5a49fd2dd"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_clip_stack_balanced",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_clip_stack_balanced",
+      "source_line": 406,
+      "source_definition_sha256": "d3685c7fd322a7d5006428cca7363c23304ee1efc2b57b9fb695dbc58e6ce4ef"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "text_clip_depth",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "text_clip_depth",
+      "source_line": 407,
+      "source_definition_sha256": "d41a075e3051129b35f5478b1a384fda605c42d8d9c932a9704a634ca352e7ac"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_text_colored",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_text_colored",
+      "source_line": 409,
+      "source_definition_sha256": "29950e3e7ec7045b6d15a56f615bcf644fd3d11f40f38ab28eb1f6e628dd9eb3"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_text_tilted",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_text_tilted",
+      "source_line": 428,
+      "source_definition_sha256": "d7e2899283d063f770b15e2de4263b9ecfe440b3099093743a62a7aea2bd3664"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_text",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_text",
+      "source_line": 446,
+      "source_definition_sha256": "a1bad00193eef5a0b268d9a3706749e9b6bb90b1face4c3a5560c7a2cec93430"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "measure_text_width",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "measure_text_width",
+      "source_line": 451,
+      "source_definition_sha256": "98f731de01f0dd1b8179ac6c3b350dca69fd56f9f024778b27e5035a25d59108"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_text_anchored",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_text_anchored",
+      "source_line": 465,
+      "source_definition_sha256": "9879149888ca61b44f9c4bd106b51fc08977fa043b1385b2c3b97a98b1aab765"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_quad_alpha",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_quad_alpha",
+      "source_line": 501,
+      "source_definition_sha256": "ae2a5d72c7120ad9e496ca7d9775be2301ef69e43c5967be99f1668b65386fe8"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_quad",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_quad",
+      "source_line": 518,
+      "source_definition_sha256": "1f7b4aae9e0bc401318fb819316f61888994d1ecb5b8d140c3ad4a53aac84aaa"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_quad_points",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_quad_points",
+      "source_line": 540,
+      "source_definition_sha256": "a0cd8d788171f01255d8bf1f458bf0ba4a0a0bc913fb3a55f6928c6a1df8954c"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_textured_quad",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_textured_quad",
+      "source_line": 555,
+      "source_definition_sha256": "8513c4565486f7a3b51882038d91a33b79ca807e551902e7f9ad0b28dcbd7225"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_textured_quad_tinted",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_textured_quad_tinted",
+      "source_line": 581,
+      "source_definition_sha256": "84bd7419089f4431a3a241f9642846a867bef1ae2fd6f77e9aac503385a9c8e4"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_line",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_line",
+      "source_line": 604,
+      "source_definition_sha256": "ee7a9049d012e3968c979303d7bb9214d87b3e4b36069107e1a354a2730b863a"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_tri_rgba",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_tri_rgba",
+      "source_line": 621,
+      "source_definition_sha256": "51b2f0c3098388a4b426288506e6e1050cba1f916c1310033b13e82ff4f027e6"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "hud_quad_rgba_aa",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "hud_quad_rgba_aa",
+      "source_line": 633,
+      "source_definition_sha256": "e9f6264f91fe2a7285036174099106e8e7c0de170ea6196be712671af23d2796"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_quad_aa",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_quad_aa",
+      "source_line": 665,
+      "source_definition_sha256": "ec7e4c1f3ee02cd26829a0172422c0dc0e661cb823720525bae2d864722bd538"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "hud_paper_corners",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "hud_paper_corners",
+      "source_line": 670,
+      "source_definition_sha256": "f80f80912a08bf50a620de60fa974a264b1b7e88a3a15652010efb5afd819929"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_trash_swipe",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_trash_swipe",
+      "source_line": 679,
+      "source_definition_sha256": "a16d00c8497e55c3dfb8f27d3c66e479a6b6c9efe4fcf133a848410c17fa1147"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_paper_panel",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_paper_panel",
+      "source_line": 700,
+      "source_definition_sha256": "beaa6f86c51092c5cf6a156058a7d94331b756fae47826e062dfe43cea5d9aa6"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_star_badge",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_star_badge",
+      "source_line": 733,
+      "source_definition_sha256": "f099b8cc5f959332905297a39c150a6589005d66414865aebad45c5bd3f2bd54"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_hud_circle",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_hud_circle",
+      "source_line": 756,
+      "source_definition_sha256": "8f8c06c77e0d84d16ffefde97036888556f0f750bcdb08747afb782bf39d775a"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_textured_quad_points",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_textured_quad_points",
+      "source_line": 790,
+      "source_definition_sha256": "3f982385e4132b735d3714ec81685bfae2f3e206eac7bc860558ae2e7dddc31d"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_textured_quad_uv4",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_textured_quad_uv4",
+      "source_line": 804,
+      "source_definition_sha256": "484ba592f3d00aef081f160d9e2cf4555cd09ac0bc89b8fac84a811767677b37"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_textured_disc",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_textured_disc",
+      "source_line": 820,
+      "source_definition_sha256": "6e31971655003cace8f2ccb07345d2c5f27df11ba7f83ea0ff11c182edcef1f0"
+    },
+    {
+      "file": "src/render/text_renderer.c",
+      "function": "draw_textured_quad_points_alpha",
+      "source_file": "src/render/text_renderer.c",
+      "source_function": "draw_textured_quad_points_alpha",
+      "source_line": 844,
+      "source_definition_sha256": "a4acf94e9361c840633a1c887af78f4df133d2db2b732d7c8b20217ba987bd3e"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_load_internal",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_load_internal",
+      "source_line": 42,
+      "source_definition_sha256": "35381fe7f040ca3d205aa02759dd10bb0fe659679710319abd227283ff3c2d19"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_load",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_load",
+      "source_line": 117,
+      "source_definition_sha256": "1ac670f6bbcfea693b026ccec48f3533d5b3bdee142b5ff4b06886fc45f3a648"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_load_tiled",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_load_tiled",
+      "source_line": 121,
+      "source_definition_sha256": "3648f025f2ee9a6732a49bccf9f440c9b083843ae96f8d6acc037924b04ff580"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_ensure_repeat",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_ensure_repeat",
+      "source_line": 136,
+      "source_definition_sha256": "e0434475e7e37bf948b7ff015fd293528323339df37591daabae97841f485274"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_is_valid",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_is_valid",
+      "source_line": 156,
+      "source_definition_sha256": "6885f669f4171fef6e408c0dc7b870d035d620524078bbfb3f6ceba83bd72c32"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_free_slots",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_free_slots",
+      "source_line": 160,
+      "source_definition_sha256": "9fca4a46db86860624cb17663407d3519cf63b0435d675f4d51b4022badba980"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_loaded_count",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_loaded_count",
+      "source_line": 168,
+      "source_definition_sha256": "92cfb725a4a996a2883b1fa81346e69c18795005ebb6b6d96ad09d56487eef7f"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_check_hot_reload",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_check_hot_reload",
+      "source_line": 177,
+      "source_definition_sha256": "5a39f640816408a69bac430070a06c4176a5d5a62034faa454e9ae1774b3fdfe"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_begin_batch",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_begin_batch",
+      "source_line": 213,
+      "source_definition_sha256": "4ade2053e9bb52d34596993376e456a5e656a8edd03c3582908941440511febb"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_end_batch",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_end_batch",
+      "source_line": 218,
+      "source_definition_sha256": "53cc017f85f469a67141d3ac160d9991decf2669444064909addce1f1ec3dd13"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_unload_all",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_unload_all",
+      "source_line": 222,
+      "source_definition_sha256": "72064258f3eb546fd9e66dfadcc40c69b8a9746c20b62163b6d85ea6d254ca37"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_shutdown",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_shutdown",
+      "source_line": 253,
+      "source_definition_sha256": "eb400f6d17349325212ccf676c7fff8cede5c06946338f67c2ff82a38ea2107c"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_get_path",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_get_path",
+      "source_line": 283,
+      "source_definition_sha256": "dce120b4e7ed1ecf5269f7b4293984a9612e666218c5e2c3347339fd5f09e30a"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_get_size",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_get_size",
+      "source_line": 289,
+      "source_definition_sha256": "16a0e61d41d1b86a9e154fa9811043c1dce854fcb691a05009f9653806f371ef"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_preview_load",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_preview_load",
+      "source_line": 297,
+      "source_definition_sha256": "910597c4952cb032f2e3981064c9184f6c232a8714d25434ee7525d6d001c331"
+    },
+    {
+      "file": "src/render/texture_manager.c",
+      "function": "texture_manager_preview_clear",
+      "source_file": "src/render/texture_manager.c",
+      "source_function": "texture_manager_preview_clear",
+      "source_line": 329,
+      "source_definition_sha256": "fff3936966e96bea4802aeb7689438eedb5332ef42a83f349fbdd8f2f6387e7f"
+    },
+    {
+      "file": "src/render/vsync_settings.c",
+      "function": "vsync_get_enabled",
+      "source_file": "src/render/vsync_settings.c",
+      "source_function": "vsync_get_enabled",
+      "source_line": 10,
+      "source_definition_sha256": "b63e0692a4c01fc05a79f764ec864732943d0992a0e2b4204e887b07d7214936"
+    },
+    {
+      "file": "src/render/vsync_settings.c",
+      "function": "vsync_set_enabled",
+      "source_file": "src/render/vsync_settings.c",
+      "source_function": "vsync_set_enabled",
+      "source_line": 12,
+      "source_definition_sha256": "1cbde8b7c97080136e2b9f92d68ca8197f35fa514b36b864d6ccde828d14ca50"
+    },
+    {
+      "file": "src/render/vulkan_buffer.c",
+      "function": "find_memory_type",
+      "source_file": "src/render/vulkan_buffer.c",
+      "source_function": "find_memory_type",
+      "source_line": 8,
+      "source_definition_sha256": "df5df989d033a33a68e70eebfdf116df3bd79baab584663415b7c476cdfd2b0f"
+    },
+    {
+      "file": "src/render/vulkan_buffer.c",
+      "function": "create_buffer",
+      "source_file": "src/render/vulkan_buffer.c",
+      "source_function": "create_buffer",
+      "source_line": 28,
+      "source_definition_sha256": "6fce484043bd31d0147d5ee52d1a4c2906deaacb99ac2ebd6ed2cce20b165263"
+    },
+    {
+      "file": "src/render/vulkan_buffer.c",
+      "function": "begin_single_time_commands",
+      "source_file": "src/render/vulkan_buffer.c",
+      "source_function": "begin_single_time_commands",
+      "source_line": 65,
+      "source_definition_sha256": "893daeff4d3ab9517171f4c0b4b20f1f7d59121aefa87460c3a35bcc0d804bc0"
+    },
+    {
+      "file": "src/render/vulkan_buffer.c",
+      "function": "end_single_time_commands",
+      "source_file": "src/render/vulkan_buffer.c",
+      "source_function": "end_single_time_commands",
+      "source_line": 86,
+      "source_definition_sha256": "71b22c7f9e327e7e8a494b7736376500fc45aaaa3237e8b39a26512d008d336b"
+    },
+    {
+      "file": "src/render/vulkan_command.c",
+      "function": "create_command_buffers",
+      "source_file": "src/render/vulkan_command.c",
+      "source_function": "create_command_buffers",
+      "source_line": 27,
+      "source_definition_sha256": "ae9c01a95949cf18f2a263875241706de5b713f00b6a6ce4030bd8428ff0de42"
+    },
+    {
+      "file": "src/render/vulkan_command.c",
+      "function": "submit_pending_uploads",
+      "source_file": "src/render/vulkan_command.c",
+      "source_function": "submit_pending_uploads",
+      "source_line": 77,
+      "source_definition_sha256": "82fb2c4fd8112fd328cc2d3d1b113471aa330814252549c1b41166e61410438e"
+    },
+    {
+      "file": "src/render/vulkan_command.c",
+      "function": "record_command_buffer",
+      "source_file": "src/render/vulkan_command.c",
+      "source_function": "record_command_buffer",
+      "source_line": 237,
+      "source_definition_sha256": "7a92ab263d1931eb6d34013c1ea0d279f8d1dab9a74e2aa7afa7361a40f61b12"
+    },
+    {
+      "file": "src/render/vulkan_command.c",
+      "function": "destroy_command_buffers",
+      "source_file": "src/render/vulkan_command.c",
+      "source_function": "destroy_command_buffers",
+      "source_line": 468,
+      "source_definition_sha256": "a0c2cc17053859d375be93ba89b52c88726e130aeefc21cd923dc5f1e2be5428"
+    },
+    {
+      "file": "src/render/vulkan_command.c",
+      "function": "render_command_get_stats",
+      "source_file": "src/render/vulkan_command.c",
+      "source_function": "render_command_get_stats",
+      "source_line": 25,
+      "source_definition_sha256": "18dae7125b1381550f29f15e27cd02d6168022b89a814260db7e35456f2e239d"
+    },
+    {
+      "file": "src/render/vulkan_descriptors.c",
+      "function": "create_descriptor_set_layout",
+      "source_file": "src/render/vulkan_descriptors.c",
+      "source_function": "create_descriptor_set_layout",
+      "source_line": 10,
+      "source_definition_sha256": "fda604fcda5561c91ac7fee3842e43ea10aaf93a6a3bed52798e68d83553cec5"
+    },
+    {
+      "file": "src/render/vulkan_descriptors.c",
+      "function": "create_descriptor_pool",
+      "source_file": "src/render/vulkan_descriptors.c",
+      "source_function": "create_descriptor_pool",
+      "source_line": 111,
+      "source_definition_sha256": "06ffbd6f30d2f835b78a59369404ece378a6ce1602538283c0ad8408e8040ba9"
+    },
+    {
+      "file": "src/render/vulkan_descriptors.c",
+      "function": "create_hud_descriptor_set",
+      "source_file": "src/render/vulkan_descriptors.c",
+      "source_function": "create_hud_descriptor_set",
+      "source_line": 251,
+      "source_definition_sha256": "3d62117e6f9fb47406d814a2742199eead210e2c1a66d1f3d1308621fc99f24c"
+    },
+    {
+      "file": "src/render/vulkan_descriptors.c",
+      "function": "destroy_descriptors",
+      "source_file": "src/render/vulkan_descriptors.c",
+      "source_function": "destroy_descriptors",
+      "source_line": 423,
+      "source_definition_sha256": "08a572c37cbf31917b3387087c31dd1ad7ba7fb923aac109fc9f23c74ffbf8a6"
+    },
+    {
+      "file": "src/render/vulkan_descriptors.c",
+      "function": "update_descriptor_texture_slot",
+      "source_file": "src/render/vulkan_descriptors.c",
+      "source_function": "update_descriptor_texture_slot",
+      "source_line": 368,
+      "source_definition_sha256": "4deeddabae740e0332ae1c5bba0abaf6cbb7aa9cdd95c7944903c8a5626a82bc"
+    },
+    {
+      "file": "src/render/vulkan_descriptors.c",
+      "function": "update_descriptor_texture_slot_no_wait",
+      "source_file": "src/render/vulkan_descriptors.c",
+      "source_function": "update_descriptor_texture_slot_no_wait",
+      "source_line": 324,
+      "source_definition_sha256": "fef2423b4cbc77908de868d62de37ff1fd29037bc366f418eb265241ebf1bdae"
+    },
+    {
+      "file": "src/render/vulkan_draw.c",
+      "function": "wait_for_current_frame",
+      "source_file": "src/render/vulkan_draw.c",
+      "source_function": "wait_for_current_frame",
+      "source_line": 10,
+      "source_definition_sha256": "cd936b3163cde1d9c5f8783477e07f32b4a4cf40045e7edc04bf7eef1dc7f55c"
+    },
+    {
+      "file": "src/render/vulkan_draw.c",
+      "function": "draw_frame",
+      "source_file": "src/render/vulkan_draw.c",
+      "source_function": "draw_frame",
+      "source_line": 65,
+      "source_definition_sha256": "33a58a3bd18f2169481667fb3f1d6932293a59f88cfb968b70414f8b178fcb82"
+    },
+    {
+      "file": "src/render/vulkan_framebuffer.c",
+      "function": "create_framebuffers",
+      "source_file": "src/render/vulkan_framebuffer.c",
+      "source_function": "create_framebuffers",
+      "source_line": 8,
+      "source_definition_sha256": "8bea5857b37b220b96b505fdf30e758f954271c7438d576d47969299453e15d2"
+    },
+    {
+      "file": "src/render/vulkan_framebuffer.c",
+      "function": "destroy_framebuffers",
+      "source_file": "src/render/vulkan_framebuffer.c",
+      "source_function": "destroy_framebuffers",
+      "source_line": 45,
+      "source_definition_sha256": "cc9821d8f7645967d869d1351c771d3f037725eca522238686207a3ff5a31f33"
+    },
+    {
+      "file": "src/render/vulkan_instance.c",
+      "function": "create_instance",
+      "source_file": "src/render/vulkan_instance.c",
+      "source_function": "create_instance",
+      "source_line": 16,
+      "source_definition_sha256": "d2c268138b0997513bf55551b1ba35b1643c9943f40ab3aff76e84a882d47be6"
+    },
+    {
+      "file": "src/render/vulkan_instance.c",
+      "function": "destroy_instance",
+      "source_file": "src/render/vulkan_instance.c",
+      "source_function": "destroy_instance",
+      "source_line": 89,
+      "source_definition_sha256": "a02a05f6f62e6be17628709157d84d737f33e8b713efc810e558d22ef9aa170c"
+    },
+    {
+      "file": "src/render/vulkan_logical_device.c",
+      "function": "print_queue_properties",
+      "source_file": "src/render/vulkan_logical_device.c",
+      "source_function": "print_queue_properties",
+      "source_line": 7,
+      "source_definition_sha256": "e2e4ffbf4d6aac268029b20027a8fc58bb7d4ae6e17ddc2ed4faa8a49745489e"
+    },
+    {
+      "file": "src/render/vulkan_logical_device.c",
+      "function": "create_logical_device",
+      "source_file": "src/render/vulkan_logical_device.c",
+      "source_function": "create_logical_device",
+      "source_line": 47,
+      "source_definition_sha256": "c0bbba34007811179aaa606963153f0ad93c83cb6ed9a8f7310097ecbfc10e75"
+    },
+    {
+      "file": "src/render/vulkan_logical_device.c",
+      "function": "destroy_logical_device",
+      "source_file": "src/render/vulkan_logical_device.c",
+      "source_function": "destroy_logical_device",
+      "source_line": 104,
+      "source_definition_sha256": "07a648819533093236f1bc14dfb3bf89858d5f5fbdd11f4eb034e4a33130ef01"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_allocation",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_allocation",
+      "source_line": 10,
+      "source_definition_sha256": "f960bde5b0466acb33ce7fc5e1c0a229530a303fd7eaa3186841588b753c2a19"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_image_info",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_image_info",
+      "source_line": 26,
+      "source_definition_sha256": "cb4d1cf2fa37ce3b894dc12880d5c50e7653c7eb210137711c34af7387cf018d"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_label",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_label",
+      "source_line": 38,
+      "source_definition_sha256": "15b1afaa05d10410907f2b387fe30c229d6707618e12b44dae9369406d4720dc"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_free",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_free",
+      "source_line": 46,
+      "source_definition_sha256": "1ea00854d4c0c4be3ab1155a6677955af226bf22045c9acbdfa74cb87e46dae6"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_snapshot",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_snapshot",
+      "source_line": 48,
+      "source_definition_sha256": "c469380cee1100aadcaf18b440e1f76bc53100d8616f34a05740314dce14beca"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_write_inventory",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_write_inventory",
+      "source_line": 53,
+      "source_definition_sha256": "805adc59f90a3427413c45b52657ab49d83ad4313d0000e7a050a79106360ffb"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "find_allocation",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "find_allocation",
+      "source_line": 95,
+      "source_definition_sha256": "6236da860642172d9877c7111170c9a5ba4c3d27659254a6c1c44c360ca9f614"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_snapshot",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_snapshot",
+      "source_line": 48,
+      "source_definition_sha256": "c469380cee1100aadcaf18b440e1f76bc53100d8616f34a05740314dce14beca"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "update_peaks",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "update_peaks",
+      "source_line": 125,
+      "source_definition_sha256": "e4f971548fd3b07101687fefbf3c93eb8396ae7fc5511f80b04584683067968b"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_allocation",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_allocation",
+      "source_line": 10,
+      "source_definition_sha256": "f960bde5b0466acb33ce7fc5e1c0a229530a303fd7eaa3186841588b753c2a19"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_image_info",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_image_info",
+      "source_line": 26,
+      "source_definition_sha256": "cb4d1cf2fa37ce3b894dc12880d5c50e7653c7eb210137711c34af7387cf018d"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_label",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_label",
+      "source_line": 38,
+      "source_definition_sha256": "15b1afaa05d10410907f2b387fe30c229d6707618e12b44dae9369406d4720dc"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_track_free",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_track_free",
+      "source_line": 46,
+      "source_definition_sha256": "1ea00854d4c0c4be3ab1155a6677955af226bf22045c9acbdfa74cb87e46dae6"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "kind_name",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "kind_name",
+      "source_line": 230,
+      "source_definition_sha256": "46f03095c9b53c96e73369da4ebae47196568e45caf7d277b139efae04e9ca19"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "properties_string",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "properties_string",
+      "source_line": 234,
+      "source_definition_sha256": "7f663f4d04b9e79c4485e9f0cf588d0ee5516044052c1ac124125f81f8797d70"
+    },
+    {
+      "file": "src/render/vulkan_memory_tracker.c",
+      "function": "vulkan_memory_write_inventory",
+      "source_file": "src/render/vulkan_memory_tracker.c",
+      "source_function": "vulkan_memory_write_inventory",
+      "source_line": 53,
+      "source_definition_sha256": "805adc59f90a3427413c45b52657ab49d83ad4313d0000e7a050a79106360ffb"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "count_device",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "count_device",
+      "source_line": 10,
+      "source_definition_sha256": "d63d1d34bbda28310ca5242a13b579da5b21ca2cde26f11f58da58510923f55f"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "read_hex_id",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "read_hex_id",
+      "source_line": 17,
+      "source_definition_sha256": "958c3ae0df14a84c04d2a43710d75576df6bcd1920b3935e7e57609450d1541a"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "gpu_has_connected_display",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "gpu_has_connected_display",
+      "source_line": 59,
+      "source_definition_sha256": "3cab4a26868f6311336c10ee44dc2ee92bfe84a3bcbc6d8504621bfca77cd4d4"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "set_score",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "set_score",
+      "source_line": 144,
+      "source_definition_sha256": "97c5dd4ec550a4933b50625bc081689b6f4898858b9a7c89d55886d6de6e0966"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "createDevice",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "createDevice",
+      "source_line": 166,
+      "source_definition_sha256": "3b549f93f546c9747397c3ff888cbe92d1463fafb56f78ffc8f92b0fe7ad3515"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "find_graphics_present_queue_family",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "find_graphics_present_queue_family",
+      "source_line": 184,
+      "source_definition_sha256": "932c35ef3cb67d08981eb80cb02ac6978679503d876807faed9404798950e2ec"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "device_supports_swapchain_extension",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "device_supports_swapchain_extension",
+      "source_line": 213,
+      "source_definition_sha256": "314bb617b5e09399376b1536769f0e03a276a4d172ccf354d490ddbc9fe834e7"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "device_has_swapchain_surface_support",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "device_has_swapchain_surface_support",
+      "source_line": 246,
+      "source_definition_sha256": "3c91f794665eebabd5bb9b4c69aed2a38078f717c4b03c8a0b6a369ca5f6c6cd"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "device_is_suitable",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "device_is_suitable",
+      "source_line": 259,
+      "source_definition_sha256": "6077cac204f7d0876157e3920ed24666a70680422a327635ad67c7ffe1db641c"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "gpu_available_count",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "gpu_available_count",
+      "source_line": 276,
+      "source_definition_sha256": "700648741b38ca0b2cd943984a9344712be5fafcc8e8007559f7b99f92c88a2c"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "gpu_available_name",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "gpu_available_name",
+      "source_line": 278,
+      "source_definition_sha256": "e061f708065776b97ee9e456e8ed9ca016b9401b8778389127931907f6b1aa75"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "gpu_selected_name",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "gpu_selected_name",
+      "source_line": 284,
+      "source_definition_sha256": "06e7a6bc93ca11d99470f7bd1a2bb213f9f6a364860c50b2c94c1c2497fe1b56"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "gpu_set_preference",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "gpu_set_preference",
+      "source_line": 286,
+      "source_definition_sha256": "3f580138cd096245705c5e3873fe97b6d618244b9d0f61b004e211238682b779"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "device_matches_request",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "device_matches_request",
+      "source_line": 298,
+      "source_definition_sha256": "c0be6107c0119ae06243c56db172cb22452accb37855dc10bd72512102939f2a"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "warn_if_headless",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "warn_if_headless",
+      "source_line": 332,
+      "source_definition_sha256": "c1d14f82e71692c259141bad5dac0a5e9487613c497b0a5e1f1142b2fab4d015"
+    },
+    {
+      "file": "src/render/vulkan_physical_device.c",
+      "function": "select_device",
+      "source_file": "src/render/vulkan_physical_device.c",
+      "source_function": "select_device",
+      "source_line": 342,
+      "source_definition_sha256": "0983ea02423cd81da3d608c8f60d0e07321011eef34211980d84fe5e9b046ea0"
+    },
+    {
+      "file": "src/render/vulkan_pipeline.c",
+      "function": "create_pipeline_for_renderpass",
+      "source_file": "src/render/vulkan_pipeline.c",
+      "source_function": "create_pipeline_for_renderpass",
+      "source_line": 16,
+      "source_definition_sha256": "eb4af687dd564415412bcf86a4e033d8db1d10a70dcd7c6a358413b0951774b0"
+    },
+    {
+      "file": "src/render/vulkan_pipeline.c",
+      "function": "create_pipeline",
+      "source_file": "src/render/vulkan_pipeline.c",
+      "source_function": "create_pipeline",
+      "source_line": 392,
+      "source_definition_sha256": "27cf307f050b6a82f05367abc39982fb1673b01750295f26efc56e09a80050e9"
+    },
+    {
+      "file": "src/render/vulkan_pipeline.c",
+      "function": "destroy_pipeline",
+      "source_file": "src/render/vulkan_pipeline.c",
+      "source_function": "destroy_pipeline",
+      "source_line": 478,
+      "source_definition_sha256": "84ab001716bced331dca98c5f0c516861b54beac1da604e698487e9f2b6ff42a"
+    },
+    {
+      "file": "src/render/vulkan_renderpass.c",
+      "function": "create_renderpass",
+      "source_file": "src/render/vulkan_renderpass.c",
+      "source_function": "create_renderpass",
+      "source_line": 7,
+      "source_definition_sha256": "e4760d9e8ab888be6f6ac2812031c551439c9dc47692b7d2c7c43dc9e3271093"
+    },
+    {
+      "file": "src/render/vulkan_renderpass.c",
+      "function": "destroy_renderpass",
+      "source_file": "src/render/vulkan_renderpass.c",
+      "source_function": "destroy_renderpass",
+      "source_line": 134,
+      "source_definition_sha256": "a4a75da1cce1b3045360c0d7f702d1a1faae5b0bd25c09795c9cd23c9b1782c2"
+    },
+    {
+      "file": "src/render/vulkan_shader.c",
+      "function": "load_shader",
+      "source_file": "src/render/vulkan_shader.c",
+      "source_function": "load_shader",
+      "source_line": 5,
+      "source_definition_sha256": "063860407883563438e7d94159ec17be8060a550ded60bbd56d96f9ae5780fa9"
+    },
+    {
+      "file": "src/render/vulkan_surface.c",
+      "function": "create_surface",
+      "source_file": "src/render/vulkan_surface.c",
+      "source_function": "create_surface",
+      "source_line": 9,
+      "source_definition_sha256": "816e472251609049da15c4cda7592de2ee2c0204639064d3bc496b047cb3777b"
+    },
+    {
+      "file": "src/render/vulkan_surface.c",
+      "function": "destroy_surface",
+      "source_file": "src/render/vulkan_surface.c",
+      "source_function": "destroy_surface",
+      "source_line": 20,
+      "source_definition_sha256": "31e6520f5905837620b87908e52161cea0387bd71f09dc348b30ac665b37ae21"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "choose_present_mode",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "choose_present_mode",
+      "source_line": 28,
+      "source_definition_sha256": "12901240c555fd3a6b790900e8f6441702ee07e3ad6521b2d7d282cb3456063f"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "create_swapchain_info",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "create_swapchain_info",
+      "source_line": 70,
+      "source_definition_sha256": "a5713f39cc2b6a6959cdd78afe6c44ab2a7034da5dd1032149842046cc19fd08"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "create_image_views",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "create_image_views",
+      "source_line": 139,
+      "source_definition_sha256": "8e2d8cfe4fd5c83c1eb90a8ccd080f60aaa373a86c86de6a5751c318f90ebca7"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "create_swapchain",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "create_swapchain",
+      "source_line": 177,
+      "source_definition_sha256": "0837ebc2c48fa8f523cc93cd1b94f67a0a16ee57c5421a77a4263830a640b94c"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "destroy_swapchain",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "destroy_swapchain",
+      "source_line": 239,
+      "source_definition_sha256": "07601b98596f9dfe619b3a19af6ccad4db6dffad515ee0162f47e55246835362"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "recreate_swapchain",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "recreate_swapchain",
+      "source_line": 261,
+      "source_definition_sha256": "bfccbff440d6b428b884482d341d927b78eca427e679278dbfaabea8e86236e8"
+    },
+    {
+      "file": "src/render/vulkan_swapchain.c",
+      "function": "vsync_toggle_and_apply",
+      "source_file": "src/render/vulkan_swapchain.c",
+      "source_function": "vsync_toggle_and_apply",
+      "source_line": 332,
+      "source_definition_sha256": "ad9fa4c5163f507bbd2095a9b8720742f6dc065ba82ac0e8f7e38d013864d0eb"
+    },
+    {
+      "file": "src/render/vulkan_sync.c",
+      "function": "create_sync_objects",
+      "source_file": "src/render/vulkan_sync.c",
+      "source_function": "create_sync_objects",
+      "source_line": 7,
+      "source_definition_sha256": "21d72fb3dd76ed3ea0012488803827e02c055e06be0e8e759fa33e0a7cf63f7c"
+    },
+    {
+      "file": "src/render/vulkan_sync.c",
+      "function": "sync_resize_swapchain_objects",
+      "source_file": "src/render/vulkan_sync.c",
+      "source_function": "sync_resize_swapchain_objects",
+      "source_line": 54,
+      "source_definition_sha256": "2553bc71a0c2e5f350bb3aab8944d11fb579bcecb1b0fb78261062124f7eebf6"
+    },
+    {
+      "file": "src/render/vulkan_sync.c",
+      "function": "destroy_sync_objects",
+      "source_file": "src/render/vulkan_sync.c",
+      "source_function": "destroy_sync_objects",
+      "source_line": 101,
+      "source_definition_sha256": "6da2e148f7d5dd58ef4c4756b5dfa92a6bc776baaf3a0a992320bed9b984b612"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "transition_image_layout",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "transition_image_layout",
+      "source_line": 15,
+      "source_definition_sha256": "6e605dc5ff7a370f22e95462b3c203a506403113c12d45ddbeaaf8ce42e83748"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "copy_buffer_to_image",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "copy_buffer_to_image",
+      "source_line": 71,
+      "source_definition_sha256": "a34d49928aba11ec8f5cd0c3d2d64d97e059a95f768244cac90899ad82192e70"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "mip_levels_for",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "mip_levels_for",
+      "source_line": 107,
+      "source_definition_sha256": "251487807d625e743da5c8559d8b0c72d7a8425a1584eac41bea9a6659b8f938"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "generate_mipmaps",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "generate_mipmaps",
+      "source_line": 129,
+      "source_definition_sha256": "f0a827fd7802c40912f68bb3e45918610431d7b7dc814ffb44c6cbb99f08bed8"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "create_image",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "create_image",
+      "source_line": 182,
+      "source_definition_sha256": "aeafefd9101b2a777aef182c9d6ac3ed3b74f336fa5ea34b7050c13a0e0971ec"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "create_view",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "create_view",
+      "source_line": 259,
+      "source_definition_sha256": "fabfb422b7dfb33aacd9679b25d40e44471a2c8428709cb7e2b3c7181848e62e"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "create_sampler",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "create_sampler",
+      "source_line": 282,
+      "source_definition_sha256": "21101a49741ce2c3ebcc2820868e06305e29fbeb372b260f375d735346317ba6"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "load_texture_internal",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "load_texture_internal",
+      "source_line": 331,
+      "source_definition_sha256": "4ce773b0660e6af0fd44f1e34c7ecaa51aa35b8e80580e26187e60ea3110a330"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "load_texture",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "load_texture",
+      "source_line": 423,
+      "source_definition_sha256": "ffca884b3675bd36f4e6565ed3a0a917414e06ce4786c7e8381b54e3ec3c7d73"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "load_texture_tiled",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "load_texture_tiled",
+      "source_line": 439,
+      "source_definition_sha256": "9c7efebc67577b486b6787265bd2b9ead112cea9403684dcb6142f3522fc95c8"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "destroy_texture",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "destroy_texture",
+      "source_line": 444,
+      "source_definition_sha256": "e01c711b9b706e4dc049e4d5159dc2be9bc4fd37489a5f73b8d9d8665647656b"
+    },
+    {
+      "file": "src/render/vulkan_texture.c",
+      "function": "set_texture_address_mode",
+      "source_file": "src/render/vulkan_texture.c",
+      "source_function": "set_texture_address_mode",
+      "source_line": 472,
+      "source_definition_sha256": "d5abd0e5c3f98bd6326a795b2372423a124014cf2a3caa9b91743717f7782214"
+    },
+    {
+      "file": "src/render/vulkan_uniform_buffer.c",
+      "function": "create_ubo_camera",
+      "source_file": "src/render/vulkan_uniform_buffer.c",
+      "source_function": "create_ubo_camera",
+      "source_line": 10,
+      "source_definition_sha256": "cf7fff61e7399908980cd50f58aec7098e2d933d9139676d6f909a3335cf8732"
+    },
+    {
+      "file": "src/render/vulkan_uniform_buffer.c",
+      "function": "update_ubo_camera",
+      "source_file": "src/render/vulkan_uniform_buffer.c",
+      "source_function": "update_ubo_camera",
+      "source_line": 27,
+      "source_definition_sha256": "dd0a9316255badff662893595f4d666da293d59adb3a3586d3dc4b53e92b7f47"
+    },
+    {
+      "file": "src/render/vulkan_uniform_buffer.c",
+      "function": "destroy_ubo_camera",
+      "source_file": "src/render/vulkan_uniform_buffer.c",
+      "source_function": "destroy_ubo_camera",
+      "source_line": 33,
+      "source_definition_sha256": "1faa4857003be03d76cb794c40acb8ca3836a7ef79ec40e9354137a769e1301a"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "vertex_capacity_bytes",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "vertex_capacity_bytes",
+      "source_line": 15,
+      "source_definition_sha256": "53c18db50b1a420e86aeaccb84ca5e73e8ba7160dbc43372c45733f9ddeba490"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "destroy_storage_set",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "destroy_storage_set",
+      "source_line": 24,
+      "source_definition_sha256": "1903390c5230208d34c13d70eb5180c22ebdc2760997fba366dcd2242e8309c0"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "create_storage_set",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "create_storage_set",
+      "source_line": 48,
+      "source_definition_sha256": "48a616c092e328a121696aba5f5e2eb19ff2cfd6b3484cc1324c38473a64d4c4"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "wait_until_storage_is_unused",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "wait_until_storage_is_unused",
+      "source_line": 85,
+      "source_definition_sha256": "b75be9eb62bac79207cf4ea41d2121b27bd7cd688190cc42857335d1e74f60ba"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "grow_vertex_buffer",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "grow_vertex_buffer",
+      "source_line": 110,
+      "source_definition_sha256": "85169e09eee3a5de100898b1b4e1c92246f4e0061d950f2bb25d93dcfc29e612"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "vertex_buffer_record_upload",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "vertex_buffer_record_upload",
+      "source_line": 187,
+      "source_definition_sha256": "0b7f5048c4a1d7be187a689b083ebccbce863c9400c80035673743d9fb554f74"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "create_vertex_buffer_ext_limited",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "create_vertex_buffer_ext_limited",
+      "source_line": 233,
+      "source_definition_sha256": "ed75652a6695b853e2a1eb21e1d474aa1685be729b46089028af8eea2080e32e"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "create_vertex_buffer_ext",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "create_vertex_buffer_ext",
+      "source_line": 270,
+      "source_definition_sha256": "01c5b505d9db21c2017a320a90e559898c9fe2a2c91c7b0b59de6855ba9f1f8a"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "vertex_buffer_prepare",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "vertex_buffer_prepare",
+      "source_line": 277,
+      "source_definition_sha256": "1eff12e1934b49e82b5b2475acfcbc78a6163e11c9a1a2fd3bc02e917e071fb7"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "vertex_buffer_stage_range",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "vertex_buffer_stage_range",
+      "source_line": 306,
+      "source_definition_sha256": "161b537967ace650102b59d6d3e9797c6082936ed5dcbe8cf8dddb00e68dff68"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "update_vertex_buffer",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "update_vertex_buffer",
+      "source_line": 357,
+      "source_definition_sha256": "0e4e1afe23ba5a1e5a557f48cb2ab668036d9983ac834ed9957855e7952b92f6"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "vertex_buffer_begin_frame",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "vertex_buffer_begin_frame",
+      "source_line": 370,
+      "source_definition_sha256": "8a79200d3acd91de736c989b8d6d7a94e4151dc723eda434ae77d41955d48006"
+    },
+    {
+      "file": "src/render/vulkan_vertex_buffer.c",
+      "function": "destroy_vertex_buffer_ext",
+      "source_file": "src/render/vulkan_vertex_buffer.c",
+      "source_function": "destroy_vertex_buffer_ext",
+      "source_line": 378,
+      "source_definition_sha256": "968bfe1fae1a175e3c7a35c0107a60fd0b04a7b82efe7670605b110d6554d17c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_push_id",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_push_id",
+      "source_line": 46,
+      "source_definition_sha256": "7f1e36e16f0b5614d2931a468a1eaa5d68bfbbd972549cf3f767f0c7569c491a"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_pop_id",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_pop_id",
+      "source_line": 58,
+      "source_definition_sha256": "6b6524b3059d0a780390b0d7d8ac4e97934d56a551325ba5bdcc69714bc268d3"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_scoped_id",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_scoped_id",
+      "source_line": 68,
+      "source_definition_sha256": "5a4bb8479e4eeebed232d78947aae7341af8488f5f3b6a18c6dbdff21f5d5c9e"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_hash_id",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_hash_id",
+      "source_line": 90,
+      "source_definition_sha256": "a7be0cdc71414cf8a2de68834baf803bfc5ba8baa52059784b35bce61b58e190"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_pointer_hit",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_pointer_hit",
+      "source_line": 165,
+      "source_definition_sha256": "c43d3c4c704d08aa6ccf73a8c38b54dcbda141fa36a19916b9d40be516c9a797"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_pointer_blocked_by_modal",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_pointer_blocked_by_modal",
+      "source_line": 170,
+      "source_definition_sha256": "f896813c467128c0338666bf431dc3fd340323df2e63fc2d2972966c40631eb5"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_srgb_hex",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_srgb_hex",
+      "source_line": 212,
+      "source_definition_sha256": "910afb3883d33c728109eeaa7690194fbe2c72c686cebba583287992e31efca2"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_color_srgb",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_color_srgb",
+      "source_line": 219,
+      "source_definition_sha256": "8504eb962dce26f0aa764061b2aff825338f0810ac4fcc25698dcc40c7ddf488"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_theme_dark",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_theme_dark",
+      "source_line": 221,
+      "source_definition_sha256": "d354e1861930f04155b1ae1246485ffa01781f262235cfd1894c5dbd102dc1f4"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_theme_light",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_theme_light",
+      "source_line": 270,
+      "source_definition_sha256": "fd21bd9d5d12d0d755aaca1b9b56f9c8936d03c533d5327782599d11833af554"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_theme_warm",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_theme_warm",
+      "source_line": 307,
+      "source_definition_sha256": "424b6485b2af3029ea451420a067c6cf5bcde69d7eff9b4926c84aafb43d7c12"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_set_theme",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_set_theme",
+      "source_line": 342,
+      "source_definition_sha256": "49c8ef7a34dae6d96ddeac14943495e4b8adc02d36230a8dbfddb2fe371bf603"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_get_theme",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_get_theme",
+      "source_line": 347,
+      "source_definition_sha256": "c191cd8fb7b5d2e754ffd3e4538b940a58e4002fd04729aac3bce39f4d045e98"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_set_feedback",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_set_feedback",
+      "source_line": 357,
+      "source_definition_sha256": "79ff8109abbeda2b9e9531ae15a8fd7840b0a1930647a4b0dd9c98f516ffed7f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_feedback_frame",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_feedback_frame",
+      "source_line": 363,
+      "source_definition_sha256": "837fc983ad2ad215b89a40002c80a4f3533c9f6608c7765c19d40c53a3c2a2f5"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_begin_frame",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_begin_frame",
+      "source_line": 386,
+      "source_definition_sha256": "5ecf411053f814386381318faee483edae69dd26a3d8ded8fb40d23850591f3f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_consume_escape",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_consume_escape",
+      "source_line": 477,
+      "source_definition_sha256": "9a70eee33d301ad5014da58c81580cdfb68fefaa90a3ddec747dd223377e6e3b"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_set_scroll_delta",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_set_scroll_delta",
+      "source_line": 484,
+      "source_definition_sha256": "977615e5cd13a08d46b083025cfc8b86892966e36b845d8efc4f4df2ce20c847"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_scroll_delta",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_scroll_delta",
+      "source_line": 489,
+      "source_definition_sha256": "c42584fe7623eae6879aa1b3a7a9b45e72a5d63cbf2c1887aace6e2e33277e28"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_consume_scroll_delta",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_consume_scroll_delta",
+      "source_line": 490,
+      "source_definition_sha256": "81dce2317b929c24f692571fc071a95a41e66cb99029c24b8fa1736138e3e634"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_notify",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_notify",
+      "source_line": 496,
+      "source_definition_sha256": "e14abaadaab9e505dc82f07b3ed158b8cdd97910d62730f62eaf244f50495e5a"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_set_notification_top",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_set_notification_top",
+      "source_line": 518,
+      "source_definition_sha256": "baf28b2574e078ae2084fec8de88a976cb236341dd78e00b9714e681ac00ec9f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_draw_notifications",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_draw_notifications",
+      "source_line": 520,
+      "source_definition_sha256": "a296a77ea744c228a9ebe2fc61e83646e109f0d2232fffeca8af89932f9a55a8"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_mouse_position",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_mouse_position",
+      "source_line": 554,
+      "source_definition_sha256": "bb0c1a74b95510c4c0af34defa9e6f87a828b68355874af4c840520dbf753ef9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_mouse_down",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_mouse_down",
+      "source_line": 556,
+      "source_definition_sha256": "17d589af613c8863a7c6e9c8a2520a67968e929d2913a7bbb67c770d8cf120f3"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_end_frame",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_end_frame",
+      "source_line": 558,
+      "source_definition_sha256": "e84dc8a1352a5cbcacd8dfc442614f471f71874f2f75dca3d73a4981c7362a4c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_input_regions_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_input_regions_begin",
+      "source_line": 567,
+      "source_definition_sha256": "8278f61d00bb14fac0be387e97fa745263b0fa8d3f615e73ffe0847713ea72b6"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_input_region_register",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_input_region_register",
+      "source_line": 569,
+      "source_definition_sha256": "22baaeb69facec4783f8cec94b5c3a69f60aa3e1f00a34554eb5cda6be81f242"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_input_region_contains",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_input_region_contains",
+      "source_line": 583,
+      "source_definition_sha256": "b66bff53419a59ca5ea0ecc597643a5b4903bc3cf7bbe9065a2bd41ab73895fc"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_clip_push",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_clip_push",
+      "source_line": 594,
+      "source_definition_sha256": "df94b772f76bb2ec991e46aee18de6a476bfea15f171791da52a98099a4e910d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_clip_pop",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_clip_pop",
+      "source_line": 600,
+      "source_definition_sha256": "e16a8b38ca9db3d307b0527ae77b81a4a19b905178e58d609dd408a8b55a7ae3"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_clip_depth",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_clip_depth",
+      "source_line": 604,
+      "source_definition_sha256": "427d33eec924eabffc3194e5ad2a634665a0784fb07816a4bf083686cb6e2736"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_input_region_count",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_input_region_count",
+      "source_line": 606,
+      "source_definition_sha256": "a7aa6a816fabb52c9333a25dbf60a980afc3e84d7f519ae1179d00d6b91ad985"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_input_region_at",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_input_region_at",
+      "source_line": 608,
+      "source_definition_sha256": "eb29415207322dcd30c11b8da1616bf026e8b13eeef3ceb533474a8c851e243c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_any_hover",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_any_hover",
+      "source_line": 616,
+      "source_definition_sha256": "bec824d2264953fc129e987d6735428e064dc9e763279ba7bfabdc928b212060"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_state",
+      "source_line": 621,
+      "source_definition_sha256": "219e1de8156b98fcb27c1c1394a298f90b890091d8eee272911e5691ca26424d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "point_in_rect",
+      "source_file": "src/render/ui.c",
+      "source_function": "point_in_rect",
+      "source_line": 671,
+      "source_definition_sha256": "1f8aaf15cdf03f721602a283cce3f69d366895dae1c4ef30e567444d3fdeb653"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "lerp",
+      "source_file": "src/render/ui.c",
+      "source_function": "lerp",
+      "source_line": 676,
+      "source_definition_sha256": "e399369065fdb3793871430abda3a27284cbbcaf5493a30e4ceb9b5660d10f5d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_humanize_label",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_humanize_label",
+      "source_line": 686,
+      "source_definition_sha256": "71e54dedfc30c9589afb6a1f5b89a75b90d5d56d828b5233eb667e1f82511c9a"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_ellipsize_left",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_ellipsize_left",
+      "source_line": 734,
+      "source_definition_sha256": "617edd9b2cd241fd8b1c417ba8a958435379af96b9b028fe19cd505f893c9479"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_ellipsize_right",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_ellipsize_right",
+      "source_line": 750,
+      "source_definition_sha256": "572a8816964b648edbfc64e92bb7ee661727ff4ac582f697ad705d44f78d5e5a"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_button_height",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_button_height",
+      "source_line": 770,
+      "source_definition_sha256": "e8fd8d051bc70cb7144f56d9cb6698bd3ed3136f451f1e6baa14a7be89e2938c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_button_labeled",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_button_labeled",
+      "source_line": 782,
+      "source_definition_sha256": "4be90e4682e0fa26fd10b6d078eb9a1f71c55ca9beed015af8352e1c4449445b"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_checkbox",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_checkbox",
+      "source_line": 985,
+      "source_definition_sha256": "509eaa9e6a2c711960179624dade090a2c3d90ed92181d66ae76ccf2a43b4c89"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_toggle",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_toggle",
+      "source_line": 1083,
+      "source_definition_sha256": "b8a302b5e6948f830e01a129de438e9804185362e00bcef2e2aac5b6ebcbce9f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_button_styled",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_button_styled",
+      "source_line": 1104,
+      "source_definition_sha256": "7e188aa655823fa710d0caee6f1954b44b68175d987d9c3ef0dee581910195dc"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_panel_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_panel_state",
+      "source_line": 1134,
+      "source_definition_sha256": "ec55cffb31f9314dc6122d11658024e5c4c05906e7fdd5425db8ddaa2c469d92"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_collapsible_header",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_collapsible_header",
+      "source_line": 1168,
+      "source_definition_sha256": "8cec4ce80db9b2d6e642c7ec3a0ea642aecaf1f84e8df4aaa6c89814c32c1cb8"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_copy_items",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_copy_items",
+      "source_line": 1245,
+      "source_definition_sha256": "ce07c42640c5692a8bfdcd10610bfc2c149c0bd4a3e83076425557ea110599e1"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_close_from",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_close_from",
+      "source_line": 1272,
+      "source_definition_sha256": "d4b04adcbc42c81b46696ce6410ed408b081e84d07ca0bd166689fcb0e813ed9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_close_hierarchy",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_close_hierarchy",
+      "source_line": 1285,
+      "source_definition_sha256": "3ffdb427602796ee856054516a57392e20b892e439a5087fd475abf44723f82e"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_hierarchy_is_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_hierarchy_is_open",
+      "source_line": 1286,
+      "source_definition_sha256": "2d5bc0b0c593aa2152292d463638f879a6f23f78f1bf4a4665bf5178003ce4ec"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_open_root",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_open_root",
+      "source_line": 1288,
+      "source_definition_sha256": "29f1fe9bed661b2291f9d97ace7777c53e06dcd0a88250e8ff2de101e2fcf2c1"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_begin_frame",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_begin_frame",
+      "source_line": 1306,
+      "source_definition_sha256": "4f4c380e00aea4d125c220fdb182ade12391eed9f8dd61dfe3f45594e59cecf2"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_precheck_click",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_precheck_click",
+      "source_line": 1314,
+      "source_definition_sha256": "b2f0f7df3267b107d32a120b7ee4f55ee9a18a66583dd14b8643918ded19b6be"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_submit_submenu",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_submit_submenu",
+      "source_line": 1318,
+      "source_definition_sha256": "7aa23688cd3ffc627e08b097f025c7340f7e428057fbddc8cc65701abe762ade"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_find_submission",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_find_submission",
+      "source_line": 1355,
+      "source_definition_sha256": "fb3e253b2e8870efcfc92a8f22b5bd55626285d076410dc6daaca6b0e6312e95"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_open_context",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_open_context",
+      "source_line": 1368,
+      "source_definition_sha256": "d04f1bbd29ea79d93c8620f8111a039015d188c77afee06f4f7e68138279db89"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_take_action_id",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_take_action_id",
+      "source_line": 1374,
+      "source_definition_sha256": "8ed72ca5bfe79a78c351849523891fdc19fb529ee2e05cc75ec1d0f468b19ebe"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_bar",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_bar",
+      "source_line": 1382,
+      "source_definition_sha256": "d8b600b6c8c0295f645e8878de46666f29d177e7d0ba49a9106aa04775f57c7f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_row_height",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_row_height",
+      "source_line": 1429,
+      "source_definition_sha256": "f1264f40d8d9e1dea674bc5e71cec1c8aec909d4fc3416da9c81336b37d6af2e"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_place_level",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_place_level",
+      "source_line": 1436,
+      "source_definition_sha256": "5be5cd61fc6c585e44834f9c078c8345154c72d2271d0a275c18f46427d14c16"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_item_rect",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_item_rect",
+      "source_line": 1477,
+      "source_definition_sha256": "bfef0cdb9757242164b17d75f863e86f043eeb6690c516cbb4d7ac62fa7e1ff1"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_open_child",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_open_child",
+      "source_line": 1486,
+      "source_definition_sha256": "51f00ec50d3032276b6308664885cac9711ce1bc44d0df098528c4dc4d0c384c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_render_overlay",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_render_overlay",
+      "source_line": 1530,
+      "source_definition_sha256": "0709e60f41e69b685296792a430c9ac45daff148f22ace2f7192bebfd52104f9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_menu_get_diagnostics",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_menu_get_diagnostics",
+      "source_line": 1670,
+      "source_definition_sha256": "b61eedfcda539053a02c5c5abef1cb0725f1814f07012699e7549ff262e1a7ff"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_float_field_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_float_field_state",
+      "source_line": 1709,
+      "source_definition_sha256": "cc5b5906708700a0f24cddc41a2da05185742642848e1dda9799b5d3ecdd06f8"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_float_key_pressed",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_float_key_pressed",
+      "source_line": 1736,
+      "source_definition_sha256": "ce600694456e208f9baa1e91b6d9c176407961b0a2c581a6fefc71edb0e2f414"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_parse_float_clamped",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_parse_float_clamped",
+      "source_line": 1744,
+      "source_definition_sha256": "550e9919f11a0b23c8274505f1c62cf25966760ef449b9fd6fb9955d2656489c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_parse_int_clamped",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_parse_int_clamped",
+      "source_line": 1759,
+      "source_definition_sha256": "daf65ecc06579548088f842904848e048c7b8f0ea04d8eb80b49c71fb52344bd"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_float_insert",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_float_insert",
+      "source_line": 1773,
+      "source_definition_sha256": "35f6079dbe543b29be40435de7d5732ace984bfdf95e753882fee6228614c88d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_float_field",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_float_field",
+      "source_line": 1781,
+      "source_definition_sha256": "3ba36c1f87febcb247af8f7758c01a14d464b0a442bd07e902bc05f27b98aa00"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_any_slider_dragging",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_any_slider_dragging",
+      "source_line": 1855,
+      "source_definition_sha256": "b169b41709f9530f98e5b50d358188afeae57d7b977a72e5d61079b325c6bde5"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_release_stale_slider_drags",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_release_stale_slider_drags",
+      "source_line": 1860,
+      "source_definition_sha256": "919a7b6c460d8907f835fb1dc1ad5f312707dc3f1098f3b79b493985af9c9bc6"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_slider_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_slider_state",
+      "source_line": 1866,
+      "source_definition_sha256": "025e154cabfbd5b883f0c598b5466b542eceab52e51e09fd031803aaf5dc251e"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_slider",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_slider",
+      "source_line": 1919,
+      "source_definition_sha256": "8fddbba9e5ef5786f128166a59a535bf27f3fe6860ad63a6789e1984c8f70e64"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_slider_is_dragging",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_slider_is_dragging",
+      "source_line": 2080,
+      "source_definition_sha256": "77c0efae9047e7a05e53b8dd67bba3a39790f766844821187054017d847a77cd"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_layout_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_layout_begin",
+      "source_line": 2089,
+      "source_definition_sha256": "75a79ccc8e0bc9800ff8e6cf262b06b1048a28ac878e0b1b1a16684685f6ca08"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_layout_commit",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_layout_commit",
+      "source_line": 2104,
+      "source_definition_sha256": "35c47d5c1237d440e88fe073412e8ce675bb70d33e489397afe82b37baa98717"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_begin",
+      "source_line": 2109,
+      "source_definition_sha256": "26df97fd9b0a1ffdb6dbbc136be52e7abf63856bded682640dc562ff0e50ab92"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_end",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_end",
+      "source_line": 2120,
+      "source_definition_sha256": "51db6176ab268249391a821133b7514fc93f447f880d92cd01c76e93665a7c07"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_next_row",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_next_row",
+      "source_line": 2122,
+      "source_definition_sha256": "b5018ff3c31f3fc6cedb8a95488ceb0845f90face2938ce5b9fbabba44f7b7fa"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_space",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_space",
+      "source_line": 2129,
+      "source_definition_sha256": "8ea5a2771b055deaa32f79b202f1c935849959ea34c001708f108cdc4a40b1c4"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_indent",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_indent",
+      "source_line": 2133,
+      "source_definition_sha256": "0c31af70352b0dadf81d546c503c4700235e68eb73484e24fd4318cf3a224519"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_begin_nested",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_begin_nested",
+      "source_line": 2137,
+      "source_definition_sha256": "a62f2c28473a3f6d87c17b98076a2c08a95e5cefe5580da5f6b5b34164b10e2d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_layout_end_nested",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_layout_end_nested",
+      "source_line": 2147,
+      "source_definition_sha256": "63986532ee4f4076e3a3e59811a5854eb6daf570c820513f89dda582cff54956"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_row_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_row_begin",
+      "source_line": 2149,
+      "source_definition_sha256": "232fcfaf83b9fc09117810233a43b1028902e2ad9b21ecc5e052573bddff2b70"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_row_next",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_row_next",
+      "source_line": 2157,
+      "source_definition_sha256": "226a0b257beb0c490ede899d4042726e7aad7d06b0f67dad2f9ad6e1ae1fcfdd"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_section_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_section_state",
+      "source_line": 2167,
+      "source_definition_sha256": "4240f229ee37113a43a86cd84bc08269cd1f5417ed6a79cecc4d833fe475ba85"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_section_begin_collapsed",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_section_begin_collapsed",
+      "source_line": 2206,
+      "source_definition_sha256": "32b71f91202aa45abd598287713a2b0f1e10da9e0d373eaef84515ac87b33d00"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_section_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_section_begin",
+      "source_line": 2214,
+      "source_definition_sha256": "4fa0393735016f083599e5c1bc9bb369b623ee2fb4d7becafecfe0690ddfde76"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_section_end",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_section_end",
+      "source_line": 2255,
+      "source_definition_sha256": "d277c41185cc78feeefa641475648b3dc56fe9dca3c6358abdd3041797e41292"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_scroll_wheel_allowed_for",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_scroll_wheel_allowed_for",
+      "source_line": 2270,
+      "source_definition_sha256": "49a18005866797aedae7b172315cd0b615068a13a8b59dca565dccd6a464596b"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_scroll_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_scroll_begin",
+      "source_line": 2284,
+      "source_definition_sha256": "fc6b415a0aae08ef9448dfbb7bf9c064c3f3158ddb23f8c8018f93a3fc31085f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_scroll_end",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_scroll_end",
+      "source_line": 2338,
+      "source_definition_sha256": "f62d43f573f454e86ca1b9abc86e160463204b07f9a67c4ee7c6f38b9cd42f00"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_scroll_get_diagnostics",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_scroll_get_diagnostics",
+      "source_line": 2362,
+      "source_definition_sha256": "295f74bd68ab32c1449e1761ff2204da69dc958792c32c6d3f0fff530e407d7c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_panel_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_panel_begin",
+      "source_line": 2387,
+      "source_definition_sha256": "e87fd2bcea64a892e3e2c5afaecd073e72d1cbce50a9e4075e5ad704e78ab38b"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_panel_end",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_panel_end",
+      "source_line": 2420,
+      "source_definition_sha256": "dfb7900abb990eb6ea59c057a830852dd71a479e9638bfba93d2cab56a6b7198"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_layout_next_row",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_layout_next_row",
+      "source_line": 2424,
+      "source_definition_sha256": "ff3df8df4d47a85c76ab5d9847fdc295a2dd280ba168b6a4d21b0e3fec451162"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_layout_gap",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_layout_gap",
+      "source_line": 2431,
+      "source_definition_sha256": "9614d43dd1b95645e230a65590d3a77b286757195f4045c0d6886b228c7d14a9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_label",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_label",
+      "source_line": 2435,
+      "source_definition_sha256": "0b8d0a38219108bd7a89baafecd6f7daf120df463483d17c5b3f1a16513946c6"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_value",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_value",
+      "source_line": 2454,
+      "source_definition_sha256": "0fb35288e192d2494958fbd7872dd27fa5318a1a4961f4d4b0dc40bab9dd2da5"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_note",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_note",
+      "source_line": 2472,
+      "source_definition_sha256": "e8ecc022e0349ca9402d74fc61463d88f86582a224690772c09e579c7387e8ce"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_float",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_float",
+      "source_line": 2487,
+      "source_definition_sha256": "873788ee87adf94e020678b7e0cc2fdaaca6b6cf95753e329b072b1e56ea6e85"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_int",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_int",
+      "source_line": 2500,
+      "source_definition_sha256": "88dd1e628537cd700f93d2f8593a51480a508488f19e55df1c01454c48eff816"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_vec2",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_vec2",
+      "source_line": 2510,
+      "source_definition_sha256": "fb8e2b20e20931fad1a22c70bf36118009a2097859bf86d3de8f2a3963e9480c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_slider",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_slider",
+      "source_line": 2529,
+      "source_definition_sha256": "ac9ff0504cab70218cf6dadb937da9e92762349eb8bb1a967be665115b2274c0"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_toggle",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_toggle",
+      "source_line": 2539,
+      "source_definition_sha256": "5d9cb4a2ffa197ec7f7053658ac9132f77c97b58b41dd287d8c4f846794595f2"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_checkbox",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_checkbox",
+      "source_line": 2548,
+      "source_definition_sha256": "66be4dc6ecce9f667780999c15074fa67b2c893ce6e282197e931b6b21d3c3c4"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_dropdown",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_dropdown",
+      "source_line": 2556,
+      "source_definition_sha256": "9ee9b31599a58cbc914cc53ab6dc7c0b6e1d030ee29ff2968ca980e487a35260"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_text",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_text",
+      "source_line": 2571,
+      "source_definition_sha256": "8c6b1c33fb963b3b405b867028b742dbc53fdd0ab779b3a9eed366fb69510f1c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_action",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_action",
+      "source_line": 2586,
+      "source_definition_sha256": "d2720651973378cbd714e73cf2caf0a25d38d6754b490dbc5c3ac47edece641d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_action_row",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_action_row",
+      "source_line": 2598,
+      "source_definition_sha256": "827618bf297209d4e8196f5aa7f314e9afbe5a1fec93fa0b43e76059dc1b22fb"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_property_asset",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_property_asset",
+      "source_line": 2617,
+      "source_definition_sha256": "79abede11b0031e54d908390c0f73bf69b798e8e922772533b8aa636c0527b11"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_text_input_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_text_input_state",
+      "source_line": 2675,
+      "source_definition_sha256": "5183707b3cc38035c7fdfa12f18c94a6e1862f8bba9b44c1c528860332770b25"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_text_input_is_focused",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_text_input_is_focused",
+      "source_line": 2713,
+      "source_definition_sha256": "29c2012fb30e74ae8a731325fdf3357c79ed295ca6c04f4fbd73f61fc195ba23"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_any_text_input_focused",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_any_text_input_focused",
+      "source_line": 2727,
+      "source_definition_sha256": "80e8591f81aa39f2701a5fbab02c6b1e1040acde6bbce6bbb6cd0d11ec9f8ed9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_text_input_focus",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_text_input_focus",
+      "source_line": 2735,
+      "source_definition_sha256": "291e0c7fed44865ae238486cf805cbb757e9e38525c7386db6aa9461bb30b379"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_text_insert",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_text_insert",
+      "source_line": 2741,
+      "source_definition_sha256": "4b7ded36a537be7822c21ea254f61d3f98d4a1a259221139c10216815fedc5b9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_text_input",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_text_input",
+      "source_line": 2751,
+      "source_definition_sha256": "85e3797d8b0b4315488a73b78d7ddde26f6b0e53612307fdd4c389637c16379f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_close_all_dropdowns",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_close_all_dropdowns",
+      "source_line": 3024,
+      "source_definition_sha256": "d93bda689865e3fe42de353c8ce5e24afcc4d0a8161e4eb5924435b2bd5c8532"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_reset_dropdown_popup_pass",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_reset_dropdown_popup_pass",
+      "source_line": 3030,
+      "source_definition_sha256": "5ca2cb1a6d86e826820fd926aca0daa52d2172a37c68366abbca5d3d6b4504b7"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_precheck_dropdown_click_priority",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_precheck_dropdown_click_priority",
+      "source_line": 3051,
+      "source_definition_sha256": "9dceb8b41c1a8a0ee726c0ef505214994f06751332dae76f6c4778a815712a33"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "find_or_create_dropdown_state",
+      "source_file": "src/render/ui.c",
+      "source_function": "find_or_create_dropdown_state",
+      "source_line": 3073,
+      "source_definition_sha256": "84b6ea9a351703986c89ffbc0fd663157a620dd093cce03d2be1587ea319f962"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_dropdown_set_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_dropdown_set_open",
+      "source_line": 3122,
+      "source_definition_sha256": "90f24261ef54009461a70a151aa72b1cef634f271ca10bd3c28c813f3f6a8583"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_dropdown_list_top",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_dropdown_list_top",
+      "source_line": 3143,
+      "source_definition_sha256": "f91f8330c56646e3e0f50093b1177e5065e6353f3f57654ebe88bd223c3e6b27"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_dropdown_visible_rows",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_dropdown_visible_rows",
+      "source_line": 3174,
+      "source_definition_sha256": "05a43e854efbaa74d452e895186a82843d9959c0dc8f1273f0c339d360b891f9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_dropdown_is_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_dropdown_is_open",
+      "source_line": 3199,
+      "source_definition_sha256": "182b7f2c3cb597db675b870aeeef69c9e26d36e804d8f5a8f92fe75019103bac"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_any_dropdown_is_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_any_dropdown_is_open",
+      "source_line": 3207,
+      "source_definition_sha256": "7326792c4f987b947556fbe05d7a737131c2d3329b7f06a4245945cea46e9a3e"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_dropdown",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_dropdown",
+      "source_line": 3215,
+      "source_definition_sha256": "78355fc94da184ea63951aa24544f49fe66809df323ebf760af9e6832195ce27"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_draw_one_dropdown_popup",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_draw_one_dropdown_popup",
+      "source_line": 3490,
+      "source_definition_sha256": "d80633bda880fc50301b11b8d53c2bb508f9e8376fdd6fd54fd8596fde6f9d58"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_draw_dropdown_popups",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_draw_dropdown_popups",
+      "source_line": 3557,
+      "source_definition_sha256": "f7ad61a7bd354e2b7bb40641e655e27f15f5a50c4e153b06e1030095e9e1a66c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_release_input_capture",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_release_input_capture",
+      "source_line": 3582,
+      "source_definition_sha256": "2d62af6e11bb0cda380c7d7f788fbf300bf6539d4895e27f8ed991de7aba3d67"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_has_blocking_overlay",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_has_blocking_overlay",
+      "source_line": 3599,
+      "source_definition_sha256": "582caead9c3cbf07c221e4faa304a10ffb23b3884144482fd63f289309973d0d"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_modal_input_begin_frame",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_modal_input_begin_frame",
+      "source_line": 3609,
+      "source_definition_sha256": "f9938fe2d4543e37cbd417a12f82156bba479278e29f698e549cb909368fc958"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_modal_input_end_frame",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_modal_input_end_frame",
+      "source_line": 3614,
+      "source_definition_sha256": "8ac80a40217d90eb411224527064abae66735e8671485d7fbd2ba587215fbc77"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_any_modal_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_any_modal_open",
+      "source_line": 1538,
+      "source_definition_sha256": "7c69671144be9684064888992d832050f2fc6b9c7e5b49204e530fcfed177856"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_has_input_capture",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_has_input_capture",
+      "source_line": 3636,
+      "source_definition_sha256": "156d0704baab179a3dff0d1d3732ee3e3438d653666ba14bf21f0e251d771066"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_has_pointer_capture",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_has_pointer_capture",
+      "source_line": 3640,
+      "source_definition_sha256": "fc010a77b2737383436cafb5993f7c72ff461b510031a8ec849fef00a8e337ec"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_has_keyboard_capture",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_has_keyboard_capture",
+      "source_line": 3658,
+      "source_definition_sha256": "d393194f0c614ff02b9eea78abeabd5d115c21dbc19aa9f781726c6454ffabec"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_modal_end",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_modal_end",
+      "source_line": 3673,
+      "source_definition_sha256": "65faa972f1fdd9c0b27a7a68f662b87376cd79e25934fd2abf17140256d8f3a5"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_modal_begin",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_modal_begin",
+      "source_line": 3694,
+      "source_definition_sha256": "d95b65f5c87c7922dc7249af59f2b9068430945add2adfb418ce4343416c7601"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_palette_file",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_palette_file",
+      "source_line": 3852,
+      "source_definition_sha256": "f76c8f18468ce9434978ceca287fe0d858bb1a60a93738ea4290811c589e840b"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_palette_load",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_palette_load",
+      "source_line": 3860,
+      "source_definition_sha256": "1465812bd3ba315ca8b370970d98d9eedd50d8e57feb0b61991c7f0b12211229"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_palette_save",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_palette_save",
+      "source_line": 3884,
+      "source_definition_sha256": "cbd78f0e2dba17229a84e1e97a233af1adc6c17f51e61ee671b73a3a976c4037"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_relative",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_relative",
+      "source_line": 3899,
+      "source_definition_sha256": "95ce0c4c213ec93db4062c05161674782b61b82ca45215c63179ad2c0cb1a97c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_favorite_index",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_favorite_index",
+      "source_line": 3906,
+      "source_definition_sha256": "7ec44d76dd46eee293e5b8123c4d8d170ce846f9f3619afd47b247ccc5f99b0e"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_favorite_toggle",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_favorite_toggle",
+      "source_line": 3913,
+      "source_definition_sha256": "b8eeb27aa248da3433b1529fb63ddf7ba265bb91cb8c1723f2d929dde95a0e38"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_recent_push",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_recent_push",
+      "source_line": 3929,
+      "source_definition_sha256": "9dd3a13430196329a1229e67ca69112b6eb67d0de4320459cae825b624137e09"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_picker_select_relative",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_picker_select_relative",
+      "source_line": 3955,
+      "source_definition_sha256": "79c8ea40a1bc6b262f4f0649ff108055ec9d8e14796ce5b7e7c87ff35aad9ddc"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_capture_active",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_capture_active",
+      "source_line": 3983,
+      "source_definition_sha256": "87f81e6653c59e6200e668d092ec05d248fb7fb629ffa9aee911266546be4be6"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_cancel",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_cancel",
+      "source_line": 3987,
+      "source_definition_sha256": "5639e574ec72ff5255ae6875b05a61dd6fd6df98aaad084b970bef66b6e9ae46"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_accepts",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_accepts",
+      "source_line": 4001,
+      "source_definition_sha256": "e39e0643822074ff652939543a4bc1a2c1f60c5bc79d23cc2769b818646884d9"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_entry_compare",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_entry_compare",
+      "source_line": 4016,
+      "source_definition_sha256": "d9168e21f384efe1080f2f40097c900c0b5e304fd8329c1c64783681d9964cef"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_refresh",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_refresh",
+      "source_line": 4023,
+      "source_definition_sha256": "74a8937cf9b55bfc92b3406f2f1fd9bc6c65c88b99fd0b4a0b9e1dd5c5e271a2"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_path_is_inside_root",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_path_is_inside_root",
+      "source_line": 4070,
+      "source_definition_sha256": "b4e6f7b33088324f7046f9774c70d6698778f7f93d615a9446145f76524a2570"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_build_path",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_build_path",
+      "source_line": 4077,
+      "source_definition_sha256": "21b019efbdc02d099d338ec19c084cc7c8c77b57ef9543f151cb8f0c52099bbc"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_open",
+      "source_line": 4087,
+      "source_definition_sha256": "d88b422a528189cd707700432730be38a54255beb0bb079d8f870ec7aea65dcf"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_selected_path",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_selected_path",
+      "source_line": 4115,
+      "source_definition_sha256": "d236eb293fdbad20c65c95eec598062961f32dd2207e154ed9fac171d8476c3c"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_is_open",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_is_open",
+      "source_line": 4123,
+      "source_definition_sha256": "3ab9ed0b5530f8671b9c4261009e806b61a296860540ece590232121cbfacdfb"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_confirm_overwrite",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_confirm_overwrite",
+      "source_line": 4127,
+      "source_definition_sha256": "257ebd2924a1521dae694e9e6a732e5ef7c11a10583593e51f733638e15d281f"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_file_picker_draw",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_file_picker_draw",
+      "source_line": 4177,
+      "source_definition_sha256": "d19fea93e9f506556ac8bed40c9aac5ba14c8618c0a34cf4ea35b2b3cb95db42"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_get_input_diagnostics",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_get_input_diagnostics",
+      "source_line": 4532,
+      "source_definition_sha256": "4bb5ad93aec8248b55c6c7bcdc39004e16bba67ec3c5330502cf7cedd758cefe"
+    },
+    {
+      "file": "src/ui/ui.c",
+      "function": "ui_debug_log_input_events",
+      "source_file": "src/render/ui.c",
+      "source_function": "ui_debug_log_input_events",
+      "source_line": 4611,
+      "source_definition_sha256": "64819221c76daa10f8833e882f6b74956194ae02ceef6de306bdc400cb5d89fd"
+    },
+    {
+      "file": "tests/ui_input_state_test.c",
+      "function": "texture_manager_preview_clear",
+      "source_file": "tests/ui_input_state_test.c",
+      "source_function": "texture_manager_preview_clear",
+      "source_line": 22,
+      "source_definition_sha256": "5cd2e0577aad66dd15d2914cb33c3e830c7e2e8015c970975db1e7bbe750937e"
+    },
+    {
+      "file": "tests/ui_input_state_test.c",
+      "function": "reset_input_state",
+      "source_file": "tests/ui_input_state_test.c",
+      "source_function": "reset_input_state",
+      "source_line": 24,
+      "source_definition_sha256": "2ae04e91c21395436966b887ca18866e90023a84d0f98019d1483098333e1316"
+    },
+    {
+      "file": "tests/ui_input_state_test.c",
+      "function": "check_bounded_state_reuse",
+      "source_file": "tests/ui_input_state_test.c",
+      "source_function": "check_bounded_state_reuse",
+      "source_line": 46,
+      "source_definition_sha256": "4a9689ba9faba667f8f4718ef9f8ffb5913923946edf15195e467d5bcba04155"
+    },
+    {
+      "file": "tests/ui_input_state_test.c",
+      "function": "check_section_scope_and_layout",
+      "source_file": "tests/ui_input_state_test.c",
+      "source_function": "check_section_scope_and_layout",
+      "source_line": 73,
+      "source_definition_sha256": "5da3da5989116e26ea720a89232549e4b66427ced26b7e37c023b8c7e124441f"
+    },
+    {
+      "file": "tests/ui_input_state_test.c",
+      "function": "main",
+      "source_file": "tests/ui_input_state_test.c",
+      "source_function": "main",
+      "source_line": 111,
+      "source_definition_sha256": "27479c3504c8e605da8693101374bceab4c174916a12503d262358deae04ffc3"
+    }
+  ],
+  "files": {
+    "assets/fonts/font2.json": {
+      "source": "src/fonts/font2.json",
+      "source_sha256": "a67574e6136f48176847096a5cc37e05a81e1b7fbe149d5c538dc2712b6d687d"
+    },
+    "assets/fonts/font2.png": {
+      "source": "src/fonts/font2.png",
+      "source_sha256": "e7ba82632c11dacdb40bb2d35256d30ecf256a9be6d4bcf42e1e1cde9e7560a7"
+    },
+    "examples/main.c": {
+      "source": "src/main.c",
+      "source_sha256": "1fba590cd2adb123b3a620742977634a04d04c86f01b8a40d8d79acee067c4d5"
+    },
+    "examples/starter.c": {
+      "source": "src/game/game.c",
+      "source_sha256": "b0741a9eb482318646a601ed9d9080e6c1e0ec8a8a65bad089029da1c79dad7b"
+    },
+    "include/app/application.h": {
+      "source": "include/game/game.h",
+      "source_sha256": "169222dd0cb87b078c924b192abc3eb4eb0603925af0171f43380512d3ad68f7"
+    },
+    "include/input/mouse.h": {
+      "source": "include/input/mouse.h",
+      "source_sha256": "66171f8afd379e82b48e537a832c2c7d9d6043cf11cb4bca0421cdc9cf3d1357"
+    },
+    "include/log/log.h": {
+      "source": "include/log/log.h",
+      "source_sha256": "732cc01815deaa73d43e7c3f3b8e58b8750f548ea6e6197ca26399976d14aae8"
+    },
+    "include/math/matrix.h": {
+      "source": "include/math/matrix.h",
+      "source_sha256": "0868a5853e4d0ce60b84f72b22d95f82e6f4d70c8b0bc5a0ea235ed2d20f1149"
+    },
+    "include/math/types.h": {
+      "source": "include/math/types.h",
+      "source_sha256": "4889144d93532e46b0f521e5112bebad0c0add38f0e0f1d9837b74e48efebc7f"
+    },
+    "include/platform/paths.h": {
+      "source": "include/game/paths.h",
+      "source_sha256": "62d369390236440dadd3be4767af6ea2eb99a2a657d61de1ab9fc09845e085ab"
+    },
+    "include/platform/platform_fs.h": {
+      "source": "include/platform/platform_fs.h",
+      "source_sha256": "de18462945f568a3cd4dcd3db500f904e643c49adf6a8ce4c45d1c2638fdb971"
+    },
+    "include/platform/platform_str.h": {
+      "source": "include/platform/platform_str.h",
+      "source_sha256": "5644d75c144c59867c592524bde7fbc1c07eebda04a2d8a6ec0c72f2e23215fb"
+    },
+    "include/platform/window.h": {
+      "source": "include/render/glfw_helper.h",
+      "source_sha256": "5fca8b49068950215c4aa902746c5dc96d7015fa4b0fc3459af4ba7b4698fdac"
+    },
+    "include/render/font.h": {
+      "source": "include/render/font.h",
+      "source_sha256": "48c8abeef35b47086af7040dfc801550a2a026f9d686f09a87a3ee88c819525c"
+    },
+    "include/render/frame_dump.h": {
+      "source": "include/render/frame_dump.h",
+      "source_sha256": "991f686b791f89e619426f882b87e36b235bfd3beb32e6dbda5c83a59578e9d0"
+    },
+    "include/render/gfx.h": {
+      "source": "include/render/gfx.h",
+      "source_sha256": "05b81c01f42b367279cb2a02b84023b26af190261c7995181b9018cda7b27eea"
+    },
+    "include/render/gfx_vulkan.h": {
+      "source": "include/render/gfx_vulkan.h",
+      "source_sha256": "43f8294048f154c2a8d62c9b1924edcf1d3ea3ae19fea47587157ccd2b8bc103"
+    },
+    "include/render/init_vulkan.h": {
+      "source": "include/render/init_vulkan.h",
+      "source_sha256": "30eb865b203fb06e220e4ff003c37fbcb057d99ff0c58d546e56b6fe36c1f347"
+    },
+    "include/render/text_anchor.h": {
+      "source": "include/render/text_anchor.h",
+      "source_sha256": "0151de71e8f871722b3a8b7fab916cfe89d6ff0fa135c5e2bc49750ba76f327e"
+    },
+    "include/render/text_renderer.h": {
+      "source": "include/render/text_renderer.h",
+      "source_sha256": "df17798d0f8a8394e5bbb00f881440cbb4e6eac3e4c6f75d55c7f3f555e74369"
+    },
+    "include/render/texture_manager.h": {
+      "source": "include/render/texture_manager.h",
+      "source_sha256": "9a65902e7b933bc9492f3fed7a531f046cf3a1b672630346e864d7a4ff055fe6"
+    },
+    "include/render/vsync_settings.h": {
+      "source": "include/render/vsync_settings.h",
+      "source_sha256": "6d71fb3e5ed3d5dd85542cf1dcd0b2d6ec7d17088870d90449a70d9a51be6242"
+    },
+    "include/render/vulkan_buffer.h": {
+      "source": "include/render/vulkan_buffer.h",
+      "source_sha256": "310167d48e60a1358b0c1c69a3c51a5c3b2ead32fa934dc44097ba58f2ce9c0b"
+    },
+    "include/render/vulkan_command.h": {
+      "source": "include/render/vulkan_command.h",
+      "source_sha256": "eaefdcb68f891c3f64d2998a73783ec44b01e40e5ec920f91c80b6da4016dc61"
+    },
+    "include/render/vulkan_descriptors.h": {
+      "source": "include/render/vulkan_descriptors.h",
+      "source_sha256": "b57aa1527c323a2197cf0776ddb6ce62a76e9a0aaec05123d299b14e0f4accea"
+    },
+    "include/render/vulkan_draw.h": {
+      "source": "include/render/vulkan_draw.h",
+      "source_sha256": "5dc29bc9cc1926c43c90f99d38f45819c3b5c1de1ccb024908b55b4863088bac"
+    },
+    "include/render/vulkan_framebuffer.h": {
+      "source": "include/render/vulkan_framebuffer.h",
+      "source_sha256": "c12ba3613b4c57f78e29f950e8f7b1a324ab880fcc8b931d30075006458f8293"
+    },
+    "include/render/vulkan_instance.h": {
+      "source": "include/render/vulkan_instance.h",
+      "source_sha256": "a6673a134e1ca3f0a11afb28849f9d132504658ac389731adb597fba06858372"
+    },
+    "include/render/vulkan_logical_device.h": {
+      "source": "include/render/vulkan_logical_device.h",
+      "source_sha256": "fef3937c62dc9709d0c00c4a4f5b772a27afbb4f635ae642398b820cb925abd1"
+    },
+    "include/render/vulkan_memory_tracker.h": {
+      "source": "include/render/vulkan_memory_tracker.h",
+      "source_sha256": "c879f19ea8f3c0c2cbeb6d0e1f2550f78a06aa6970a4dafc807073e41a18cef5"
+    },
+    "include/render/vulkan_physical_device.h": {
+      "source": "include/render/vulkan_physical_device.h",
+      "source_sha256": "4713088ccb71f61ad89ed08f8bebb8f299372422b56cf6ddb6128853cce06bf4"
+    },
+    "include/render/vulkan_pipeline.h": {
+      "source": "include/render/vulkan_pipeline.h",
+      "source_sha256": "005e0dfda8879d7d41d29e88f71270a7cd25b5b1140b5eb819737ddbf71c4ffc"
+    },
+    "include/render/vulkan_renderpass.h": {
+      "source": "include/render/vulkan_renderpass.h",
+      "source_sha256": "e73962a806551edc8b5798108935122642c4b57b10c91c93c3ffd7b06b1a4908"
+    },
+    "include/render/vulkan_shader.h": {
+      "source": "include/render/vulkan_shader.h",
+      "source_sha256": "6678a2ffc6f3274426071c9c07de0bec77039f34a28cc8ebde1a0b71272c201f"
+    },
+    "include/render/vulkan_surface.h": {
+      "source": "include/render/vulkan_surface.h",
+      "source_sha256": "3547916761309b3db603fb6aaea88282c91f60af3a13ee7fac0eda19956c02df"
+    },
+    "include/render/vulkan_swapchain.h": {
+      "source": "include/render/vulkan_swapchain.h",
+      "source_sha256": "f69b7c35ddd26d1f14ae38960cd4852941e1fb9e148c77880cc856e2120bb636"
+    },
+    "include/render/vulkan_sync.h": {
+      "source": "include/render/vulkan_sync.h",
+      "source_sha256": "f2eb030ed06033d8be2ee90dd134b77082f01b8a56c7f2537b3092ef9294cc8e"
+    },
+    "include/render/vulkan_texture.h": {
+      "source": "include/render/vulkan_texture.h",
+      "source_sha256": "b7804409426c82d8955421a970441ba3ddfad7cb41da03b5702aba28fdf2b7c5"
+    },
+    "include/render/vulkan_uniform_buffer.h": {
+      "source": "include/render/vulkan_uniform_buffer.h",
+      "source_sha256": "e62eb86d12d73c0996cf82a41c35c6661811bebfb623b777cd9460a430514df7"
+    },
+    "include/render/vulkan_vertex_buffer.h": {
+      "source": "include/render/vulkan_vertex_buffer.h",
+      "source_sha256": "3b69b495f6fa79a8a55a1f91439ecda49ee7ba442fc1edc6ab718cbea3b5884c"
+    },
+    "include/stb_image.h": {
+      "source": "include/stb_image.h",
+      "source_sha256": "594c2fe35d49488b4382dbfaec8f98366defca819d916ac95becf3e75f4200b3"
+    },
+    "include/ui/ui.h": {
+      "source": "include/render/ui.h",
+      "source_sha256": "0154a1511f45f7f4b9e8f6ca151e394efe7aa68bd249d4bf6f6fabfbce4c579c"
+    },
+    "shaders/tri.frag": {
+      "source": "shaders/tri.frag",
+      "source_sha256": "9922a2cfec3913cdfce473f9d459a4642d10ee51b2b9ad09e0ce9fc180cd740b"
+    },
+    "shaders/tri.vert": {
+      "source": "shaders/tri.vert",
+      "source_sha256": "0b5594903a50a9e1f51368bd073bf58793171c893af9404e916e52d313489400"
+    },
+    "src/app/application.c": {
+      "source": "src/game/game.c",
+      "source_sha256": "b0741a9eb482318646a601ed9d9080e6c1e0ec8a8a65bad089029da1c79dad7b"
+    },
+    "src/input/mouse.c": {
+      "source": "src/input/mouse.c",
+      "source_sha256": "34bda7a0d8fafbc1dd8cb5536b826fc71ead01870b5a40c8011703a4326f8d8b"
+    },
+    "src/input/scroll.c": {
+      "source": "src/input/input.c",
+      "source_sha256": "2a7d9b5ef93a204a7bed39a6cda3bea87dfc6d98559dd325cf6a8b1de9de27b5"
+    },
+    "src/math/matrix.c": {
+      "source": "src/math/matrix.c",
+      "source_sha256": "96622766bf91370758ed18cca76a2672360c41b1b4c1e55726f1bcaad87dc365"
+    },
+    "src/platform/paths.c": {
+      "source": "src/game/paths.c",
+      "source_sha256": "263b1fc8fb40bc1208760213ae42548b7b7f6ac6e60ad6fa3f37bd13d722c32f"
+    },
+    "src/platform/platform_fs.c": {
+      "source": "src/platform/platform_fs.c",
+      "source_sha256": "04d3fd0119c89f6c81e574f01c8e53516465a6a88db3274ff8db4baa897259de"
+    },
+    "src/platform/window.c": {
+      "source": "src/render/glfw_helper.c",
+      "source_sha256": "28745281df655cbed8c1b5d713dd36bccc5bb5e7e76c262973a1951675a2380d"
+    },
+    "src/render/font.c": {
+      "source": "src/render/font.c",
+      "source_sha256": "366f86e1cac5f44adcc94db3f16b7384fcf1371772bc717a511079a6cbe616e0"
+    },
+    "src/render/frame_dump.c": {
+      "source": "src/render/frame_dump.c",
+      "source_sha256": "d9a2398ff02f5465003caa655028af5fd00b0f18c7f4fce3a5869337da75381b"
+    },
+    "src/render/gfx.c": {
+      "source": "src/render/gfx.c",
+      "source_sha256": "a5605b3c1e55cdeacf1d90c570e2ef01c4645636dcdadc2118713f9be70400e8"
+    },
+    "src/render/init_vulkan.c": {
+      "source": "src/render/init_vulkan.c",
+      "source_sha256": "d3ba85087385d31fe60aebeca3bb03edd2f792bcc087752767eb68959ea7136b"
+    },
+    "src/render/stb_image_impl.c": {
+      "source": "src/render/stb_image_impl.c",
+      "source_sha256": "4278402912ab36f5e99a0e60c2f229eb1b75c64eec971a6937b12da145b4910f"
+    },
+    "src/render/text_renderer.c": {
+      "source": "src/render/text_renderer.c",
+      "source_sha256": "97f02164d6125b18be02a079651ccb4857f8d63c13b600fdf1ca7a1c84693266"
+    },
+    "src/render/texture_manager.c": {
+      "source": "src/render/texture_manager.c",
+      "source_sha256": "ba760882e40a9ad47b4d78c2f852e589979abf29260cd77e3d081320b7450dd6"
+    },
+    "src/render/vsync_settings.c": {
+      "source": "src/render/vsync_settings.c",
+      "source_sha256": "167e668ceb2d226a0d95c0ec11b0db0b7878a0c9a6d95dc90c09cdfe525bb486"
+    },
+    "src/render/vulkan_buffer.c": {
+      "source": "src/render/vulkan_buffer.c",
+      "source_sha256": "adf6cb8eb8eba5a04e5f56f7df3dfe18ac9870527f91994ab5a8410b7f3ef3b5"
+    },
+    "src/render/vulkan_command.c": {
+      "source": "src/render/vulkan_command.c",
+      "source_sha256": "16e2761e157dc6c9bc7dccc78d0eaee612616d4ed46d8846b07bec7aafe8ee4c"
+    },
+    "src/render/vulkan_descriptors.c": {
+      "source": "src/render/vulkan_descriptors.c",
+      "source_sha256": "c582e749ad1d9428c0e96af97599300c79fe32e94cd0d616872ecd7fa7a75589"
+    },
+    "src/render/vulkan_draw.c": {
+      "source": "src/render/vulkan_draw.c",
+      "source_sha256": "78ab28e74edb320f8988680a211616ac6f9ee5d41b1c34886d7b965949a0a778"
+    },
+    "src/render/vulkan_framebuffer.c": {
+      "source": "src/render/vulkan_framebuffer.c",
+      "source_sha256": "c4d36b97a6ca324757cd2a5e87e79f5f20659667d04ea321205f2c8d8e8dcfac"
+    },
+    "src/render/vulkan_instance.c": {
+      "source": "src/render/vulkan_instance.c",
+      "source_sha256": "14bb0fb6eb4eae9382b363260894948d2c6caf6b31fc7b8d9713d8e0f9e10574"
+    },
+    "src/render/vulkan_logical_device.c": {
+      "source": "src/render/vulkan_logical_device.c",
+      "source_sha256": "6f089d7175db80098f4f3824996152d2201ffcab38b4592830818117b1c168ca"
+    },
+    "src/render/vulkan_memory_tracker.c": {
+      "source": "src/render/vulkan_memory_tracker.c",
+      "source_sha256": "57b56abefe7232291737f11fd84a68169ed27ea34d13d0831799c1dbf3e0837c"
+    },
+    "src/render/vulkan_physical_device.c": {
+      "source": "src/render/vulkan_physical_device.c",
+      "source_sha256": "681d7ae67c316cc2d008aad606d2f814f0b5249897bb1a1c27e098ce02cdd36e"
+    },
+    "src/render/vulkan_pipeline.c": {
+      "source": "src/render/vulkan_pipeline.c",
+      "source_sha256": "78f26dfe73b1aea6c3a142123e48ca7eddd584991f9b37cc5ce31968fb7a7040"
+    },
+    "src/render/vulkan_renderpass.c": {
+      "source": "src/render/vulkan_renderpass.c",
+      "source_sha256": "fd653260468a5202e6f570ca137992435e39aaf604b144fd10e406a1936c742a"
+    },
+    "src/render/vulkan_shader.c": {
+      "source": "src/render/vulkan_shader.c",
+      "source_sha256": "28b8d92eb2deb71cb88aa239b814e647ce519876f0ceacb9d9d9bee58bccd99f"
+    },
+    "src/render/vulkan_surface.c": {
+      "source": "src/render/vulkan_surface.c",
+      "source_sha256": "07cf2e1b49a6fe0dbde10a634e9dc5cc863a717c1b499a634f7969fe750c279b"
+    },
+    "src/render/vulkan_swapchain.c": {
+      "source": "src/render/vulkan_swapchain.c",
+      "source_sha256": "d45ee633f715e5e18a23bc1d9dd07fa72577c42217eb9cadc3ccc728abfea5eb"
+    },
+    "src/render/vulkan_sync.c": {
+      "source": "src/render/vulkan_sync.c",
+      "source_sha256": "48e2069c451d75fa52d4f8b60a55b1b12c9180ded0df8c560be7b666f8b4c78c"
+    },
+    "src/render/vulkan_texture.c": {
+      "source": "src/render/vulkan_texture.c",
+      "source_sha256": "851cdb2c8ae9831484fd165e7890d202c2660267918f79ee8b7ec41d042e31f3"
+    },
+    "src/render/vulkan_uniform_buffer.c": {
+      "source": "src/render/vulkan_uniform_buffer.c",
+      "source_sha256": "5749a5b4ed267874f103caf2c84f882edf1b4aab9e6003df26e2b17aee3961cf"
+    },
+    "src/render/vulkan_vertex_buffer.c": {
+      "source": "src/render/vulkan_vertex_buffer.c",
+      "source_sha256": "2c70bd6dd3fb164c5ec298e153891829adca4b66854d03d7236bfb44fb66fe9e"
+    },
+    "src/ui/ui.c": {
+      "source": "src/render/ui.c",
+      "source_sha256": "00f1a7ef7561a1c08d98b708cecacca36d1fccb2d71b434e10017a31d6f8b963"
+    },
+    "tests/ui_input_state_test.c": {
+      "source": "tests/ui_input_state_test.c",
+      "source_sha256": "7076037b4aba739427829a12b5f872020769f3cf3d1484a1c09484a1a8a4c686"
+    }
+  }
+}
