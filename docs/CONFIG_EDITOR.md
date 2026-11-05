@@ -1,5 +1,8 @@
 # Esempio completo: editor di configurazione
 
+Per creare una propria applicazione partire dalla
+[guida pratica dell’editor](CONFIG_EDITOR_GUIDE.md).
+
 L'applicazione gestisce fino a 32 profili con nome e descrizione UTF-8, stato
 abilitato e livello 0–100. Elenco, proprietà, picker e dialoghi sono la stessa
 composizione UI nei due eseguibili; cambiano solo finestra, input e rendering.
@@ -27,7 +30,8 @@ Un errore iniziale viene scritto sul terminale e restituisce exit code 1.
 SDL supporta anche `--immediate`, `--font percorso.ttf` e `--dump file.bmp`.
 Senza `--immediate` usa la draw list. Per un SDK installato, passare il font
 installato in `share/ui-framework/fonts/OpenSans-Italic.ttf`.
-Vulkan usa le risorse del progetto tramite il normale adattatore APP.
+Vulkan usa l’adattatore APP; il consumer CMake configura le risorse del bundle
+accanto all’eseguibile. `--resources directory` permette un override.
 
 ## Flusso di lavoro
 
@@ -50,8 +54,9 @@ finestra sono ignorate: completare o annullare il dialogo attivo.
 Nome e descrizione sono modificati direttamente tramite `ui_text_input()`:
 selezione, clipboard, undo/redo e Tab sono quelli del framework. Il nome è
 obbligatorio. Il livello usa pulsanti -10/+10, senza un valore numerico in attesa
-di conferma. Aggiunta/rimozione dei profili e le altre proprietà non hanno undo
-applicativo; la cronologia è quella dei soli campi di testo.
+di conferma. Aggiunta/rimozione dei profili e le altre proprietà partecipano
+alla cronologia del documento, descritta più avanti; i campi mantengono anche la propria
+cronologia locale del testo.
 
 Il confronto con il documento dell'ultimo caricamento/salvataggio determina lo
 stato modificato. Cambiare selezione o aprire un dialogo non sporca il documento.
@@ -85,7 +90,7 @@ sovrascrittura del picker e gli stessi limiti di concorrenza.
 | `editor.h/.c` | Documento corrente/salvato, selezione, percorso e azioni sospese |
 | `view.h/.c` | Composizione UI condivisa e integrazione del picker |
 | `sdl_main.c` | Host SDL, draw list opzionale e gestione della chiusura |
-| `vulkan_main.c` | Host APP/Vulkan e osservatore degli eventi di chiusura |
+| `vulkan_main.c` | Host APP/Vulkan, stato tramite `user_data` e callback di disegno/chiusura |
 
 Gli ID dei campi includono identità del profilo e generazione del documento:
 aprire un altro file non riusa focus o undo del documento precedente.
@@ -135,8 +140,9 @@ make test-ui-package
 `--smoke` usa un documento nuovo, digita UTF-8, richiede la chiusura e annulla
 il dialogo. Termina dopo 30 frame su SDL e 31 su Vulkan; non salva documenti,
 non modifica la clipboard e non invia tasti al desktop. L'host SDL riceve un
-`SDL_WINDOWEVENT_CLOSE` nella propria coda; la prova Vulkan chiama l'osservatore
-registrato e alimenta le callback input. Non è una prova manuale della X nativa.
+`SDL_WINDOWEVENT_CLOSE` nella propria coda; la prova Vulkan usa
+`app_request_close` e la politica di chiusura applicativa, alimentando le
+callback input. Non è una prova manuale della X nativa.
 
 Il test del modello verifica round-trip, parser, percorsi non accessibili e
 transizioni salva/scarta/annulla. Su Linux inietta una scrittura parziale per

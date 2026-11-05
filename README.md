@@ -173,7 +173,8 @@ make config-editor-vulkan
 ./build/config-editor-vulkan-debug.out
 ```
 
-[Formato, architettura e verifiche](docs/CONFIG_EDITOR.md).
+[Guida per creare una propria applicazione](docs/CONFIG_EDITOR_GUIDE.md) ·
+[Formato e verifiche](docs/CONFIG_EDITOR.md).
 
 ## Host SDL2 con renderer Vulkan
 

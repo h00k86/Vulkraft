@@ -102,7 +102,7 @@ install(FILES examples/config_editor/CMakeLists.txt examples/config_editor/vulka
   examples/config_editor/view.c examples/config_editor/view.h examples/config_editor/example.cfgapp
   DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app/examples/config_editor)
 install(FILES docs/GRAPHICS_APP_SDK.md DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app)
-install(FILES docs/GRAPHICS_APP_API.md DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app)
+install(FILES docs/GRAPHICS_APP_API.md docs/CONFIG_EDITOR_GUIDE.md docs/CONFIG_EDITOR.md DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app)
 configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GraphicsAppConfig.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/GraphicsAppConfig.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GraphicsApp

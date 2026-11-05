@@ -15,6 +15,7 @@
   "cmake/UIFrameworkConfig.cmake.in",
   "docs/CODE_AUDIT.md",
   "docs/CONFIG_EDITOR.md",
+  "docs/CONFIG_EDITOR_GUIDE.md",
   "docs/CONFIG_EDITOR_VALIDATION.md",
   "docs/GRAPHICS_APP_API.md",
   "docs/GRAPHICS_APP_DISTRIBUTION.md",

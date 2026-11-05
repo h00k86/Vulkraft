@@ -26,7 +26,7 @@ files = ['tools/finalize_ui_release.py', 'tools/check_ui_package.py', 'tests/ui_
          'examples/config_editor/example.cfgapp', 'examples/config_editor/document.c', 'examples/config_editor/document.h',
          'examples/config_editor/editor.c', 'examples/config_editor/editor.h',
          'examples/config_editor/view.c', 'examples/config_editor/view.h', 'examples/config_editor/sdl_main.c',
-         'tests/config_editor_test.c', 'tests/config_editor_session_test.c', 'tests/config_editor_ui_test.c', 'docs/TABS_SPLITTER.md', 'docs/CONFIG_EDITOR.md', 'docs/CONFIG_EDITOR_VALIDATION.md', 'docs/PROJECT_VALIDATION.md',
+         'tests/config_editor_test.c', 'tests/config_editor_session_test.c', 'tests/config_editor_ui_test.c', 'docs/TABS_SPLITTER.md', 'docs/CONFIG_EDITOR.md', 'docs/CONFIG_EDITOR_GUIDE.md', 'docs/CONFIG_EDITOR_VALIDATION.md', 'docs/PROJECT_VALIDATION.md',
          'docs/UI_KEYBOARD_NAVIGATION.md', 'docs/UI_TEXT_EDITING.md', 'docs/UI_PACKAGE.md', 'docs/UI_SDL2.md', 'docs/UI_API.md', 'docs/UI_ERRORS.md', 'docs/UI_INPUT_CAPTURE.md', 'docs/UI_INTERNAL_ARCHITECTURE.md']
 
 def package(output_dir, epoch):

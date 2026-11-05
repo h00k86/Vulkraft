@@ -153,3 +153,7 @@ UI sui sorgenti correnti sono archiviate separatamente dalle vecchie release.
 L’adattatore legacy `app_loop` con `app_draw` rimane disponibile. Il validatore
 collega entrambi i contratti contro SDK installati e controlla che gli eseguibili
 a callback non contengano `app_draw`. CTest include i test di veto, errori e lifecycle.
+
+Per adattare l’esempio a una propria applicazione, vedere la
+[guida pratica dell’editor](CONFIG_EDITOR_GUIDE.md): stato, callback, input,
+salvataggi, chiusura e bootstrap minimo compilabile.
