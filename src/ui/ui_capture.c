@@ -185,9 +185,10 @@ bool ui_has_pointer_capture(void) {
 
 bool ui_has_keyboard_capture(void) {
   UINavigationState *navigation_view=ui_state_navigation(ui_overlay_context());
+  /* Pointer focus is a Tab destination; finished editors retain position only. */
+  if (navigation_view->nav_enabled && navigation_view->nav_focus[0] &&
+      navigation_view->nav_keyboard && !navigation_view->nav_editor_finished) return true;
   UINumericState *numeric_view=ui_state_numeric(ui_overlay_context());
-
-  if(navigation_view->nav_enabled && navigation_view->nav_focus[0]) return true;
 
   bool float_focused = false;
   for (int i = 0; i < numeric_view->float_field_state_count; ++i)

@@ -1,5 +1,19 @@
 # Changelog UI Framework
 
+## 0.3.1 — rilascio della tastiera e numeri compatti
+
+- Il focus lasciato da un clic non cattura la tastiera; Tab e la navigazione
+  esplicita continuano a farlo. Testo/numeri in editing e overlay catturano
+  sempre, indipendentemente da come sono stati attivati.
+- Invio/Esc terminano l'editing e rilasciano la cattura conservando la posizione
+  per Tab. Una scorciatoia successiva non riapre il campo. Click, Tab, focus
+  programmato e Invio consentono di riprendere l'editing.
+- Numeri float compatti con precisione sufficiente a ricostruire lo stesso
+  valore, senza modificare il modello. Testo numerico ritagliato al campo;
+  durante l'editing resta visibile la parte finale. Ammessi esponenti e `+`
+  nell'editing float, con la stessa validazione alla conferma.
+- GraphicsApp 0.5.1 richiede UIFramework 0.3.1; ricompilare host e librerie.
+
 ## 0.3.0 — sigle nelle etichette
 
 - Nuova `ui_set_sentence_case_exceptions`: elenco facoltativo per contesto di

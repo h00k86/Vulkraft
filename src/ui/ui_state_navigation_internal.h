@@ -14,6 +14,7 @@ typedef struct {
   char (*nav_event_owner)[UI_ID_CAPACITY];
   size_t nav_event_capacity;
   bool nav_enabled, nav_keyboard, nav_edit, nav_auto, nav_cancelled, nav_pointer_claimed;
+  bool nav_editor_finished; /* Focus is retained after Enter/Esc, editing is not. */
   int nav_pending_step;
 } UINavigationState;
 UINavigationState *ui_state_navigation(UIContext *ctx);

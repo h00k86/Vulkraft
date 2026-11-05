@@ -6,6 +6,7 @@
 #include <math.h>
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"navigation:%d: %s\n",__LINE__,#x); exit(1); } } while(0)
 static int clips, quads, ring_quads;
+static bool reject_clip, expect_numeric_clip;
 static int label_count;
 static char label_trace[32][96];
 static void quad(void *u,float x,float y,float w,float h,float r,float g,float b) { ++quads;
@@ -14,12 +15,13 @@ static void quad(void *u,float x,float y,float w,float h,float r,float g,float b
 }
 static void alpha(void *u,float x,float y,float w,float h,float r,float g,float b,float a) { ++quads; }
 static void text(void *u,Font *f,const char *s,float x,float y,float z,float r,float g,float b) {
+  if(expect_numeric_clip) CHECK(clips>0);
   if(label_count<32) snprintf(label_trace[label_count++],96,"%s",s);
 }
 static void image(void *u,float x,float y,float w,float h,int slot,float a,float b,float c,float d) {}
 static float measure(void *u,Font *f,const char *s,float z) { return strlen(s)*z*.5f; }
 static float ascent(void *u,Font *f,float z) { return z; }
-static bool push(void *u,float x,float y,float w,float h) { ++clips; return true; }
+static bool push(void *u,float x,float y,float w,float h) { if(reject_clip) return false; ++clips; return true; }
 static bool pop(void *u) { CHECK(clips>0); --clips; return true; }
 static int depth(void *u) { return clips; }
 static const UIRenderer renderer={.draw_quad=quad,.draw_quad_alpha=alpha,
@@ -283,8 +285,80 @@ static void editors_cancel_dialog(void) {
     CHECK(ui_context_destroy(c));
   }
 }
+static void capture_form(int kind, float *number, char *buffer) {
+  if(kind==0) button("capture-button",20,false);
+  else if(kind==1) field("capture-text",20,buffer);
+  else ui_float_field("capture-number",font,20,20,100,30,14,number,-100,100);
+}
+static void capture_frame(int kind,float *number,char *buffer, bool down,
+                          const InputKeyEvent *events,size_t count) {
+  UIFrameInput f={.width=640,.height=480,.mouse_x=30,.mouse_y=30,
+                 .mouse_down=down,.delta_time=.016f,.events=events,.event_count=count};
+  CHECK(ui_begin_frame_input(&f)); capture_form(kind,number,buffer); ui_end_frame();
+}
+static void capture_release(void) {
+  for(int kind=0;kind<3;++kind) for(int escape=0;escape<2;++escape) {
+    UIContext *c=context(); float number=2.2f; char buffer[64]="text";
+    capture_frame(kind,&number,buffer,false,NULL,0);
+    capture_frame(kind,&number,buffer,true,NULL,0);
+    capture_frame(kind,&number,buffer,false,NULL,0);
+    CHECK(ui_has_keyboard_capture()==(kind!=0));
+    CHECK(!ui_has_pointer_capture());
+    if(kind) {
+      InputKeyEvent end=key(escape?PLATFORM_KEY_ESCAPE:PLATFORM_KEY_ENTER,0);
+      capture_frame(kind,&number,buffer,false,&end,1);
+      CHECK(!ui_has_input_capture());
+      focus(kind==1?"capture-text":"capture-number");
+    }
+    InputKeyEvent shortcut[]={key(PLATFORM_KEY_G,0),character('g')};
+    capture_frame(kind,&number,buffer,false,shortcut,2);
+    UIInputDiagnostics d; CHECK(ui_get_input_diagnostics(&d));
+    CHECK(!d.keyboard_capture&&!d.focused_widget_id&&!ui_has_input_capture());
+    CHECK(number==2.2f&&!strcmp(buffer,"text"));
+    capture_frame(kind,&number,buffer,false,NULL,0); CHECK(!ui_has_keyboard_capture());
+    if(kind) {
+      /* Enter explicitly resumes editing, while Tab can resume traversal. */
+      InputKeyEvent enter=key(PLATFORM_KEY_ENTER,0);
+      capture_frame(kind,&number,buffer,false,&enter,1); CHECK(ui_has_keyboard_capture());
+      capture_frame(kind,&number,buffer,false,&enter,1); CHECK(!ui_has_keyboard_capture());
+      InputKeyEvent tab=key(PLATFORM_KEY_TAB,0);
+      capture_frame(kind,&number,buffer,false,&tab,1); CHECK(ui_has_keyboard_capture());
+      capture_frame(kind,&number,buffer,false,&enter,1); CHECK(!ui_has_keyboard_capture());
+      capture_frame(kind,&number,buffer,false,shortcut,2); CHECK(!ui_has_keyboard_capture());
+      if(kind==2) {
+        capture_frame(kind,&number,buffer,false,&enter,1); CHECK(ui_has_keyboard_capture());
+        InputKeyEvent invalid[]={key(PLATFORM_KEY_A,PLATFORM_MOD_CONTROL),key(PLATFORM_KEY_ENTER,0)};
+        capture_frame(kind,&number,buffer,false,invalid,2); CHECK(ui_has_keyboard_capture());
+        InputKeyEvent exponent[]={character('1'),character('e'),character('+'),character('1'),key(PLATFORM_KEY_ENTER,0)};
+        capture_frame(kind,&number,buffer,false,exponent,5);
+        CHECK(number==10&&!ui_has_keyboard_capture());
+      }
+    }
+    CHECK(ui_context_destroy(c));
+  }
+}
+static void numeric_presentation(void) {
+  UIContext *c=context();
+  float values[]={2.2f,-2.2f,100,1.2345678f,1e20f,1e-20f,-0.0f};
+  for(size_t i=0;i<sizeof(values)/sizeof(values[0]);++i) {
+    begin(NULL,0); label_count=0; expect_numeric_clip=true;
+    float original=values[i];
+    ui_float_field("presentation",font,20,20,30,30,14,&values[i],-1e30f,1e30f);
+    expect_numeric_clip=false;
+    CHECK(label_count==1&&clips==0);
+    CHECK(strtof(label_trace[0],NULL)==original&&values[i]==original);
+    if(i==0) CHECK(!strcmp(label_trace[0],"2.2"));
+    if(i==2) CHECK(!strcmp(label_trace[0],"100"));
+    if(i==6) CHECK(signbit(strtof(label_trace[0],NULL)));
+    ui_end_frame();
+  }
+  begin(NULL,0); label_count=0; reject_clip=true;
+  ui_float_field("presentation",font,20,20,30,30,14,&values[0],-100,100);
+  reject_clip=false; CHECK(!label_count&&clips==0); ui_end_frame();
+  CHECK(ui_context_destroy(c));
+}
 int main(void) {
-  traversal(); choices(); modals(); nested_modals(); scrolling(); label_policy(); input_modality(); editors_cancel_dialog();
+  capture_release(); numeric_presentation(); traversal(); choices(); modals(); nested_modals(); scrolling(); label_policy(); input_modality(); editors_cancel_dialog();
   CHECK(clips==0&&quads>0);
   puts("UI navigation: PASS (ordered UTF-8/Tab, reverse traversal, disabled/removed widgets, activation, modal one-Esc/editors, keyboard-only rings, label policy, choices, scroll, contexts)");
   return 0;

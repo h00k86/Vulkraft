@@ -17,6 +17,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <float.h>
 #include <errno.h>
 UIFloatFieldState *ui_numeric_state(const char *id) {
   UINumericState *numeric_view=ui_state_numeric(ui_overlay_context());
@@ -78,6 +79,16 @@ bool ui_parse_int_clamped(const char *text, int min, int max, int *out_value) {
   return true;
 }
 
+/* A compact significant-digit spelling which parses to the same float.
+ * This avoids displaying binary tails (2.20000005) without rounding the model
+ * or losing precision when an unchanged editor is confirmed. */
+static void ui_format_float(char *out, size_t capacity, float value) {
+  for (int digits=6; digits<=FLT_DECIMAL_DIG; ++digits) {
+    snprintf(out,capacity,"%.*g",digits,(double)value);
+    if (strtof(out,NULL)==value) break;
+  }
+}
+
 static void ui_float_insert(UIFloatFieldState *state, char c) {
   size_t len = strlen(state->buffer);
   if (len + 1 < sizeof(state->buffer)) {
@@ -102,17 +113,20 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
       state->focused = true; state->invalid = false; state->original = integer ? 0 : *value;
       state->original_int = integer ? *integer : 0;
       if (integer) snprintf(state->buffer, sizeof(state->buffer), "%d", *integer);
-      else snprintf(state->buffer, sizeof(state->buffer), "%.9g", *value);
+      else ui_format_float(state->buffer, sizeof(state->buffer), *value);
     } else if (!hover) {
       state->focused = false;
     }
   }
   bool nav_focus=ui_nav_register(ui_overlay_context(), id,(UIRect){x,y,width,height},UI_NAV_NUMBER,true,hover);
-  if(!state->focused && ((nav_focus && navigation_view->nav_edit) || ui_nav_has_events(ui_overlay_context(), id))) {
+  if(!state->focused && ((nav_focus && navigation_view->nav_edit) || ui_nav_has_events(ui_overlay_context(), id) ||
+      ui_nav_key(ui_overlay_context(), id,PLATFORM_KEY_ENTER,false) ||
+      ui_nav_key(ui_overlay_context(), id,PLATFORM_KEY_KP_ENTER,false))) {
+    navigation_view->nav_editor_finished=false;
     state->focused=true; state->invalid=false;
     state->original=integer?0:*value; state->original_int=integer?*integer:0;
     if(integer) snprintf(state->buffer,sizeof(state->buffer),"%d",*integer);
-    else snprintf(state->buffer,sizeof(state->buffer),"%.9g",*value);
+    else ui_format_float(state->buffer,sizeof(state->buffer),*value);
   }
   bool changed = false;
   if (state->focused) {
@@ -125,14 +139,14 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
       if (!state->focused) continue;
       if (e->kind==INPUT_CHARACTER) {
         unsigned c=e->codepoint;
-        if ((c>='0' && c<='9') || c=='-' || (!integer && c=='.'))
+        if ((c>='0' && c<='9') || c=='-' || (!integer && (c=='.' || c=='e' || c=='E' || c=='+')))
           ui_float_insert(state,(char)c);
         continue;
       }
       if (e->action!=PLATFORM_PRESS && e->action!=PLATFORM_REPEAT) continue;
       if (e->key==PLATFORM_KEY_ESCAPE && ui_capture_editor_escape_allowed(ui_overlay_context())) {
         if (integer) *integer=state->original_int; else *value=state->original;
-        state->focused=false; state->invalid=false; ui_capture_mark_escape(ui_overlay_context());
+        state->focused=false; state->invalid=false; ui_nav_editor_finish(ui_overlay_context(), id); ui_capture_mark_escape(ui_overlay_context());
       } else if (e->key==PLATFORM_KEY_ENTER || e->key==PLATFORM_KEY_KP_ENTER) {
         float parsed=0; int parsed_int=0;
         bool valid=integer ? ui_parse_int_clamped(state->buffer,int_min,int_max,&parsed_int)
@@ -141,6 +155,7 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
           if (integer) { changed=parsed_int!=*integer; *integer=parsed_int; }
           else { changed=parsed!=*value; *value=parsed; }
           state->focused=false; state->invalid=false;
+          ui_nav_editor_finish(ui_overlay_context(), id);
         } else {
           state->invalid=true; ui_notify(UI_TOAST_ERROR,"Valore numerico non valido");
         }
@@ -154,7 +169,7 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
   if(navigation_view->nav_enabled && !ui_nav_focused(ui_overlay_context(), id)) state->focused=false;
   if (!state->focused) {
     if (integer) snprintf(state->buffer, sizeof(state->buffer), "%d", *integer);
-    else snprintf(state->buffer, sizeof(state->buffer), "%.9g", *value);
+    else ui_format_float(state->buffer, sizeof(state->buffer), *value);
   }
   UIColor border = state->invalid ? theme.error :
                     state->focused ? theme.accent : theme.border;
@@ -168,11 +183,19 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
               border.r, border.g, border.b);
     ui_paint_draw_quad(x, y, width, height, fill.r, fill.g, fill.b);
   }
-  ui_paint_draw_text_colored(font, state->buffer, x + theme.label_value_gap,
-                    y + (height + ui_paint_font_ascent(font, scale)) * 0.5f, scale,
-                    state->invalid ? theme.error.r : theme.text.r,
-                    state->invalid ? theme.error.g : theme.text.g,
-                    state->invalid ? theme.error.b : theme.text.b);
+  float text_x=x+theme.label_value_gap;
+  float available=fmaxf(0,width-2*theme.label_value_gap);
+  if (available>0 && ui_paint_text_clip_push(text_x,y,available,height)) {
+    /* Numeric editing appends at the end; keep that end visible while typing.
+     * At rest preserve the leading sign/digits and clip inside the field. */
+    float offset=state->focused ? fmaxf(0,ui_paint_measure_text_width(font,state->buffer,scale)-available) : 0;
+    ui_paint_draw_text_colored(font, state->buffer, text_x-offset,
+                      y + (height + ui_paint_font_ascent(font, scale)) * 0.5f, scale,
+                      state->invalid ? theme.error.r : theme.text.r,
+                      state->invalid ? theme.error.g : theme.text.g,
+                      state->invalid ? theme.error.b : theme.text.b);
+    ui_paint_text_clip_pop();
+  }
   ui_nav_ring(id,(UIRect){x,y,width,height});
   return changed;
 }

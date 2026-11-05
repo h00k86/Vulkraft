@@ -30,6 +30,7 @@ void ui_nav_set(UIContext *c, const char *id,bool keyboard) {
   if(strcmp(navigation_view->nav_focus,id)) navigation_view->nav_edit=true;
   snprintf(navigation_view->nav_focus,sizeof(navigation_view->nav_focus),"%s",id);
   navigation_view->nav_enabled=true; navigation_view->nav_keyboard=keyboard;
+  navigation_view->nav_editor_finished=false;
 }
 int ui_nav_find(UIContext *c, const UINavigationEntry *entries,int count,const char *id) {
   for(int n=0;n<count;++n)
@@ -44,7 +45,8 @@ static void ui_nav_step(UIContext *c, const UINavigationEntry *entries,int count
   for(int n=1;n<=count;++n) {
     int at=(start+direction*n+count*2)%count;
     if(!strcmp(entries[at].modal,navigation_view->nav_modal)) {
-      ui_nav_set(c, entries[at].id,true); return;
+      ui_nav_set(c, entries[at].id,true);
+      navigation_view->nav_edit=true; return;
     }
   }
   navigation_view->nav_pending_step=direction;
@@ -88,10 +90,18 @@ bool ui_nav_event(UIContext *c, const char *id,size_t n) {
   if(!ui_state_frame(c)->frame_active) return ui_state_menu(c)->g_menu.depth==0; /* Legacy direct-widget adapters. */
   return ui_capture_keyboard_allowed(c) && (!navigation_view->nav_enabled || !strcmp(navigation_view->nav_event_owner[n],id));
 }
+void ui_nav_editor_finish(UIContext *c, const char *id) {
+  /* A later Tab in the batch may already have selected another editor. */
+  if (!strcmp(ui_state_navigation(c)->nav_focus, id))
+    ui_state_navigation(c)->nav_editor_finished = true;
+}
+
 bool ui_nav_has_events(UIContext *c, const char *id) {
   UIFrameState *frame_view=ui_state_frame(c);
 
   if(!ui_state_navigation(c)->nav_enabled || !frame_view->frame_active) return false;
+  if(ui_state_navigation(c)->nav_editor_finished &&
+     !strcmp(ui_state_navigation(c)->nav_focus,id)) return false;
 
   for(size_t n=0;n<frame_view->key_event_count;++n)
     if(!frame_view->key_events[n].consumed && ui_nav_event(c, id,n) &&

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(ExternalGraphicsApplication LANGUAGES C)
-find_package(GraphicsApp 0.5.0 EXACT REQUIRED)
+find_package(GraphicsApp 0.5.1 EXACT REQUIRED)
 message(STATUS "GraphicsApp host: ${GraphicsApp_PLATFORM}")
 add_executable(external_app main.c)
 target_link_libraries(external_app PRIVATE GraphicsApp::application)

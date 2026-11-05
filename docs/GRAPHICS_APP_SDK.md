@@ -28,7 +28,7 @@ stesso processo. Le build Make (`PLATFORM=glfw|sdl2`) restano disponibili.
 ## Consumatore esterno
 
 ```cmake
-find_package(GraphicsApp 0.5.0 EXACT REQUIRED)
+find_package(GraphicsApp 0.5.1 EXACT REQUIRED)
 target_link_libraries(my_app PRIVATE GraphicsApp::application)
 ```
 

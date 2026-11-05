@@ -1,6 +1,6 @@
 # Comportamento UI per l’integrazione host
 
-Versioni: UIFramework 0.3.0 e GraphicsApp 0.5.0. Il codice dell’host non viene
+Versioni: UIFramework 0.3.1 e GraphicsApp 0.5.1. Il codice dell’host non viene
 modificato in questo repository. Il commit preciso da importare accompagna
 questa consegna; aggiornare la copia locale in modo esplicito.
 
@@ -35,6 +35,35 @@ focus e gesti pendenti.
 L’host può continuare a dare subito il focus al campo Rinomina con
 `ui_text_input_focus`: il cursore è disponibile senza imporre un anello da
 navigazione. La scelta del campo iniziale resta dell’applicazione.
+
+## Cattura e fine dell'editing
+
+Il focus di navigazione e la cattura della tastiera sono distinti.
+`ui_has_keyboard_capture()` resta false dopo un clic su un normale bottone
+rilasciato. Campi testo/numerici in editing e overlay aperti catturano sempre;
+la navigazione esplicita da tastiera continua a catturare.
+
+Fuori dalle modali, Invio conferma ed Esc annulla l'editing: entrambi rilasciano
+la cattura mantenendo la posizione per Tab. Le successive scorciatoie
+(es. G/R dell'editor) non riattivano il campo. Un click, Tab o Invio possono
+riaprirlo; per i campi testo è disponibile anche `ui_text_input_focus`.
+Un numero non valido resta invece in editing e continua a catturare.
+La presenza di una modale o di un altro overlay mantiene la sua cattura anche
+quando termina l'editing del campo interno.
+
+Il chiamante deve distinguere la cattura corrente dall'evento che l'ha appena
+terminata: per Esc resta valido `UIInputDiagnostics.escape_consumed`. Il batch
+originale rimane invariato. Questa correzione non modifica il prepass delle
+regioni di input dell'host, necessario per evitare click attraverso gli overlay.
+
+## Numeri nei campi e negli slider
+
+I float a riposo e all'apertura dell'editor usano una forma compatta: almeno
+sei cifre significative disponibili, aumentate solo se necessario a ricostruire
+lo stesso float. `%g` elimina gli zeri finali: `2.2f` appare `2.2`, mantenendo
+il valore nel modello. Il formato può usare la notazione scientifica, ammessa
+anche durante la digitazione. Il testo è ritagliato all'interno del campo;
+mentre si scrive scorre verso la fine, dove vengono aggiunti i caratteri.
 
 ## Etichette
 
@@ -90,6 +119,11 @@ conservarle direttamente nell'etichetta.
 
 ## Prova da ripetere nell’host
 
+- Click e rilascio su bottone: nessuna cattura residua; G/R disponibili.
+- Campo numerico fuori dalle modali: Invio/Esc rilasciano la cattura; un G/R
+  successivo non riprende l'editing. Verificare anche ritorno con Tab e Invio.
+- Slider con `2.2f`, valori molto piccoli/grandi e campo stretto: testo confinato
+  al campo, conferma senza modifiche non arrotonda il valore nel modello.
 - Campo Rinomina con testo modificato: Esc chiude con una pressione, non
   conferma il nome e non attiva comandi dell’interfaccia sottostante.
 - Dropdown in una modale e modali annidate: si chiude un solo livello per Esc.

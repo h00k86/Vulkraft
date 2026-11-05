@@ -180,7 +180,10 @@ bool ui_text_input_mode(const char *id, Font *font, TextAnchor anchor,
   bool hover = enabled && ui_pointer_hit(x, y, w, h);
   bool nav_focus=ui_nav_register(ui_overlay_context(), id,(UIRect){x,y,w,h},UI_NAV_TEXT,enabled,hover);
   if(!enabled || !ui_nav_allowed(ui_overlay_context())) state->focused=false;
-  if(enabled && !state->focused && ((nav_focus && navigation_view->nav_edit) || ui_nav_has_events(ui_overlay_context(), id))) {
+  if(enabled && !state->focused && ((nav_focus && navigation_view->nav_edit) || ui_nav_has_events(ui_overlay_context(), id) ||
+      ui_nav_key(ui_overlay_context(), id,PLATFORM_KEY_ENTER,false) ||
+      ui_nav_key(ui_overlay_context(), id,PLATFORM_KEY_KP_ENTER,false))) {
+    navigation_view->nav_editor_finished=false;
     state->focused=ui_text_snapshot(state,buffer); state->caret=state->selection_anchor=length;
   }
   if (hover)
@@ -218,9 +221,11 @@ bool ui_text_input_mode(const char *id, Font *font, TextAnchor anchor,
       if(e->kind==INPUT_KEY && e->action!=PLATFORM_PRESS && e->action!=PLATFORM_REPEAT) continue;
       if (e->kind==INPUT_KEY && e->key==PLATFORM_KEY_ESCAPE && ui_capture_editor_escape_allowed(ui_overlay_context())) {
         ui_text_edit_cancel(state,buffer,buffer_size);
+        ui_nav_editor_finish(ui_overlay_context(), id);
         ui_capture_mark_escape(ui_overlay_context());
       } else if (e->kind==INPUT_KEY && (e->key==PLATFORM_KEY_ENTER || e->key==PLATFORM_KEY_KP_ENTER)) {
         confirmed=true; state->focused=false;
+        ui_nav_editor_finish(ui_overlay_context(), id);
       } else if(password && e->kind==INPUT_KEY && (e->mods&PLATFORM_MOD_CONTROL) &&
                 (e->key==PLATFORM_KEY_C || e->key==PLATFORM_KEY_X)) {
         /* Password fields never export their contents to the clipboard. */

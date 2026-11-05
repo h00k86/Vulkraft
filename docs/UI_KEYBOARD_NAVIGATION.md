@@ -23,7 +23,12 @@ senza eliminare il controllo selezionato. Autofocus e ritorno da una modale
 conservano il metodo di input attivo. Un click seleziona anche il
 controllo per il successivo Tab; un click sullo sfondo rilascia il focus. La
 perdita del focus della finestra annulla navigazione, editor e gesti pendenti.
-`ui_has_keyboard_capture()` include il controllo selezionato dalla navigazione.
+`ui_has_keyboard_capture()` include la navigazione esplicita da tastiera,
+ma il solo focus lasciato da un clic non cattura. Testo/numeri in editing e
+overlay continuano a catturare anche con il mouse. Invio/Esc terminano
+l'editing e rilasciano la cattura conservando la destinazione del successivo
+Tab; altri tasti non riaprono il campo. Click, Tab, focus programmato e Invio
+possono riprendere l'editing.
 
 ## Ordine, ID e visibilità
 

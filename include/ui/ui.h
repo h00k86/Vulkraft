@@ -345,6 +345,9 @@ bool ui_property_asset(UIPropertyLayout *layout, const char *id,
 bool ui_any_hover(void);
 bool ui_any_text_input_focused(void);
 bool ui_has_pointer_capture(void);
+/* Active editing, open overlays and explicit keyboard navigation own input.
+ * Focus retained by a mouse click or after editor Enter/Esc alone does not.
+ * Tab/click/programmatic focus can resume an editor; Enter can reopen it. */
 bool ui_has_keyboard_capture(void);
 /* True while a persistent UI overlay owns input (text editing, a dropdown,
  * a modal, or an editor context menu). */

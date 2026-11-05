@@ -4,7 +4,7 @@
  * Change decimal components here; see docs/UI_COMPATIBILITY.md. */
 #define UI_VERSION_MAJOR 0
 #define UI_VERSION_MINOR 3
-#define UI_VERSION_PATCH 0
+#define UI_VERSION_PATCH 1
 
 #define UI_VERSION_DETAIL_STRINGIFY_(value) #value
 #define UI_VERSION_DETAIL_STRINGIFY(value) UI_VERSION_DETAIL_STRINGIFY_(value)

@@ -17,6 +17,7 @@ bool ui_nav_allowed(UIContext *c);
 void ui_nav_set(UIContext *c, const char *id,bool keyboard);
 int ui_nav_find(UIContext *c, const UINavigationEntry *entries,int count,const char *id);
 bool ui_nav_event(UIContext *c, const char *id,size_t n);
+void ui_nav_editor_finish(UIContext *c, const char *id);
 bool ui_nav_has_events(UIContext *c, const char *id);
 bool ui_nav_focused(UIContext *c, const char *id);
 bool ui_nav_key(UIContext *c, const char *id,int key,bool repeat);
