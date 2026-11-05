@@ -54,6 +54,6 @@ mat4 mat4_rotation_x(float degrees);
 mat4 mat4_rotation_y(float degrees);
 mat4 mat4_rotation_z(float degrees);
 /* Applica m a (x,y,z,1); w viene ignorato (nessuna divisione prospettica:
- * tutte le matrici dell'engine sono affini/ortografiche). */
+ * le matrici usate dal renderer sono affini/ortografiche). */
 void mat4_transform_point(const mat4 *m, const float in[3], float out[3]);
 #endif

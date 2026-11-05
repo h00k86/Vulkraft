@@ -1,5 +1,0 @@
-python3 tools/check_boundaries.py
-Architecture boundary: PASS
-cc -Iinclude -DGLFW_INCLUDE_NONE -std=c11 -Wall -Wextra -Wno-unused-parameter -ffunction-sections -fdata-sections tests/ui_input_state_test.c -Wl,--gc-sections -lm -o build/ui_input_state_test
-./build/ui_input_state_test
-UI input/section state checks: PASS

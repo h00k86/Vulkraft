@@ -3,7 +3,7 @@
 
 // La swapchain usa VK_FORMAT_B8G8R8A8_SRGB: i colori del tema sono in
 // spazio LINEARE e la GPU li ri-codifica in sRGB alla scrittura. La
-// palette è definita nei valori sRGB del mockup ("Engine Editor") e
+// palette è definita in valori sRGB e
 // convertita qui con la curva inversa (x^2.2), così l'esadecimale nel
 // codice corrisponde a ciò che appare a schermo.
 static UIColor ui_srgb_hex(uint32_t rgb) {
@@ -16,11 +16,8 @@ static UIColor ui_srgb_hex(uint32_t rgb) {
 UIColor ui_color_srgb(uint32_t rgb) { return ui_srgb_hex(rgb); }
 
 UITheme ui_theme_dark(void) {
-  // Palette dal mockup "Engine Editor" (claude.ai/design): grigi caldi
-  // scuri + VIOLA #ab34eb come colore di selezione/attivo (migrazione
-  // tema: l'identita' visiva era arancio #f0842c). Ogni stato accent
-  // (hover/focus/drag/selezione) deriva da QUESTO campo — mai valori
-  // viola sparsi nei widget.
+  // Tema scuro con accento viola #ab34eb. Hover, focus e selezione
+  // derivano dal colore accent configurabile nel tema.
   UITheme t = {0};
   t.button_normal = ui_srgb_hex(0x20252b);
   t.button_hover = ui_srgb_hex(0x262d34);

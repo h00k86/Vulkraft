@@ -3,7 +3,7 @@
 #include "render/text_renderer.h"
 #include <stdio.h>
 #include <string.h>
-// Composition of existing canonical widgets, from game_draw_hud.
+// Example composition using the public UI widgets.
 void app_draw(APP *app) {
   static char text[256] = "La tua applicazione parte da qui";
   static int clicks = 0;

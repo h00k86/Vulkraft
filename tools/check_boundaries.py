@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-"""Architectural check; --extraction also verifies the original function whitelist."""
+"""Check Vulkraft module boundaries and linked UI test isolation."""
 from pathlib import Path
-import json
 import re
-import sys
 
 root = Path(__file__).resolve().parents[1]
 issues = []
@@ -112,9 +110,9 @@ for subtree in ('src', 'include', 'examples', 'backends'):
             if re.search(r'#\s*include\s*"(?:app/application|platform/window|input/keyboard)\.h"|\binput_keyboard_\w+\s*\(|\bplatform_key_state\s*\(|\bapp\s*->|\bg_virtual(?:Width|Height)\b|\bVIRTUAL_[WH]\b', code):
                 issues.append(f'{rel}: window/application input dependency in UI core')
         if re.search(r'#\s*include\s*"(?:game|editor|audio|particles|mesh|vfx)/', code):
-            issues.append(f'{rel}: dependency on omitted engine module')
+            issues.append(f'{rel}: dependency outside the application framework')
         if re.search(r'\bGAME\b|\bGAME_STATE_\w+\b', code):
-            issues.append(f'{rel}: gameplay state in generic application')
+            issues.append(f'{rel}: domain-specific state in generic application')
 
 # Test fixtures may include other fixtures, but linked suites must not pull in ui.c.
 def test_includes_core(path, seen=None):
@@ -138,24 +136,6 @@ for name in ('ui_navigation_test', 'ui_interaction_test', 'ui_tabs_splitter_test
              'ui_dropdown_storage_test', 'ui_navigation_batch_test', 'ui_menu_storage_test', 'ui_error_test', 'ui_session_test'):
     if test_includes_core(root / 'tests' / (name + '.c')):
         issues.append(f'tests/{name}.c: linked test includes core implementation')
-
-if '--extraction' in sys.argv:
-    manifest = json.loads((root / 'docs/extraction-manifest.json').read_text())
-    allowed = {(row['file'], row['function']) for row in manifest['functions']}
-    pattern = re.compile(r'(?m)^(?:(?:static|inline|extern|const|unsigned|signed)\s+)*[A-Za-z_]\w*(?:\s+|\s*\*+\s*)([A-Za-z_]\w*)\s*\([^;{}]*?\)\s*\{')
-    count = 0
-    for subtree in ('src', 'include', 'examples', 'tests', 'shaders'):
-        for path in (root / subtree).rglob('*'):
-            if path.suffix not in ('.c', '.h', '.vert', '.frag') or path.name == 'stb_image.h':
-                continue
-            text = path.read_text()
-            code = re.sub(r'/\*[\s\S]*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', lambda m: ''.join('\n' if c == '\n' else ' ' for c in m[0]), text)
-            rel = path.relative_to(root).as_posix()
-            for found in pattern.finditer(code):
-                count += 1
-                if (rel, found[1]) not in allowed:
-                    issues.append(f'{rel}: {found[1]} has no original definition in extraction manifest')
-    print(f'Extraction provenance: {count} definitions inspected')
 
 for issue in issues:
     print('FAIL:', issue)

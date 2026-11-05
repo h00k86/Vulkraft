@@ -13,7 +13,7 @@ extern float g_virtualHeight;
 #define VIRTUAL_H g_virtualHeight
 #define WORLD_Z_MIN -1000.0f
 #define WORLD_Z_MAX 1000.0f
-// Retained video fields from GameSettings; no gameplay state.
+// Application video configuration.
 typedef enum { WINDOW_MODE_WINDOWED, WINDOW_MODE_FULLSCREEN, WINDOW_MODE_BORDERLESS } WindowMode;
 typedef struct { int width, height; WindowMode window_mode; } VideoSettings;
 typedef struct { VideoSettings video; } AppSettings;

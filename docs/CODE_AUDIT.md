@@ -33,8 +33,8 @@ Sono stati aggiunti questo report e i materiali diagnostici in
 | Nuovo avvio finestra/Vulkan, resize e interazione reale | NON ESEGUITO |
 | LeakSanitizer, Windows/macOS, matrice di GPU/driver | NON VERIFICATI |
 
-I precedenti log runtime in `docs/VALIDATION.md` documentano l'estrazione:
-non sono nuove verifiche di questa analisi. I probe sono headless; nei due
+Le verifiche generali del progetto sono descritte in `docs/PROJECT_VALIDATION.md`
+e restano distinte dai risultati di questa analisi. I probe sono headless; nei due
 probe UI ASan è attivo e LeakSanitizer è disabilitato esplicitamente.
 Il test texture verifica il flusso CPU e i descriptor write intercettati,
 non esegue rendering né valida un driver Vulkan.
@@ -323,4 +323,4 @@ di problemi architetturali o correttezza Vulkan.
 
 Non serve una riscrittura generale per correggere i primi problemi. Occorre
 prima stabilizzare i contratti di stato, ownership ed errore che oggi sono
-impliciti nel codice estratto dal motore.
+impliciti nel codice analizzato.

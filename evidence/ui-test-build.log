@@ -1,1 +1,0 @@
-cc -Iinclude -DGLFW_INCLUDE_NONE -std=c11 -Wall -Wextra -Wno-unused-parameter -ffunction-sections -fdata-sections tests/ui_input_state_test.c -Wl,--gc-sections -lm -o build/ui_input_state_test

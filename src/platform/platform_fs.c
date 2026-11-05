@@ -1,5 +1,5 @@
-/* PORTING (VALUTAZIONI.md E13, 2026-09-25) -- unica implementazione delle
- * chiamate al file system. Tutto il resto del motore parla solo con
+/* Implementazione portabile delle
+ * chiamate al file system. Gli altri moduli usano
  * platform_fs.h.
  *
  * Il file e' diviso in due blocchi condizionali con lo stesso elenco di
@@ -9,7 +9,7 @@
  * scritte una volta sola. */
 
 /* Definite PRIMA di ogni include: con -std=c11 puro glibc nasconde
- * realpath, readlink e setenv, e questo e' l'unico file del motore che li
+ * realpath, readlink e setenv, e questo modulo li
  * usa. Cosi' compila con qualunque -std lo raggiunga. */
 #ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
@@ -68,7 +68,7 @@ bool platform_file_mtime(const char *path, long long *outSeconds) {
   if (!GetFileAttributesExA(path, GetFileExInfoStandard, &d))
     return false;
   /* FILETIME conta in unita' di 100 ns dal 1601: si divide per avere
-   * secondi. Il motore confronta solo due valori fra loro (asset piu'
+   * secondi. Il framework confronta solo due valori fra loro (asset piu'
    * recente del derivato?), quindi l'epoca diversa da POSIX non conta. */
   unsigned long long t =
       ((unsigned long long)d.ftLastWriteTime.dwHighDateTime << 32) |

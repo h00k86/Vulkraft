@@ -1,17 +1,6 @@
 #pragma once
-/* PORTING (VALUTAZIONI.md E13, 2026-09-25) -- FILE SYSTEM, strato di
- * compatibilita'.
- *
- * Il motore usa Vulkan, GLFW e miniaudio, tutte gia' portabili. Le uniche
- * chiamate legate al sistema operativo sono quelle sul file system, ed
- * erano sparse in dodici file: elencare una cartella, sapere se un percorso
- * esiste ed e' una cartella, crearne una, leggere e cambiare la cartella
- * di lavoro, risolvere un percorso assoluto.
- *
- * Qui c'e' l'unico posto dove compaiono <dirent.h>, <unistd.h> e
- * <sys/stat.h> da un lato e <windows.h> dall'altro. La regola per tutto il
- * resto del motore e' semplice: **niente POSIX fuori da questo modulo**.
- * Vedi CONVENZIONI.md, sezione 14.
+/* File system portabile: contratti comuni per percorsi, file e directory.
+ * I dettagli Windows/POSIX sono confinati nell'implementazione piattaforma.
  *
  * Convenzioni comuni a tutte le funzioni:
  *   - i percorsi si costruiscono e si passano SEMPRE con '/' come
@@ -28,8 +17,7 @@
 
 /* --- interrogazione ---------------------------------------------------- */
 
-/* Esiste, qualunque cosa sia (file, cartella, altro). Equivale al vecchio
- * "stat() == 0" sparso nel motore, che era vero anche per le cartelle. */
+/* Esiste, qualunque cosa sia (file, cartella, altro). */
 bool platform_path_exists(const char *path);
 /* Includes dangling symlinks/reparse points. */
 bool platform_path_entry_exists(const char *path);
@@ -59,9 +47,7 @@ bool platform_remove_file(const char *path);
  * rejected. This is not conflict detection against other writers or a promise
  * of directory durability after power loss. */
 bool platform_write_file_atomic(const char *path, const void *data, size_t size);
-/* Rimuove una cartella VUOTA; false se non lo e'. Non esiste una rimozione
- * ricorsiva di proposito: cancellare alberi interi non e' una cosa che il
- * motore debba poter fare per sbaglio. */
+/* Rimuove una cartella VUOTA; false se non lo e'. */
 bool platform_remove_dir(const char *path);
 
 /* --- cartella di lavoro e percorsi ------------------------------------- */
@@ -72,7 +58,7 @@ bool platform_set_cwd(const char *path);
  * false se il percorso non esiste. */
 bool platform_real_path(const char *path, char *out, size_t cap);
 /* Cartella dell'ESEGUIBILE in esecuzione: l'unico riferimento affidabile
- * per un gioco distribuito, che viene lanciato da qualunque cartella. */
+ * per un'applicazione avviata da qualunque cartella. */
 bool platform_exe_dir(char *out, size_t cap);
 
 /* --- elenco di una cartella -------------------------------------------- */
@@ -108,9 +94,8 @@ bool platform_dir_entry_is_dir(const char *dirPath, const PlatformDirEntry *entr
 
 /* Riscrive in loco ogni '\\' come '/'. Va chiamata su qualunque percorso che
  * arrivi dall'esterno (drag&drop, riga di comando, file di progetto scritti
- * su Windows): dentro il motore i percorsi hanno una forma sola. */
+ * su Windows): nel framework i percorsi hanno una forma sola. */
 void platform_fs_normalize_separators(char *path);
 
-/* setenv(3) non esiste su MSVC. Usata solo dagli hook di avvio automatico
- * dell'editor (EDITOR_AUTOSTART_*), che nella build di gioco non ci sono. */
+/* Imposta una variabile di ambiente con supporto Windows/POSIX. */
 bool platform_setenv(const char *name, const char *value);

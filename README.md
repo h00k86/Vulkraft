@@ -1,8 +1,8 @@
 # Vulkraft
 
 Framework per applicazioni grafiche in C11, basato su Vulkan, con backend
-piattaforma GLFW e SDL2, testo MSDF, widget e layout. Estratto dal motore ENGINE. Il repository e' autonomo: non
-richiede il checkout del gioco e non carica livelli, personaggi o asset di gioco.
+piattaforma GLFW e SDL2, testo MSDF, widget e layout. Il repository contiene
+sorgenti, risorse, esempi e strumenti necessari per compilare il framework.
 
 Per integrare una nuova applicazione usare `AppCallbacks`, `app_run()` e
 `user_data`: [contratto pubblico GraphicsApp 0.3.0](docs/GRAPHICS_APP_API.md).
@@ -80,8 +80,8 @@ portarsi dietro un altro eseguibile o il main della demo.
 Il renderer conserva 16 slot texture: 0 per il font, 1-14 per immagini e icone,
 15 per l'anteprima transiente del file picker. Lo shader usa gli indici costanti
 in uno switch, cosi' questo percorso UI non richiede descriptor indexing.
-Le immagini hanno la stessa convenzione di campionamento dell'engine; i colori
-UI esadecimali passano da `ui_color_srgb()`.
+I colori UI esadecimali passano da `ui_color_srgb()` per la conversione
+nello spazio colore usato dal renderer.
 
 ## Architettura
 
@@ -97,58 +97,28 @@ UI esadecimali passano da `ui_color_srgb()`.
 
 `include/render/gfx.h` espone contratti indipendenti da Vulkan. Gli handle veri
 vivono in `include/render/gfx_vulkan.h`, che resta privato al backend.
-`APP` contiene puntatori opachi, font, configurazione della finestra e tempo:
-nessuno stato di gioco. UI e applicazione non accedono alle strutture Vulkan.
+`APP` contiene puntatori opachi, font, configurazione della finestra e tempo.
+UI e applicazione non accedono alle strutture Vulkan.
 
-`make check` verifica questi confini e l'assenza di dipendenze verso i moduli
-rimossi. GLFW è confinato negli adattatori finestra/superficie; app, UI e input
+`make check` verifica questi confini e le dipendenze tra i moduli. GLFW è confinato negli adattatori finestra/superficie; app, UI e input
 usano API del framework. Un backend headless verifica il contratto senza GLFW.
 Build, migrazione e limiti: [PLATFORM_ABSTRACTION.md](docs/PLATFORM_ABSTRACTION.md).
 
-## Cosa e' stato estratto
+## Limiti e verifiche
 
-Sono riutilizzate le funzioni esistenti. I collegamenti a scene, livelli,
-combattimento, audio, particelle, mesh, minimappa, post processing ed editor del
-gioco sono stati rimossi. Le funzioni del menu prima abilitate dall'editor
-sono ora disponibili come UI generica.
+L'editing di testo è a riga singola, supporta UTF-8 e undo/redo; IME,
+segmentazione per grafemi ed editor multilinea non sono implementati.
+Il ciclo standard è continuo, con V-Sync e attesa eventi a finestra minimizzata.
 
-Le sole rinomine di funzioni sono:
+Il filesystem comprende implementazioni Windows/POSIX. Le verifiche descritte
+sono eseguite su Linux; Windows e macOS richiedono validazione dedicata.
+Le licenze delle dipendenze sono conservate nei relativi sorgenti e asset.
 
-| Originale | Nome nella base |
-| --- | --- |
-| `game_init` | `app_init` |
-| `game_shutdown` | `app_shutdown` |
-| `game_loop` | `app_loop` |
-| `game_draw_hud` | `app_draw` |
-| `game_autostart_frame_hook` | `app_autostart_frame_hook` |
+Comandi di validazione e limiti delle prove sono descritti in
+[PROJECT_VALIDATION.md](docs/PROJECT_VALIDATION.md). Log e catture vengono
+generati localmente in `evidence/`.
 
-I corpi sono stati ridotti o adattati nella copia: non e' una copia byte per
-byte. Non sono state aggiunte funzioni C o GLSL prive di una definizione
-originaria. `docs/extraction-manifest.json` riporta file, nome originale,
-linea e hash di ogni definizione di partenza. Lo snapshot sorgente include
-anche le modifiche locali presenti nel motore al momento dell'estrazione.
-`python3 tools/check_boundaries.py --extraction` verifica l'inventario iniziale;
-in seguito, quando aggiungi le funzioni della tua applicazione, usa il normale
-`make check` per mantenere i confini architetturali.
-
-## Limiti ereditati e verifiche
-
-Il campo di testo esistente e' a riga singola e usa il polling dei tasti:
-non implementa un editor multilinea, undo/redo, IME o un input Unicode completo.
-Questi comportamenti appartengono all'applicazione futura e non sono stati
-aggiunti durante l'estrazione. Il loop resta quello continuo del motore,
-con V-Sync e attesa degli eventi quando la finestra e' minimizzata.
-
-Il filesystem conserva i rami Windows/POSIX gia' presenti; build e runtime
-vengono verificati qui su Linux. Non e' stata effettuata una verifica su
-Windows o macOS. I font e stb_image sono copiati dal progetto; le condizioni
-presenti nei sorgenti di terze parti sono mantenute. Non viene assegnata una
-nuova licenza al codice originale.
-
-I log e le catture effettivamente eseguite sono in `evidence/` e il resoconto
-in `docs/VALIDATION.md`.
-
-Per una prova breve senza toccare le impostazioni dell'engine:
+Per una prova breve dell'applicazione:
 
 ```sh
 APP_AUTOSTART_SECONDS=8 ./build/app.out

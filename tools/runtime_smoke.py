@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Linux/X11 smoke run of this repository's window only; no engine writes."""
+"""Linux/X11 smoke run of this repository's window only."""
 from pathlib import Path
 import subprocess
 import time
