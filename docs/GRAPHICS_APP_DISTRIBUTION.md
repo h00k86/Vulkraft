@@ -1,4 +1,4 @@
-# Distribuzione sorgenti GraphicsApp 0.3.0
+# Distribuzione sorgenti GraphicsApp 0.3.1
 
 Il pacchetto comprende codice C, header pubblici e privati necessari alla build,
 entrambi gli host GLFW/SDL2, host headless, shader GLSL, atlas/font e licenza
@@ -17,9 +17,9 @@ python3 tools/check_app_package.py --output-dir evidence/app-package
 
 Gli artefatti risultanti sono:
 
-- `build/graphics-app-0.3.0-source.tar.gz`;
-- `build/graphics-app-0.3.0-source.tar.gz.sha256`;
-- `build/graphics-app-0.3.0-manifest-sha256.json`.
+- `build/graphics-app-0.3.1-source.tar.gz`;
+- `build/graphics-app-0.3.1-source.tar.gz.sha256`;
+- `build/graphics-app-0.3.1-manifest-sha256.json`.
 
 Il manifest registra SHA-256 dei byte di ogni sorgente. I membri tar sono ordinati,
 file regolari 0644, UID/GID 0 senza nomi proprietario. Tar e gzip usano timestamp
@@ -68,8 +68,8 @@ Una fase fallita o interrotta non viene dichiarata PASS.
 ## Compilazione dell'archivio
 
 ```sh
-tar -xzf graphics-app-0.3.0-source.tar.gz
-cmake -S graphics-app-0.3.0 -B app-build -DCMAKE_BUILD_TYPE=Release \
+tar -xzf graphics-app-0.3.1-source.tar.gz
+cmake -S graphics-app-0.3.1 -B app-build -DCMAKE_BUILD_TYPE=Release \
   -DGRAPHICS_APP_WITH_VULKAN=ON -DGRAPHICS_APP_PLATFORM=sdl2
 cmake --build app-build -j4
 cmake --install app-build --prefix /tmp/graphics-app-sdk

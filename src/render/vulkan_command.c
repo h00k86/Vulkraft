@@ -7,7 +7,6 @@
 #include "render/frame_dump.h"
 #include <stdlib.h>
 #include <string.h>
-static RenderCommandStats g_command_stats;
 
 bool create_command_buffers(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
@@ -42,7 +41,6 @@ bool create_command_buffers(APP *app) {
   if (vkAllocateCommandBuffers(device, &alloc, upload_commands) != VK_SUCCESS) return false;
   for (uint32_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; ++frame)
     ctx->transfers[frame].command_buffer = upload_commands[frame];
-
   return true;
 }
 
@@ -62,12 +60,7 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
     app->error = (AppError){APP_ERROR_STATE, "missing upload command buffer"};
     return false;
   }
-  RenderCommandStats stats = {0};
-  VertexBuffer *upload_buffers[1] = {
-      &app->renderer.gpu->hud_buffer,
-  };
 
-  g_command_stats = stats;
   if (!vulkan_check(app, vkResetCommandBuffer(cmd, 0), "upload command reset")) return false;
   VkCommandBufferBeginInfo begin_info = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -75,37 +68,27 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
   };
   if (!vulkan_check(app, vkBeginCommandBuffer(cmd, &begin_info), "upload command begin")) {
     LOG_ERROR("upload command buffer begin failed for frame %u", frame_index);
-    g_command_stats = stats;
     return false;
   }
 
-  VkBufferMemoryBarrier barriers[1];
-  uint32_t upload_count = 0;
-  for (uint32_t i = 0; i < 1; ++i) {
-    VertexBuffer *vb = upload_buffers[i];
-    if (vertex_buffer_record_upload(vb, frame_index, cmd,
-                                    &barriers[upload_count])) {
-      stats.transfer_bytes += vb->upload_size[frame_index];
-      upload_count++;
-    } else if (vb->upload_requested[frame_index]) {
-      app->error = (AppError){APP_ERROR_STATE, "invalid vertex upload range"};
-      return false;
-    }
+  VkBufferMemoryBarrier barrier;
+  VertexBuffer *vb = &app->renderer.gpu->hud_buffer;
+  bool has_upload = vertex_buffer_record_upload(vb, frame_index, cmd, &barrier);
+  if (!has_upload && vb->upload_requested[frame_index]) {
+    app->error = (AppError){APP_ERROR_STATE, "invalid vertex upload range"};
+    return false;
   }
-  if (upload_count > 0) {
+  if (has_upload) {
     vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,
                          VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, NULL,
-                         upload_count, barriers, 0, NULL);
+                         1, &barrier, 0, NULL);
   }
   if (!vulkan_check(app, vkEndCommandBuffer(cmd), "upload command end")) {
     LOG_ERROR("upload command buffer end failed for frame %u", frame_index);
-    g_command_stats = stats;
     return false;
   }
 
-  stats.upload_copies = upload_count;
-  if (upload_count == 0) {
-    g_command_stats = stats;
+  if (!has_upload) {
     return true;
   }
 
@@ -123,13 +106,10 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
   if (!vulkan_check(app, result, "upload queue submit")) {
     LOG_ERROR("upload queue submit failed for frame %u: %d", frame_index,
               result);
-    g_command_stats = stats;
     return false;
   }
   transfer->submitted = true;
   transfer->covered_by_render_fence = false;
-  stats.transfer_submissions = 1;
-  g_command_stats = stats;
   return true;
 }
 
@@ -149,9 +129,8 @@ bool record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index)
   }
   VkCommandBuffer cmd = ctx->commands.buffers[frame_index];
   VertexBuffer *vb_hud = &app->renderer.gpu->hud_buffer;
-  RenderCommandStats stats = g_command_stats;
   VkDeviceSize offset = 0;
-  VkRect2D worldScissor = ctx->swapchain.viewport_rect;
+  VkRect2D canvas_scissor = ctx->swapchain.viewport_rect;
   VkViewport viewport = {0, 0, (float)ctx->swapchain.extent.width, (float)ctx->swapchain.extent.height, 0, 1};
   VkCommandBufferBeginInfo beginInfo = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
   if (!vulkan_check(app, vkBeginCommandBuffer(cmd, &beginInfo), "graphics command begin")) return false;
@@ -160,16 +139,14 @@ bool record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index)
     .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
     .renderPass = ctx->renderpass,
     .framebuffer = ctx->swapchain.framebuffers[image_index],
-    .renderArea = worldScissor,
+    .renderArea = canvas_scissor,
     .clearValueCount = 1, .pClearValues = &clearValues
   };
   vkCmdBeginRenderPass(cmd, &rpInfo2, VK_SUBPASS_CONTENTS_INLINE);
   vkCmdSetViewport(cmd, 0, 1, &viewport);
-  vkCmdSetScissor(cmd, 0, 1, &worldScissor);
+  vkCmdSetScissor(cmd, 0, 1, &canvas_scissor);
   vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, app->renderer.gpu->pipeline.handle);
-  // --- DISEGNO HUD (Statico/UI) --- fresco, sopra a tutto, MAI toccato
-  // dall'effetto acqua — vedi nota sopra sul perché non fa parte del
-  // passaggio 1.
+  // Draw the current UI geometry, respecting each batch clip rectangle.
   if (vb_hud->vertex_count > 0) {
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             app->renderer.gpu->pipeline.layout, 0, 1,
@@ -182,27 +159,23 @@ bool record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index)
       if (!batch || batch->vertex_count <= 0 || batch->clip_w <= 0.0f ||
           batch->clip_h <= 0.0f)
         continue;
-      float sx = (float)worldScissor.extent.width / VIRTUAL_W;
-      float sy = (float)worldScissor.extent.height / VIRTUAL_H;
+      float sx = (float)canvas_scissor.extent.width / VIRTUAL_W;
+      float sy = (float)canvas_scissor.extent.height / VIRTUAL_H;
       VkRect2D scissor = {
-          .offset = {worldScissor.offset.x + (int32_t)(batch->clip_x * sx),
-                     worldScissor.offset.y + (int32_t)(batch->clip_y * sy)},
+          .offset = {canvas_scissor.offset.x + (int32_t)(batch->clip_x * sx),
+                     canvas_scissor.offset.y + (int32_t)(batch->clip_y * sy)},
           .extent = {(uint32_t)(batch->clip_w * sx),
                      (uint32_t)(batch->clip_h * sy)}};
       vkCmdSetScissor(cmd, 0, 1, &scissor);
       vkCmdDraw(cmd, (uint32_t)batch->vertex_count, 1,
                 (uint32_t)batch->first_vertex, 0);
-      stats.draw_calls++;
-      stats.hud_draw_calls++;
     }
-    vkCmdSetScissor(cmd, 0, 1, &worldScissor);
+    vkCmdSetScissor(cmd, 0, 1, &canvas_scissor);
   }
-
 
   vkCmdEndRenderPass(cmd);
   frame_dump_record(app, cmd, frame_index, image_index);
   if (!vulkan_check(app, vkEndCommandBuffer(cmd), "graphics command end")) return false;
-  g_command_stats = stats;
   return true;
 }
 
@@ -210,10 +183,7 @@ void destroy_command_buffers(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
   CommandSystem *cs = &VK_CTX(app)->render_context.commands;
 
-
   vkDestroyCommandPool(device, cs->pool, NULL);
   free(cs->buffers);
   *cs = (CommandSystem){0};
 }
-
-RenderCommandStats render_command_get_stats(void) { return g_command_stats; }

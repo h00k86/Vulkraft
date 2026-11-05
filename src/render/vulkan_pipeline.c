@@ -6,7 +6,7 @@
 
 static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
                                            VkPipelineLayout sharedLayout,
-                                           const char *fragPath, bool additive,
+                                           const char *fragPath,
                                            Pipeline *out) {
   VkDevice device = VK_CTX(app)->logical_device;
   RenderContext *ctx = &VK_CTX(app)->render_context;
@@ -36,10 +36,7 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
   binding.stride = sizeof(Vertex);
   binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-  // MACROTASK Z1: 11 attributi -- la vecchia location 6 (int zIndex) e'
-  // stata RIMOSSA (la profondita' viaggia in pos.z, location 0). Le
-  // location GLSL restano quelle di sempre (0..5, 7..11): l'indice
-  // nell'array C e' solo contiguo, la location e' quella dichiarata.
+  // Vertex locations match the public shader interface (0, 2, 3, 4).
   VkVertexInputAttributeDescription attributes[4];
   attributes[0] = (VkVertexInputAttributeDescription){0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos)};
   attributes[1] = (VkVertexInputAttributeDescription){2, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, color)};
@@ -50,7 +47,7 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
   vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
   vi.vertexBindingDescriptionCount = 1;
   vi.pVertexBindingDescriptions = &binding;
-  vi.vertexAttributeDescriptionCount = 4; // camera3d.md fase 3: via inParallax
+  vi.vertexAttributeDescriptionCount = 4;
   vi.pVertexAttributeDescriptions = attributes;
 
   VkPipelineInputAssemblyStateCreateInfo ia = {0};
@@ -58,8 +55,7 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
   ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   ia.primitiveRestartEnable = VK_FALSE;
 
-  // camera3d.md fase 2: mondo e HUD disegnano nel rettangolo utile 16:9
-  // (bande nere fuori), non sull'intera swapchain.
+  // Initial viewport; dynamic viewport/scissor are set for each frame.
   VkViewport viewport = {.x = (float)ctx->swapchain.viewport_rect.offset.x,
                          .y = (float)ctx->swapchain.viewport_rect.offset.y,
                          .width = (float)ctx->swapchain.viewport_rect.extent.width,
@@ -89,7 +85,6 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
   VkPipelineMultisampleStateCreateInfo ms = {0};
   ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   ms.sampleShadingEnable = VK_FALSE;
-  /* il passaggio del mondo ha i campioni dell'MSAA, lo schermo uno solo */
   ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
   VkPipelineColorBlendAttachmentState attach = {0};
@@ -97,12 +92,7 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
   attach.blendEnable = VK_TRUE;
   attach.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-  // additive: si somma al colore già presente (fuoco/glow/neon) invece
-  // di coprirlo/mischiarsi — stessa identica scelta già usata per le
-  // particelle additive, vedi create_particle_pipeline_variant in
-  // vulkan_particles.c.
-  attach.dstColorBlendFactor = additive ? VK_BLEND_FACTOR_ONE
-                                        : VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+  attach.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
   attach.colorBlendOp = VK_BLEND_OP_ADD;
   attach.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
   attach.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -123,9 +113,7 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
       .stencilTestEnable = VK_FALSE,
   };
 
-  /* VIEWPORT dinamico (2026-10-01): lo stesso pipeline disegna anche la
-   * minimappa viva (render/minimap_view.c) in un'immagine di altra misura;
-   * ogni passaggio imposta il suo (vulkan_command.c). */
+  /* Viewport and clipping follow the current canvas dimensions. */
   VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_VIEWPORT};
   VkPipelineDynamicStateCreateInfo dynamicState = {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
@@ -147,9 +135,7 @@ static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
   gp.pColorBlendState = &blend;
   gp.pDynamicState = &dynamicState;
   gp.layout = sharedLayout;
-  gp.renderPass = renderPass; // <-- il vero cambiamento: il renderpass
-                              // GIUSTO per QUESTA pipeline, non sempre
-                              // lo stesso
+  gp.renderPass = renderPass;
   gp.subpass = 0;
   gp.basePipelineHandle = VK_NULL_HANDLE;
   gp.basePipelineIndex = -1;
@@ -176,7 +162,7 @@ bool create_pipeline(APP *app) {
   VkPipelineLayout sharedLayout;
   if (vkCreatePipelineLayout(VK_CTX(app)->logical_device, &layoutInfo, NULL, &sharedLayout) != VK_SUCCESS) return false;
   app->renderer.gpu->pipeline.layout = sharedLayout;
-  return create_pipeline_for_renderpass(app, VK_CTX(app)->render_context.renderpass, sharedLayout, fragment_path, false, &app->renderer.gpu->pipeline);
+  return create_pipeline_for_renderpass(app, VK_CTX(app)->render_context.renderpass, sharedLayout, fragment_path, &app->renderer.gpu->pipeline);
 }
 
 void destroy_pipeline(APP *app) {

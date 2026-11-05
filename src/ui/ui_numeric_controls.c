@@ -236,21 +236,6 @@ UISliderState *ui_slider_state(const char *id) {
   return NULL;
 }
 
-// 'scale' funziona come nelle altre funzioni ui_* (ui_button_labeled,
-// ui_dropdown): 1.0 = dimensioni base, il chiamante moltiplica per il
-// proprio fattore (es. g_uiScale) se il suo pannello scala con la
-// DIMENSIONE UI, o passa 1.0 se è un elemento a dimensione fissa (es.
-// i modali). Prima queste dimensioni erano hardcoded (trackHeight 10,
-// labelHeight 22, handleW 12) — un'unica altezza VERA fissa, uguale a
-// qualunque g_uiScale, mentre QUASI OVUNQUE i chiamanti calcolavano lo
-// spazio verticale ATTORNO allo slider moltiplicando per g_uiScale.
-// Con g_uiScale < 1 (0.75 di default) quello spazio si restringeva ma
-// lo slider restava alla sua taglia intera, finendo per sovrapporsi
-// alla riga successiva — il bug "le scritte si accavallano" presente
-// in ogni pannello con slider (NEMICO, BOX, PARTICELLE, PATH,
-// COMBATTIMENTO...). Ora lo slider scala esattamente come tutto il
-// resto del pannello che lo contiene, sempre coerente con qualunque
-// g_uiScale, niente più calcoli compensativi sparsi nei chiamanti.
 bool ui_slider(const char *id, Font *font, TextAnchor anchor,
                float margin, float scale, float offset_x, float offset_y,
                float width, float *value, float min, float max,

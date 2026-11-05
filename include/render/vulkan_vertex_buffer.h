@@ -1,13 +1,11 @@
 #pragma once
-#include "render/gfx_vulkan.h" /* PORTING E14: tipi del backend */
+#include "render/gfx_vulkan.h"
 
 #include <vulkan/vulkan.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 typedef struct APP APP;
-
-
 
 bool create_vertex_buffer_ext(APP *app, VertexBuffer *vb,
                               uint32_t initial_vertex_capacity,

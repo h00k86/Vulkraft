@@ -1,7 +1,7 @@
 #include "../src/render/vulkan_buffer.c"
 #include "../src/render/vulkan_uniform_buffer.c"
 #include <assert.h>
-static int failure, buffers, memories, tracked;
+static int failure, buffers, memories;
 VkResult vkCreateBuffer(VkDevice d,const VkBufferCreateInfo *i,const VkAllocationCallbacks *a,VkBuffer *b) {
   *b=(VkBuffer)(uintptr_t)99;
   if(failure==1) return VK_ERROR_OUT_OF_DEVICE_MEMORY;
@@ -24,15 +24,13 @@ VkResult vkMapMemory(VkDevice d,VkDeviceMemory m,VkDeviceSize o,VkDeviceSize s,V
   *p=(void *)1; return failure==5?VK_ERROR_MEMORY_MAP_FAILED:VK_SUCCESS;
 }
 void vkUnmapMemory(VkDevice d,VkDeviceMemory m) {}
-void vulkan_memory_track_allocation(VkPhysicalDevice p,VkDeviceMemory m,VulkanMemoryResourceKind k,const char *n,VkDeviceSize s,const VkMemoryRequirements *r,uint32_t t,int f,bool persistent) { ++tracked; }
-void vulkan_memory_track_free(VkDeviceMemory m) { --tracked; }
 int main(void) {
   VulkanContext context={0}; APP app={.context=&context};
   for(failure=1;failure<=6;++failure) {
     UniformBuffer u={0};
     assert(create_ubo_camera(&app,&u)==(failure==6));
     destroy_ubo_camera(&app,&u); destroy_ubo_camera(&app,&u);
-    assert(!buffers && !memories && !tracked);
+    assert(!buffers && !memories);
   }
   puts("Buffer create/type/allocation/bind/map failures and cleanup: PASS");
 }

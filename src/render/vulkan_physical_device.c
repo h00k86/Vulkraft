@@ -57,9 +57,7 @@ static bool read_hex_id(const char *path, unsigned *out) {
 // e' importante: su un sistema senza sysfs (o non Linux) non si penalizza
 // nessuno e resta valido il criterio per tipo di dispositivo.
 static int gpu_has_connected_display(uint32_t vendorID, uint32_t deviceID) {
-  /* PORTING (E13, 2026-09-25): passa dallo strato di compatibilita'. Su
-   * Windows /sys/class/drm non esiste, l'apertura fallisce e si torna -1,
-   * che e' gia' il comportamento previsto ("non determinabile"). */
+
   PlatformDirIter it;
   if (!platform_dir_open(&it, "/sys/class/drm"))
     return -1;
@@ -166,14 +164,11 @@ static int set_score(PHYSICAL_DEVICE device) {
 static PHYSICAL_DEVICE createDevice(VkPhysicalDevice device) {
 
   VkPhysicalDeviceProperties deviceProperties;
-  VkPhysicalDeviceFeatures deviceFeatures;
   vkGetPhysicalDeviceProperties(device, &deviceProperties);
-  vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
   PHYSICAL_DEVICE dev = {0};
   dev.device = device;
   dev.property = deviceProperties;
-  dev.feature = deviceFeatures;
   // Prima del punteggio: set_score lo legge.
   dev.ownsDisplay = gpu_has_connected_display(deviceProperties.vendorID,
                                               deviceProperties.deviceID);
@@ -264,35 +259,11 @@ static bool device_is_suitable(VkPhysicalDevice device, VkSurfaceKHR surface) {
          device_has_swapchain_surface_support(device, surface);
 }
 
-// Elenco dei dispositivi selezionabili, per la schermata OPZIONI. Riempito
-// da select_device: l'enumerazione Vulkan avviene una volta sola all'avvio,
-// e la UI non puo' rifarla senza una VkInstance.
-#define GPU_LIST_MAX 8
-static char g_gpu_names[GPU_LIST_MAX][256];
-static int g_gpu_count = 0;
+/* Keep only the selected name needed by gfx_selected_gpu_name(). */
 static char g_gpu_selected[256] = "";
-static char g_gpu_preference[128] = "";
-
-int gpu_available_count(void) { return g_gpu_count; }
-
-const char *gpu_available_name(int index) {
-  if (index < 0 || index >= g_gpu_count)
-    return NULL;
-  return g_gpu_names[index];
-}
-
 const char *gpu_selected_name(void) { return g_gpu_selected; }
 
-void gpu_set_preference(const char *name) {
-  if (!name) {
-    g_gpu_preference[0] = '\0';
-    return;
-  }
-  strncpy(g_gpu_preference, name, sizeof(g_gpu_preference) - 1);
-  g_gpu_preference[sizeof(g_gpu_preference) - 1] = '\0';
-}
-
-// Confronto per GAME_GPU: "integrated"/"discrete" per tipo, altrimenti
+// Confronto per APP_GPU: "integrated"/"discrete" per tipo, altrimenti
 // sottostringa del nome senza distinzione di maiuscole (cosi' "radeon",
 // "intel" o "UHD" funzionano tutti).
 static bool device_matches_request(PHYSICAL_DEVICE device, const char *want) {
@@ -334,8 +305,7 @@ static void warn_if_headless(PHYSICAL_DEVICE device) {
     return;
   LOG_WARN("La GPU scelta (%s) non ha uscite video collegate: ogni frame "
            "verra' copiato su un'altra GPU per essere mostrato, con un costo "
-           "fisso per frame indipendente dalla scena. Si cambia da OPZIONI > "
-           "VIDEO > SCHEDA VIDEO, o con GAME_GPU=<nome>.",
+           "fisso per frame. Per scegliere un dispositivo usare APP_GPU=<nome>.",
            device.property.deviceName);
 }
 
@@ -357,18 +327,10 @@ VkPhysicalDevice select_device(VkInstance instance, VkSurfaceKHR surface) {
     free(devices); return VK_NULL_HANDLE;
   }
 
-  // Scavalco esplicito: GAME_GPU=integrated|discrete|<pezzo del nome>.
-  // Nessuna euristica indovina sempre — se il gioco diventa pesante di GPU
-  // la discreta puo' tornare a convenire nonostante la copia — e chi prova
-  // deve poter scegliere senza ricompilare.
-  // La variabile d'ambiente vince sulle opzioni: serve per provare al volo
-  // senza toccare le impostazioni salvate (ed e' come si e' misurato il
-  // problema in benchmarks/results/HYBRID_GPU_PRESENT_P3_H_REPORT.md).
-  const char *forced = getenv("GAME_GPU");
-  if ((!forced || !*forced) && g_gpu_preference[0])
-    forced = g_gpu_preference;
-
-  g_gpu_count = 0;
+  /* APP_GPU selects a suitable device by type or case-insensitive name.
+   * Retain the historical environment alias for existing launch scripts. */
+  const char *forced = getenv("APP_GPU");
+  if (!forced || !*forced) forced = getenv("GAME_GPU");
   g_gpu_selected[0] = '\0';
 
   PHYSICAL_DEVICE bestdevice = {0};
@@ -391,12 +353,6 @@ VkPhysicalDevice select_device(VkInstance instance, VkSurfaceKHR surface) {
                                             "su un'altra GPU)"
                                           : "non determinabile",
              candidate.deviceScore);
-
-    if (g_gpu_count < GPU_LIST_MAX) {
-      snprintf(g_gpu_names[g_gpu_count], sizeof(g_gpu_names[0]), "%s",
-               candidate.property.deviceName);
-      g_gpu_count++;
-    }
 
     if (forced && !forcedFound && device_matches_request(candidate, forced)) {
       forcedDevice = candidate;

@@ -5,7 +5,7 @@ piattaforma GLFW e SDL2, testo MSDF, widget e layout. Il repository contiene
 sorgenti, risorse, esempi e strumenti necessari per compilare il framework.
 
 Per integrare una nuova applicazione usare `AppCallbacks`, `app_run()` e
-`user_data`: [contratto pubblico GraphicsApp 0.3.0](docs/GRAPHICS_APP_API.md).
+`user_data`: [contratto pubblico GraphicsApp 0.3.1](docs/GRAPHICS_APP_API.md).
 I nomi dei target CMake e delle API rimangono `GraphicsApp` e `UIFramework`.
 
 Build ed evidenze generate dalle verifiche restano locali; i comandi per
@@ -192,7 +192,7 @@ l'SDK installato e copia font/shader accanto all'eseguibile.
 Istruzioni in [GRAPHICS_APP_SDK.md](docs/GRAPHICS_APP_SDK.md).
 
 Anche l'[editor di configurazione](examples/config_editor/CMakeLists.txt) può
-essere compilato fuori dal checkout con `find_package(GraphicsApp 0.3.0 EXACT)`.
+essere compilato fuori dal checkout con `find_package(GraphicsApp 0.3.1 EXACT)`.
 La funzione `graphics_app_deploy_resources(target)` distribuisce font e shader
 accanto all'eseguibile. Contratti pubblici e proprietà delle risorse in
 [GRAPHICS_APP_API.md](docs/GRAPHICS_APP_API.md).
@@ -201,3 +201,7 @@ La [distribuzione sorgenti GraphicsApp](docs/GRAPHICS_APP_DISTRIBUTION.md)
 include entrambi gli host, risorse, esempi e test, con manifest e checksum.
 `make app-package` prepara l'archivio; `make validate` verifica anche gli SDK e
 gli editor esterni ricostruiti da quell'archivio.
+
+La revisione dei residui e delle API senza chiamanti interni è documentata in
+[PORTING_CLEANUP.md](docs/PORTING_CLEANUP.md). Per selezionare la GPU si può usare
+`APP_GPU=integrated`, `APP_GPU=discrete` oppure una parte del nome del dispositivo.

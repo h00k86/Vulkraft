@@ -11,7 +11,7 @@
 #define MAX_UI_MODALS 16
 #define MAX_UI_TOASTS 4
 #define MAX_UI_PANELS 64
-#define MAX_UI_MENU_ITEMS 32 /* editor.md A5: menu contestuale unico + SELEZIONE nei menu */
+#define MAX_UI_MENU_ITEMS 32
 #define MAX_UI_SUBMENU_SUBMISSIONS 16
 #define MAX_UI_FLOAT_FIELDS 96
 #define MAX_UI_SLIDERS 64

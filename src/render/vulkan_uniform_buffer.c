@@ -4,12 +4,10 @@
 #include "render/gfx_vulkan.h"
 #include "app/application.h"
 #include "render/vulkan_buffer.h"
-#include "render/vulkan_memory_tracker.h"
 #include <string.h>
 
 bool create_ubo_camera(APP *app, UniformBuffer *ub) {
   VkDeviceSize bufferSize = sizeof(CameraData);
-  ub->size = bufferSize;
 
   if (!create_buffer(VK_CTX(app)->physical_device, VK_CTX(app)->logical_device, bufferSize,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -26,12 +24,6 @@ bool create_ubo_camera(APP *app, UniformBuffer *ub) {
   return true;
 }
 
-void update_ubo_camera(UniformBuffer *ub, const CameraData *data) {
-  if (ub->mapped) {
-    memcpy(ub->mapped, data, sizeof(CameraData));
-  }
-}
-
 void destroy_ubo_camera(APP *app, UniformBuffer *ub) {
   VkDevice device = VK_CTX(app)->logical_device;
   if (ub->mapped) {
@@ -42,7 +34,6 @@ void destroy_ubo_camera(APP *app, UniformBuffer *ub) {
     vkDestroyBuffer(device, ub->buffer, NULL);
   }
   if (ub->memory != VK_NULL_HANDLE) {
-    vulkan_memory_track_free(ub->memory);
     vkFreeMemory(device, ub->memory, NULL);
   }
   *ub = (UniformBuffer){0};

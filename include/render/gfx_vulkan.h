@@ -8,14 +8,11 @@ typedef struct {
     VkBuffer buffer;
     VkDeviceMemory memory;
     void* mapped;
-    VkDeviceSize size;
 } UniformBuffer;
 
 typedef struct {
     VkSemaphore image_available_semaphore;
-    // NIENTE render_finished_semaphore qui: vive per IMMAGINE della
-    // swapchain, non per frame in volo. Vedi render_finished_semaphores
-    // in RenderContext e il commento in vulkan_sync.c.
+
     VkFence in_flight_fence;
 } FrameSyncObjects;
 
@@ -47,10 +44,8 @@ typedef struct {
     bool transfer_src;
     VkExtent2D extent;
     VkFramebuffer *framebuffers;
-    // camera3d.md fase 2 (decisione 6: bande nere): rettangolo utile 16:9
-    // centrato nella swapchain. Viewport/scissor delle pipeline di mondo e
-    // HUD, culling e mapping del mouse lavorano su QUESTO rettangolo; il
-    // post-processing copre l'intera swapchain e dipinge di nero il resto.
+
+    /* Canvas viewport/scissor in swapchain pixels; currently the whole surface. */
     VkRect2D viewport_rect;
 } Swapchain;
 
@@ -71,9 +66,6 @@ typedef struct VertexBuffer {
     VkDeviceMemory staging_buffer_memory[MAX_FRAMES_IN_FLIGHT];
     void* mapped[MAX_FRAMES_IN_FLIGHT];
 
-    // Cleared only after the frame-slot render fence has completed, then set
-    // by update_vertex_buffer. Performance Lab uses this to count actual
-    // uploads rather than infer them from a non-zero draw count.
     bool upload_requested[MAX_FRAMES_IN_FLIGHT];
     VkDeviceSize upload_size[MAX_FRAMES_IN_FLIGHT];
     struct {
@@ -86,12 +78,8 @@ typedef struct VertexBuffer {
     uint32_t capacity;
     uint32_t maximum_capacity;
     VkDeviceSize size;
-    uint32_t peak_vertex_count;
-    uint32_t capacity_growth_count;
-    uint32_t storage_generation;
     const char *debug_name;
 } VertexBuffer;
-
 
 struct RenderContext {
     VkSurfaceKHR surface;

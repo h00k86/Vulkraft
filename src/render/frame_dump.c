@@ -1,10 +1,9 @@
-// MACROTASK MULTI-GIOCO (2026-09-17): vedi include/render/frame_dump.h.
+
 #include "render/frame_dump.h"
 #include "render/gfx_vulkan.h"
 
 #include "log/log.h"
 #include "render/vulkan_buffer.h"
-#include "render/vulkan_memory_tracker.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,7 +47,7 @@ static bool slot_ensure(APP *app, FrameDumpSlot *s, VkDeviceSize size) {
   VkDevice device = VK_CTX(app)->logical_device;
   if (s->buffer != VK_NULL_HANDLE) {
     vkDestroyBuffer(device, s->buffer, NULL);
-    vulkan_memory_track_free(s->memory);
+
     vkFreeMemory(device, s->memory, NULL);
     s->buffer = VK_NULL_HANDLE;
     s->memory = VK_NULL_HANDLE;
@@ -62,9 +61,7 @@ static bool slot_ensure(APP *app, FrameDumpSlot *s, VkDeviceSize size) {
 
 void frame_dump_record(APP *app, GfxCommandList cmdIn, uint32_t frame_index,
                        uint32_t image_index) {
-  /* PORTING (E14): sopra il confine e' una GfxCommandList opaca; il
-   * backend la riconverte nel proprio tipo e da qui in poi nulla
-   * cambia rispetto a prima. */
+
   VkCommandBuffer cmd = (VkCommandBuffer)cmdIn;
 
   init_once();
@@ -164,7 +161,7 @@ void frame_dump_shutdown(APP *app) {
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
     if (g_slots[i].buffer != VK_NULL_HANDLE) {
       vkDestroyBuffer(device, g_slots[i].buffer, NULL);
-      vulkan_memory_track_free(g_slots[i].memory);
+
       vkFreeMemory(device, g_slots[i].memory, NULL);
     }
     memset(&g_slots[i], 0, sizeof(g_slots[i]));

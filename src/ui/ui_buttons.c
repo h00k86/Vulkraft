@@ -276,21 +276,6 @@ bool ui_button_labeled(const char *id, const char *label,
   return clicked;
 }
 
-// Checkbox: quadratino + etichetta a destra, a coordinate ASSOLUTE (x,y —
-// niente sistema di ancoraggio come ui_slider/ui_button, per come viene
-// già usata nei chiamanti esistenti, es. option.c/draw_volume_row).
-// Aggiorna *value DIRETTAMENTE al click (non serve leggere il valore di
-// ritorno per sapere il nuovo stato) e ritorna true SOLO nel frame in cui
-// il click avviene — utile a chi chiama per pushare undo o altra logica
-// aggiuntiva in quel frame, stesso principio del valore di ritorno di
-// ui_button_labeled.
-//
-// NOTA RICOSTRUZIONE: questa funzione è andata persa da una sovrascrittura
-// accidentale e non c'era backup — riscritta da zero seguendo la firma già
-// dichiarata extern nei chiamanti esistenti (option.c, editor_hud_toolbar.c)
-// e lo stesso stile/pattern di click-detection di ui_button_labeled qui
-// sopra. Se il comportamento visivo non torna esattamente a quello di
-// prima, è qui che va aggiustato.
 bool ui_checkbox(const char *id, const char *label, Font *font,
                  float x, float y, float scale, bool *value) {
   UIFrameState *frame_view=ui_state_frame(ui_overlay_context());

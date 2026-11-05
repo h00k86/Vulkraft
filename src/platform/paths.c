@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-static char g_engineDir[APP_PATH_MAX];
+static char g_resourceRoot[APP_PATH_MAX];
 
 static bool path_write(char *out, size_t out_size, const char *format,
                        const char *a, const char *b, const char *c) {
@@ -26,25 +26,27 @@ static bool mkdir_recursive(const char *path) {
   return false;
 }
 
+/* Historical API names retained for SDK compatibility. This is the default
+ * application resource root, with Make build-directory handling. */
 void paths_engine_dir_init(void) {
-  if (g_engineDir[0]) return;
-  if (platform_exe_dir(g_engineDir, sizeof(g_engineDir))) {
-    char *slash = strrchr(g_engineDir, '/');
+  if (g_resourceRoot[0]) return;
+  if (platform_exe_dir(g_resourceRoot, sizeof(g_resourceRoot))) {
+    char *slash = strrchr(g_resourceRoot, '/');
     if (slash && strcmp(slash + 1, "build") == 0) *slash = '\0';
     return;
   }
-  if (!platform_get_cwd(g_engineDir, sizeof(g_engineDir)))
-    snprintf(g_engineDir, sizeof(g_engineDir), ".");
+  if (!platform_get_cwd(g_resourceRoot, sizeof(g_resourceRoot)))
+    snprintf(g_resourceRoot, sizeof(g_resourceRoot), ".");
 }
 
 bool paths_engine_dir(char *out, size_t out_size) {
   paths_engine_dir_init();
-  return path_write(out, out_size, "%s", g_engineDir, NULL, NULL);
+  return path_write(out, out_size, "%s", g_resourceRoot, NULL, NULL);
 }
 
 bool paths_engine_file(char *out, size_t out_size, const char *relative) {
   paths_engine_dir_init();
-  return relative && path_write(out, out_size, "%s/%s", g_engineDir, relative, NULL);
+  return relative && path_write(out, out_size, "%s/%s", g_resourceRoot, relative, NULL);
 }
 
 static bool paths_xdg_dir(char *out, size_t out_size, const char *xdg_name,

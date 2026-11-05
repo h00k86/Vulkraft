@@ -5,7 +5,6 @@
 #include "log/log.h"
 #include "render/vulkan_buffer.h"
 #include "render/vulkan_error.h"
-#include "render/vulkan_memory_tracker.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -34,13 +33,9 @@ static void destroy_storage_set(
     if (staging[i])
       vkDestroyBuffer(device, staging[i], NULL);
     if (staging_memory[i])
-      vulkan_memory_track_free(staging_memory[i]);
-    if (staging_memory[i])
       vkFreeMemory(device, staging_memory[i], NULL);
     if (gpu[i])
       vkDestroyBuffer(device, gpu[i], NULL);
-    if (gpu_memory[i])
-      vulkan_memory_track_free(gpu_memory[i]);
     if (gpu_memory[i])
       vkFreeMemory(device, gpu_memory[i], NULL);
     gpu[i] = staging[i] = VK_NULL_HANDLE;
@@ -50,7 +45,7 @@ static void destroy_storage_set(
 }
 
 static bool create_storage_set(
-    APP *app, VkDeviceSize size, const char *debug_name,
+    APP *app, VkDeviceSize size,
     VkBuffer gpu[MAX_FRAMES_IN_FLIGHT],
     VkDeviceMemory gpu_memory[MAX_FRAMES_IN_FLIGHT],
     VkBuffer staging[MAX_FRAMES_IN_FLIGHT],
@@ -63,18 +58,11 @@ static bool create_storage_set(
                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &gpu[i],
                   &gpu_memory[i])) goto fail;
-    char label[96];
-    snprintf(label, sizeof(label), "%s/device",
-             debug_name ? debug_name : "vertex-buffer");
-    vulkan_memory_track_label(gpu_memory[i], label, (int)i, true);
     if (!create_buffer(VK_CTX(app)->physical_device, device, size,
                   VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                   &staging[i], &staging_memory[i])) goto fail;
-    snprintf(label, sizeof(label), "%s/staging",
-             debug_name ? debug_name : "vertex-buffer");
-    vulkan_memory_track_label(staging_memory[i], label, (int)i, true);
     if (vkMapMemory(device, staging_memory[i], 0, size, 0, &mapped[i]) !=
         VK_SUCCESS) {
       LOG_ERROR("vertex-buffer staging map failed for frame %u", i);
@@ -149,7 +137,7 @@ static bool grow_vertex_buffer(APP *app, VertexBuffer *vb,
   VkBuffer new_staging[MAX_FRAMES_IN_FLIGHT] = {0};
   VkDeviceMemory new_staging_memory[MAX_FRAMES_IN_FLIGHT] = {0};
   void *new_mapped[MAX_FRAMES_IN_FLIGHT] = {0};
-  if (!create_storage_set(app, new_size, vb->debug_name, new_gpu,
+  if (!create_storage_set(app, new_size, new_gpu,
                           new_gpu_memory,
                           new_staging, new_staging_memory, new_mapped))
     return false;
@@ -175,14 +163,7 @@ static bool grow_vertex_buffer(APP *app, VertexBuffer *vb,
   uint32_t old_capacity = vb->capacity;
   vb->capacity = new_capacity;
   vb->size = new_size;
-  ++vb->capacity_growth_count;
-  ++vb->storage_generation;
-  // MACROTASK AUDIT-R1 fase E: niente piu' #ifdef DEBUG qui -- LOG_INFO
-  // (log.h) gestisce gia' da sola sia il caso debug (I/O reale) sia
-  // release/perf (ramo morto che referenzia comunque old_capacity,
-  // niente "unused variable"). Il guard qui sopra era ridondante e
-  // bypassava quel meccanismo, lasciando old_capacity davvero inutilizzata
-  // in release.
+
   LOG_INFO("[%s] vertex buffer grow: %u -> %u vertices, required=%u, "
            "bytes=%" PRIu64,
            vb->debug_name ? vb->debug_name : "vertex-buffer", old_capacity,
@@ -256,9 +237,8 @@ bool create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
   }
   vb->capacity = initial_vertex_capacity;
   vb->maximum_capacity = maximum_vertex_capacity;
-  vb->storage_generation = 1;
 
-  if (!create_storage_set(app, vb->size, vb->debug_name, vb->gpu_buffer,
+  if (!create_storage_set(app, vb->size, vb->gpu_buffer,
                           vb->gpu_buffer_memory, vb->staging_buffer,
                           vb->staging_buffer_memory, vb->mapped))
     return false;
@@ -305,8 +285,6 @@ bool vertex_buffer_prepare(APP *app, VertexBuffer *vb, uint32_t count) {
     return false;
   }
   vb->vertex_count = count;
-  if (count > vb->peak_vertex_count)
-    vb->peak_vertex_count = count;
   return true;
 }
 
@@ -334,7 +312,6 @@ bool vertex_buffer_stage_range(APP *app, VertexBuffer *vb,
     return false;
 
   memcpy((char *)vb->mapped[frame] + copy_offset, data, (size_t)copy_size);
-
 
   uint32_t range_count = vb->upload_range_count[frame];
   if (range_count > 0) {
@@ -393,13 +370,9 @@ void destroy_vertex_buffer_ext(APP *app, VertexBuffer *vb) {
     if (vb->staging_buffer[i])
       vkDestroyBuffer(device, vb->staging_buffer[i], NULL);
     if (vb->staging_buffer_memory[i])
-      vulkan_memory_track_free(vb->staging_buffer_memory[i]);
-    if (vb->staging_buffer_memory[i])
       vkFreeMemory(device, vb->staging_buffer_memory[i], NULL);
     if (vb->gpu_buffer[i])
       vkDestroyBuffer(device, vb->gpu_buffer[i], NULL);
-    if (vb->gpu_buffer_memory[i])
-      vulkan_memory_track_free(vb->gpu_buffer_memory[i]);
     if (vb->gpu_buffer_memory[i])
       vkFreeMemory(device, vb->gpu_buffer_memory[i], NULL);
   }

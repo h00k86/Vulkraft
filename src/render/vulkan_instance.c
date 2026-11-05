@@ -21,7 +21,7 @@ VkInstance create_instance() {
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "Vulkan app";
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-  appInfo.pEngineName = "NoEngine";
+  appInfo.pEngineName = "Vulkraft";
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.apiVersion = VK_API_VERSION_1_3;
 
@@ -70,7 +70,7 @@ VkInstance create_instance() {
     LOG_INFO("Vulkan validation attiva: %s", layers[0]);
   } else if (!validationRequested) {
     LOG_INFO("NO_VALIDATION impostata — build DEBUG senza validation "
-            "layers (più CPU per il resto del gioco, meno rete di "
+            "layers (più CPU per l’applicazione, meno rete di "
             "sicurezza su eventuali errori Vulkan)");
   } else {
     LOG_WARN("VK_LAYER_KHRONOS_validation non disponibile su questa "

@@ -11,7 +11,7 @@ static void fixture(const char *path, const char *json) {
 }
 int main(void) {
   Font font = {0};
-  assert(font_load(&font, "assets/fonts/font2.json", 512, 512));
+  assert(font_load(&font, "assets/fonts/font_utf8.json", 1024, 1024));
   assert(font_get(&font, 'A'));
   char path[] = "/tmp/graphics-font-XXXXXX";
   int fd = mkstemp(path); assert(fd >= 0); close(fd);

@@ -150,9 +150,6 @@ static void text_finish_batch(void) {
         text_offset - g_hud_batches[g_hud_batch_count - 1].first_vertex;
 }
 
-/* TRASFORMAZIONE DELL'HUD (2026-10-01, schermo diviso): mentre si disegna
- * l'HUD di un giocatore, tutto cio' che si disegna in coordinate dell'intero
- * schermo finisce scalato e spostato nel suo riquadro. 0,0,1 = nessuna. */
 static float g_hudOx = 0.0f, g_hudOy = 0.0f, g_hudScale = 1.0f;
 void text_hud_transform(float ox, float oy, float scale) {
   g_hudOx = ox;
@@ -414,13 +411,6 @@ void draw_quad(APP *app, float x, float y, float w, float h, float r, float g,
   text_append_vertices(quad, 6);
 }
 
-// Stesso primitivo di draw_quad sopra, ma da 4 punti ARBITRARI invece
-// di x/y/larghezza/altezza — draw_quad da solo può disegnare solo
-// rettangoli allineati agli assi, niente di ruotato. Ordine dei punti:
-// p0,p1,p2,p3 in giro (es. NW,NE,SE,SW) — stesso ordine di
-// gizmo_compute_handles/box2d_compute_world_hitbox_polygon, così chi
-// chiama può passare direttamente i loro 4 angoli senza doverli
-// riordinare.
 void draw_quad_points(APP *app, Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float r,
                       float g, float b) {
   (void)app;
@@ -441,9 +431,6 @@ void draw_textured_quad(APP *app, float x, float y, float w, float h,
                         float v1) {
   (void)app;
 
-  // Colore bianco pieno: il fragment shader moltiplica texture*colore
-  // vertice, bianco = texture mostrata senza tinta, stesso comportamento
-  // di batch_add_box per i box texturizzati nel mondo.
   Vertex quad[6] = {
       text_make_vertex(x, y, 1, 1, 1, 1, u0, v0, textureSlot),
       text_make_vertex(x + w, y, 1, 1, 1, 1, u1, v0, textureSlot),
@@ -455,36 +442,6 @@ void draw_textured_quad(APP *app, float x, float y, float w, float h,
   text_append_vertices(quad, 6);
 }
 
-// Variante con TINTA vera — draw_textured_quad sopra è già usata
-// altrove con la firma originale (bianco fisso), non toccata per non
-// romperle. Qui invece serve colorare l'icona (verde=attivo,
-// grigio=disattivo, ecc.) senza dover ridisegnare la texture in più
-// varianti di colore — lo shader moltiplica texture*colore vertice,
-// quindi un'icona bianca pura + tinta qui dà lo stesso risultato di
-// un'icona pre-colorata, ma con UNA SOLA texture invece di N copie.
-void draw_textured_quad_tinted(APP *app, float x, float y, float w,
-                               float h, int textureSlot, float u0, float v0,
-                               float u1, float v1, float r, float g,
-                               float b) {
-  (void)app;
-
-  Vertex quad[6] = {
-      text_make_vertex(x, y, r, g, b, 1, u0, v0, textureSlot),
-      text_make_vertex(x + w, y, r, g, b, 1, u1, v0, textureSlot),
-      text_make_vertex(x + w, y + h, r, g, b, 1, u1, v1, textureSlot),
-      text_make_vertex(x, y, r, g, b, 1, u0, v0, textureSlot),
-      text_make_vertex(x + w, y + h, r, g, b, 1, u1, v1, textureSlot),
-      text_make_vertex(x, y + h, r, g, b, 1, u0, v1, textureSlot)};
-
-  text_append_vertices(quad, 6);
-}
-
-/* Generic HUD primitives (Animation Lab integration). The HUD accumulator
- * already accepts arbitrary triangles, so lines and circles need no new
- * shader/pipeline: a line is a thin rotated quad, a circle a triangle fan,
- * both flat-colored exactly like draw_quad (textureID -1). They live here
- * -- not in editor code -- because they are renderer-level primitives any
- * HUD caller can use, same status as draw_quad/draw_quad_points. */
 void draw_hud_line(APP *app, float x0, float y0, float x1, float y1,
                    float thickness, float r, float g, float b) {
   (void)app;

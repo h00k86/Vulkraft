@@ -1,6 +1,5 @@
 #include "render/vulkan_buffer.h"
 #include "render/gfx_vulkan.h"
-#include "render/vulkan_memory_tracker.h"
 #include <stdint.h>
 
 uint32_t find_memory_type(VkPhysicalDevice phys, uint32_t type_filter,
@@ -36,8 +35,6 @@ bool create_buffer(VkPhysicalDevice phys, VkDevice device, VkDeviceSize size,
     vkDestroyBuffer(device, *buffer, NULL); vkFreeMemory(device, *memory, NULL);
     *buffer = VK_NULL_HANDLE; *memory = VK_NULL_HANDLE; return false;
   }
-  vulkan_memory_track_allocation(phys, *memory, VULKAN_MEMORY_RESOURCE_BUFFER,
-                                 "unclassified-buffer", size, &requirements, type, -1, true);
   return true;
 }
 

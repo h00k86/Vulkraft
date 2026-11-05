@@ -21,9 +21,6 @@ VkResult vkCreateSampler(VkDevice d,const VkSamplerCreateInfo *i,const VkAllocat
 VkCommandBuffer begin_single_time_commands(APP *a) { assert(0); return VK_NULL_HANDLE; }
 bool end_single_time_commands(APP *a,VkCommandBuffer c) { assert(0); return false; }
 uint32_t find_memory_type(VkPhysicalDevice p,uint32_t filter,VkMemoryPropertyFlags flags) { assert(0); return UINT32_MAX; }
-void vulkan_memory_track_free(VkDeviceMemory m) {}
-void vulkan_memory_track_allocation(VkPhysicalDevice p,VkDeviceMemory m,VulkanMemoryResourceKind k,const char *n,VkDeviceSize s,const VkMemoryRequirements *r,uint32_t t,int f,bool persistent) { assert(0); }
-void vulkan_memory_track_image_info(VkDeviceMemory m,uint32_t w,uint32_t h,VkFormat f,uint32_t levels,uint32_t layers) { assert(0); }
 int main(void) {
   VulkanContext context={0}; APP app={.context=&context}; Texture t={0};
   load_texture(&app,"mock-pixel",&t);

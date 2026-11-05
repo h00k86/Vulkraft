@@ -328,11 +328,6 @@ bool ui_dropdown(const char *id, Font *font, TextAnchor anchor,
     }
   }
 
-  // Stesso fix di ui_text_input: fronte di click condiviso da ui_begin_frame,
-  // non una static locale — quella faceva sì che il dropdown SLOT (disegnato
-  // per primo, nella toolbar) consumasse il click prima che il dropdown
-  // TEXTURE (disegnato dopo, nel pannello combat) potesse vederlo nello
-  // stesso frame.
   bool clickedNow = ui_capture_dropdown_press(ui_overlay_context(),state,enabled);
 
   int clickedOption = -1;

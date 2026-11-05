@@ -60,9 +60,12 @@ shaders/frag.spv: shaders/tri.frag
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-$(LIB): $(OBJS)
+# Rebuild from current members: ar rcs alone retains objects removed from SRCS.
+$(LIB): $(OBJS) Makefile
 	@mkdir -p build
-	$(AR) rcs $@ $^
+	$(RM) $@.tmp
+	$(AR) rcs $@.tmp $(OBJS)
+	mv -f $@.tmp $@
 $(OUTPUT): $(EXAMPLE_OBJS) $(LIB) shaders/vert.spv shaders/frag.spv
 	$(CC) $(EXAMPLE_OBJS) $(LIB) -o $@ $(PLATFORM_LIBS) -lvulkan -lm
 run: all

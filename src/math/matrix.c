@@ -1,7 +1,7 @@
 #include "math/matrix.h"
-#include <string.h>
+#include <math.h>
 
-mat4 mat4_identity() {
+mat4 mat4_identity(void) {
   mat4 res = {0};
   res.m[0] = 1.0f;
   res.m[5] = 1.0f;
@@ -45,12 +45,7 @@ mat4 mat4_translate(mat4 m, float x, float y, float z) {
 }
 
 mat4 mat4_scale_around(float zoom, float centerX, float centerY) {
-  // zoom > 1.0 deve far vedere PIÙ mondo (zoom out) — le distanze dal
-  // centro vanno DIVISE per zoom (compresse verso il centro), non
-  // moltiplicate. Il fattore di scala reale applicato ai vertici è
-  // quindi 1/zoom, non zoom direttamente — prima era invertito: zoom=3
-  // moltiplicava le distanze per 3 invece di dividerle, risultato
-  // esattamente opposto (si avvicinava invece di allontanarsi).
+  // Scale around the center without moving the center itself.
   float s = 1.0f / zoom;
   mat4 res = mat4_identity();
   res.m[0] = s;
@@ -59,9 +54,6 @@ mat4 mat4_scale_around(float zoom, float centerX, float centerY) {
   res.m[13] = centerY * (1.0f - s);
   return res;
 }
-
-/* ---- MACROTASK Z2 ---- */
-#include <math.h>
 
 mat4 mat4_multiply(mat4 a, mat4 b) {
   mat4 r;

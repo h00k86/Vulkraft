@@ -304,7 +304,7 @@ void ui_debug_log_input_events(void) {
     return;
   const char *owner = state.highest_priority_owner
                           ? state.highest_priority_owner
-                          : "world";
+                          : "application";
   bool transitioned = state.any_capture != debug_view->debug_previous_capture ||
                       strcmp(owner, debug_view->debug_previous_owner) != 0;
   if (state.mouse_pressed || state.mouse_released || key_pressed ||

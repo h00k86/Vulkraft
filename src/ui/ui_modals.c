@@ -138,9 +138,6 @@ bool ui_modal_begin(const char *id, const char *title, Font *font,
   float titleBarH = theme.panel_header_height + theme.row_spacing;
   float outer_border = theme.border_thickness * 2.0f;
 
-  /* MACROTASK UI residui: sfondo SEMITRASPARENTE (draw_quad_alpha, la
-   * pipeline HUD ha il blending): l'editor sotto resta visibile ma
-   * scurito; i suoi widget sono inerti (ui_pointer_hit). */
   ui_paint_draw_quad_alpha(0.0f, 0.0f, frame_view->canvas_width, frame_view->canvas_height,
                   theme.editor_background.r * 0.25f,
                   theme.editor_background.g * 0.25f,

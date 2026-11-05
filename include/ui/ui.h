@@ -156,13 +156,10 @@ UIErrorCode ui_begin_frame_input_status(const UIFrameInput *input);
 const char *ui_keyboard_focus_id(void);
 
 void ui_end_frame(void);
-/* SUONI DELL'INTERFACCIA (2026-10-17): 'fn' riceve "focus" quando il
- * puntatore entra in un widget nuovo e "confirm" quando lo preme. Si
- * decide fuori quando suonano (il gioco: solo nelle Opzioni; l'editor
- * resta muto). NULL = niente. */
+
 typedef void (*UIFeedbackFn)(const char *what, void *user);
 void ui_set_feedback(UIFeedbackFn fn, void *user);
-// faseD.md D4: stato del mouse del frame UI corrente (schermo virtuale).
+
 Vec2 ui_mouse_position(void);
 bool ui_mouse_down(void);
 /* Numero progressivo del frame UI (cambia a ogni ui_begin_frame): per
@@ -199,7 +196,6 @@ bool ui_button_styled(const char *id, Font *font,
                       TextAnchor anchor, float margin, float scale,
                       float offset_x, float offset_y,
                       const UIButtonStyle *style);
-
 
 // Slider orizzontale legato a *value. Ritorna true nel frame in cui il
 // valore cambia. out_drag_started (opzionale, può essere NULL): true nel
@@ -346,9 +342,6 @@ bool ui_property_asset(UIPropertyLayout *layout, const char *id,
 /* Optional filesystem picker; declarations retained through this include. */
 #include "ui/file_picker.h"
 
-
-
-
 bool ui_any_hover(void);
 bool ui_any_text_input_focused(void);
 bool ui_has_pointer_capture(void);
@@ -360,9 +353,7 @@ bool ui_has_input_capture(void);
  * slider e dropdown non sono overlay esclusivi: le scorciatoie globali e
  * FILE possono chiuderne il focus e continuare a funzionare. */
 bool ui_has_blocking_overlay(void);
-/* MACROTASK UI residui: vero mentre i widget emessi ORA stanno sotto un
- * modale aperto (fuori dal suo ui_modal_begin/ui_modal_end): non ricevono
- * hover ne' click. Regola interna di ui.c, esposta per i test. */
+
 bool ui_pointer_blocked_by_modal(void);
 void ui_release_input_capture(void);
 
@@ -405,7 +396,6 @@ int ui_clip_depth(void);
 
 /* Shared label formatting used by UI controls and editor-generated labels. */
 void ui_humanize_label(const char *in, char *out, size_t out_size);
-
 
 // Come ui_button_styled, ma 'id' è stabile (usato per lo stato interno)
 // mentre 'label' è il testo mostrato (può cambiare ogni frame).

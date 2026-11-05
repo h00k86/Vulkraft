@@ -1,5 +1,5 @@
 # Optional complete application SDK. UIFramework alone has no Vulkan/host dependency.
-set(GRAPHICS_APP_VERSION 0.3.0)
+set(GRAPHICS_APP_VERSION 0.3.1)
 set(GRAPHICS_APP_PLATFORM "glfw" CACHE STRING "GraphicsApp window host: glfw or sdl2")
 set_property(CACHE GRAPHICS_APP_PLATFORM PROPERTY STRINGS glfw sdl2)
 if(NOT GRAPHICS_APP_PLATFORM MATCHES "^(glfw|sdl2)$")
@@ -27,7 +27,7 @@ add_library(graphics_app STATIC
   src/render/ui_renderer.c src/render/vsync_settings.c
   src/render/vulkan_buffer.c src/render/vulkan_command.c src/render/vulkan_descriptors.c
   src/render/vulkan_draw.c src/render/vulkan_framebuffer.c src/render/vulkan_instance.c
-  src/render/vulkan_logical_device.c src/render/vulkan_memory_tracker.c
+  src/render/vulkan_logical_device.c
   src/render/vulkan_physical_device.c src/render/vulkan_pipeline.c
   src/render/vulkan_renderpass.c src/render/vulkan_shader.c src/render/vulkan_surface.c
   src/render/vulkan_swapchain.c src/render/vulkan_sync.c src/render/vulkan_texture.c

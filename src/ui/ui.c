@@ -609,14 +609,6 @@ static bool point_in_rect(float px, float py, float x, float y, float w,
   return px >= x && px <= x + w && py >= y && py <= y + h;
 }
 
-// Se 'in' è TUTTA maiuscola (nessuna lettera minuscola dentro), la
-// trasforma in Title Case (prima lettera di ogni parola maiuscola,
-// resto minuscolo) — es. "SALVA COME..." diventa "Salva Come...". Se
-// contiene anche una sola lettera minuscola, la copia INTATTA: un nome
-// file scelto dall'utente ("goccia_sheet.png") o qualunque testo già
-// scritto a mano non deve mai essere toccato, solo le etichette
-// generate dal codice che erano SEMPRE tutte maiuscole per scelta di
-// stile, mai per contenuto vero dell'utente.
 void ui_humanize_label(const char *in, char *out, size_t outSize) {
   if (!in || outSize == 0)
     return;

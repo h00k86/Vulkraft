@@ -37,7 +37,7 @@ stati convertiti alle API wide in questo intervento.
 Il nuovo atlante predefinito `assets/fonts/font_utf8.{json,png}` contiene 321 glifi:
 ASCII, Latin-1 stampabile, Latin Extended-A, euro e U+FFFD. È 1024×1024 MSDF,
 64 pixel/em e range 8; la dimensione per carattere e le metriche del precedente
-Open Sans Italic sono conservate. Gli asset `font2.*` restano disponibili.
+Open Sans Italic sono conservate. Il test del parser usa lo stesso font UTF-8 distribuito con l’applicazione.
 
 Il sorgente `OpenSans-Italic.ttf` e la licenza `OpenSans-OFL.txt` sono inclusi.
 Rigenerazione dalla radice, con msdf-atlas-gen 1.4.0 / msdfgen 1.13.0:

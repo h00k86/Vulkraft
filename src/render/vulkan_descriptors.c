@@ -11,15 +11,8 @@ bool create_descriptor_set_layout(APP *app) {
   bindings[0].binding = 0;
   bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   bindings[0].descriptorCount = 1;
-  bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT |
-                           VK_SHADER_STAGE_FRAGMENT_BIT; // esteso al
-                                                         // fragment:
-                                                         // serve
-                                                         // camera.time
-                                                         // per
-                                                         // l'increspatura
-                                                         // dell'acqua
-                                                         // in tri.frag
+  /* Both stages may access camera data through the shader interface. */
+  bindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
   bindings[1].binding = 1;
   bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

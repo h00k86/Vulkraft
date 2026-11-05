@@ -4,7 +4,6 @@
 #include "app/application.h"
 #include "log/log.h"
 #include "render/vulkan_buffer.h"
-#include "render/vulkan_memory_tracker.h"
 
 #include "stb_image.h"
 
@@ -242,22 +241,6 @@ static bool create_image(APP *app, Texture *texture, const char *filename) {
     return false;
   }
 
-  char label[96];
-  snprintf(label, sizeof(label), "texture:%s",
-           filename ? filename : "unnamed");
-  /* Con le mipmap la memoria vera e' circa 4/3 del livello 0: il
-     tracciatore deve dire il vero, o il bilancio della GPU e' una bugia. */
-  VkDeviceSize raw_size = (VkDeviceSize)texture->width * texture->height * 4u;
-  if (texture->mipLevels > 1)
-    raw_size = raw_size * 4u / 3u;
-  vulkan_memory_track_allocation(
-      VK_CTX(app)->physical_device, texture->memory,
-      VULKAN_MEMORY_RESOURCE_IMAGE, label, raw_size, &mem,
-      memory_type_index, -1, true);
-  vulkan_memory_track_image_info(texture->memory, texture->width,
-                                 texture->height, info.format,
-                                 info.mipLevels, info.arrayLayers);
-
   return vkBindImageMemory(VK_CTX(app)->logical_device, texture->image,
                     texture->memory, 0) == VK_SUCCESS;
 }
@@ -377,7 +360,6 @@ cleanup:
   stbi_image_free(pixels);
   if (staging) vkDestroyBuffer(device, staging, NULL);
   if (staging_memory) {
-    vulkan_memory_track_free(staging_memory);
     vkFreeMemory(device, staging_memory, NULL);
   }
   if (!ok) { destroy_texture(app, texture); LOG_ERROR("Texture GPU upload failed: %s", filename); }
@@ -385,21 +367,11 @@ cleanup:
 }
 
 void load_texture(APP *app, const char *filename, Texture *texture) {
-  // CLAMP_TO_EDGE, come sempre — nessun cambiamento di comportamento
-  // per nessuna chiamata esistente (in particolare gli atlas animati di
-  // player/nemici: con REPEAT, il filtro bilineare ai bordi di un frame
-  // "sbircerebbe" nel frame ripetuto adiacente, una cucitura visibile).
+
   load_texture_internal(app, filename, texture,
                         VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 }
 
-// Come load_texture, ma con sampler in modalità REPEAT invece di
-// CLAMP_TO_EDGE — per i box con tiling attivo (Box2D.textureTile), la
-// cui UV va deliberatamente oltre [0,1] (vedi batch_add_box in
-// box_renderer.c) proprio per farla ripetere invece di stirarsi. NON
-// va usata per texture con una sotto-regione di atlas (uv_min/uv_max
-// che selezionano un frame dentro una texture più grande) — vedi sopra
-// il perché.
 void load_texture_tiled(APP *app, const char *filename, Texture *texture) {
   load_texture_internal(app, filename, texture,
                         VK_SAMPLER_ADDRESS_MODE_REPEAT);
@@ -417,8 +389,6 @@ void destroy_texture(APP *app, Texture *texture) {
   if (texture->image)
     vkDestroyImage(device, texture->image, NULL);
 
-  if (texture->memory)
-    vulkan_memory_track_free(texture->memory);
   if (texture->memory)
     vkFreeMemory(device, texture->memory, NULL);
   *texture = (Texture){0};

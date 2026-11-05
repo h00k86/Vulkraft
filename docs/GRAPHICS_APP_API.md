@@ -5,8 +5,9 @@ Il consumatore include solo gli header installati e collega il target CMake;
 non aggiunge `src/` o directory private del checkout agli include o ai sorgenti.
 Un'installazione sceglie un solo host (`GraphicsApp_PLATFORM`): GLFW o SDL2.
 
-L'SDK applicativo è ora **0.3.0**: aggiunge callback esplicite, stato utente
-e una politica di chiusura applicativa. Risorse CMake ed editor esterno restano disponibili. L'SDK UI rimane **0.1.0**. In questa
+L'SDK applicativo è ora **0.3.1**: conserva callback esplicite, stato utente
+e politica di chiusura della 0.3.0, rimuovendo residui interni senza eliminare
+API pubbliche. Risorse CMake ed editor esterno restano disponibili. L'SDK UI rimane **0.1.0**. In questa
 fase pre-1.0, aggiunte all'API pubblica incrementano la minor dell'SDK interessato;
 correzioni compatibili incrementano la patch. Il package CMake usa versioni
 esatte e non promette compatibilità binaria fra versioni diverse.
@@ -102,7 +103,7 @@ l'editor usa `AppCallbacks.close_requested`: non sostituisce gli handler piattaf
 ## Risorse del consumatore CMake
 
 ```cmake
-find_package(GraphicsApp 0.3.0 EXACT REQUIRED COMPONENTS application)
+find_package(GraphicsApp 0.3.1 EXACT REQUIRED COMPONENTS application)
 add_executable(my_app main.c)
 target_link_libraries(my_app PRIVATE GraphicsApp::application)
 graphics_app_deploy_resources(my_app)
