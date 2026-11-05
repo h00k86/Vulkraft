@@ -21,7 +21,11 @@ typedef struct CameraData {
     mat4 projection;
     mat4 view;
 } CameraData;
-void gfx_init(APP *app);
+/* Alloca i contenitori grafici e avvia il backend. Su errore esegue rollback
+ * delle risorse gia create; il dettaglio resta in APP.error. */
+bool gfx_init(APP *app);
+/* Distrugge le risorse GPU e la finestra, poi libera i contenitori opachi.
+ * Per l'app completa usare app_shutdown, che scollega anche i gestori input. */
 void gfx_shutdown(APP *app);
 bool gfx_device_ready(const APP *app);
 void gfx_wait_idle(APP *app);
@@ -29,5 +33,7 @@ uint32_t gfx_current_frame(const APP *app);
 void gfx_recreate_surface(APP *app);
 void gfx_surface_size(const APP *app, uint32_t *w, uint32_t *h);
 const char *gfx_selected_gpu_name(void);
-void wait_for_current_frame(APP *app);
-void draw_frame(APP *app);
+// False means a fatal error recorded in APP.error: stop rendering and shut down.
+// True from draw_frame also covers a skipped frame while recreating the surface.
+bool wait_for_current_frame(APP *app);
+bool draw_frame(APP *app);

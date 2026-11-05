@@ -54,7 +54,7 @@ VkDevice create_logical_device(APP *app) {
           VK_CTX(app)->physical_device, VK_CTX(app)->render_context.surface,
           &familyqueue_index)) {
     LOG_ERROR("No GRAPHICS+PRESENT queue family found!");
-    exit(1);
+    return VK_NULL_HANDLE;
   }
 
   VkDeviceQueueCreateInfo queueCreateInfo = {0};
@@ -91,7 +91,7 @@ VkDevice create_logical_device(APP *app) {
 
   if (res != VK_SUCCESS) {
     LOG_ERROR("Failed to create logical device!");
-    exit(1);
+    return VK_NULL_HANDLE;
   }
 
   // salvo indice per la queue

@@ -1,23 +1,24 @@
 #include "render/vulkan_pipeline.h"
 #include "render/gfx_vulkan.h"
 #include "app/application.h"
+#include "platform/paths.h"
 #include <stddef.h>
 
-static void create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
+static bool create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
                                            VkPipelineLayout sharedLayout,
                                            const char *fragPath, bool additive,
                                            Pipeline *out) {
   VkDevice device = VK_CTX(app)->logical_device;
   RenderContext *ctx = &VK_CTX(app)->render_context;
 
-  // vert.spv è SEMPRE lo stesso (tri.vert), qualunque sia il fragment
-  // shader — Material System: un materiale sceglie il fragment
-  // shader (shaderID), mai il vertex, che fa solo passthrough puro
-  // (vedi tri.vert) identico per ogni shaderID. fragPath invece
-  // cambia — "shaders/frag.spv" per SHADER_DEFAULT_SPRITE,
-  // "shaders/water_frag.spv" per SHADER_WATER, ecc.
-  VkShaderModule vertModule = load_shader(device, "shaders/vert.spv");
+  /* Resolve the configured vertex shader again during surface recreation.
+   * Both shaders must retain the renderer's vertex/descriptor interface. */
+  char vertex_path[APP_PATH_MAX];
+  if (!app_resource_path(app, APP_RESOURCE_VERTEX_SHADER, vertex_path, sizeof(vertex_path))) return false;
+  VkShaderModule vertModule = load_shader(device, vertex_path);
+  if (!vertModule) return false;
   VkShaderModule fragModule = load_shader(device, fragPath);
+  if (!fragModule) { vkDestroyShaderModule(device, vertModule, NULL); return false; }
 
   VkPipelineShaderStageCreateInfo stages[2] = {0};
   stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -155,23 +156,27 @@ static void create_pipeline_for_renderpass(APP *app, VkRenderPass renderPass,
 
   VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &gp,
                                               NULL, &out->handle);
-  if (result != VK_SUCCESS) {
-    LOG_ERROR("failed to create graphics pipeline");
-    exit(1);
-  }
-
   vkDestroyShaderModule(device, vertModule, NULL);
   vkDestroyShaderModule(device, fragModule, NULL);
+  if (result != VK_SUCCESS) {
+    LOG_ERROR("failed to create graphics pipeline");
+    return false;
+  }
+
+  return true;
 }
 
-void create_pipeline(APP *app) {
+bool create_pipeline(APP *app) {
+  char fragment_path[APP_PATH_MAX];
+  if (!app_resource_path(app, APP_RESOURCE_FRAGMENT_SHADER, fragment_path, sizeof(fragment_path))) return false;
   VkPipelineLayoutCreateInfo layoutInfo = {0};
   layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   layoutInfo.setLayoutCount = 1;
   layoutInfo.pSetLayouts = &app->renderer.gpu->descriptor_set_layout;
   VkPipelineLayout sharedLayout;
-  if (vkCreatePipelineLayout(VK_CTX(app)->logical_device, &layoutInfo, NULL, &sharedLayout) != VK_SUCCESS) exit(1);
-  create_pipeline_for_renderpass(app, VK_CTX(app)->render_context.renderpass, sharedLayout, "shaders/frag.spv", false, &app->renderer.gpu->pipeline);
+  if (vkCreatePipelineLayout(VK_CTX(app)->logical_device, &layoutInfo, NULL, &sharedLayout) != VK_SUCCESS) return false;
+  app->renderer.gpu->pipeline.layout = sharedLayout;
+  return create_pipeline_for_renderpass(app, VK_CTX(app)->render_context.renderpass, sharedLayout, fragment_path, false, &app->renderer.gpu->pipeline);
 }
 
 void destroy_pipeline(APP *app) {

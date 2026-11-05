@@ -23,6 +23,9 @@ typedef struct Texture {
        gli atlas restano a un livello. */
     uint32_t mipLevels;
 
+    /* Preserve sampling policy when replacing an image during hot reload. */
+    VkSamplerAddressMode address_mode;
+
 } Texture;
 
 

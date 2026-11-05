@@ -9,10 +9,10 @@ typedef struct APP APP;
 
 
 
-void create_vertex_buffer_ext(APP *app, VertexBuffer *vb,
+bool create_vertex_buffer_ext(APP *app, VertexBuffer *vb,
                               uint32_t initial_vertex_capacity,
                               const char *debug_name);
-void create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
+bool create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
                                       uint32_t initial_vertex_capacity,
                                       uint32_t maximum_vertex_capacity,
                                       const char *debug_name);

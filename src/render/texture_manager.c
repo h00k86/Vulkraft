@@ -1,3 +1,5 @@
+/* Cache texture della singola applicazione: restituisce indici per il renderer,
+ * non trasferisce al chiamante la proprieta delle risorse GPU. */
 #include "render/texture_manager.h"
 #include "render/gfx_vulkan.h"
 #include "render/vulkan_descriptors.h"
@@ -17,9 +19,8 @@ extern void set_texture_address_mode(APP *app, Texture *texture, VkSamplerAddres
 static int texture_manager_load_internal(
     APP *app, const char *path,
     void (*loader)(APP *, const char *, Texture *)) {
-  // Riusa lo slot se questo path è già caricato — esclude gli slot
-  // riservati (preview transiente, offscreen dell'acqua, normal map
-  // dell'acqua, i tre della barra della vita). Nota: se
+  // Riusa lo slot se questo path e gia caricato; esclude font e preview.
+  // Nota: se
   // lo stesso path è già stato caricato da una chiamata PRECEDENTE con
   // un loader diverso (tiled vs non-tiled), qui si riusa comunque quello
   // slot — il sampler resta quello del primo caricamento, questa
@@ -29,9 +30,8 @@ static int texture_manager_load_internal(
       return i;
   }
 
-  // Trova il primo slot libero (0 è riservato al font; HEALTHBAR_BACK_SLOT
-  // e gli slot successivi sono riservati alla barra della vita, al
-  // picker e all'acqua — vedi texture_manager.h).
+  // Slot ordinari: da 1 a TEXTURE_PREVIEW_SLOT escluso. Lo slot 0
+  // appartiene al font, l'ultimo alla preview transiente del picker.
   int slot = -1;
   for (int i = 1; i < TEXTURE_PREVIEW_SLOT; i++) {
     if (!g_slot_used[i]) {
@@ -158,24 +158,27 @@ bool texture_manager_check_hot_reload(APP *app, int slot) {
   if (mtime == g_lastMtime[slot])
     return false; // nessuna modifica da quando l'abbiamo letta l'ultima volta
 
-  g_lastMtime[slot] = mtime;
+  /* Keep the current image and descriptors intact until a replacement is
+   * ready. A partially written file must not invalidate a live texture. */
+  Texture replacement = {0};
+  if (g_textures[slot].address_mode == VK_SAMPLER_ADDRESS_MODE_REPEAT)
+    load_texture_tiled(app, g_paths[slot], &replacement);
+  else
+    load_texture(app, g_paths[slot], &replacement);
 
-  // Ricarica sul posto: stesso slot, path invariato — solo i pixel
-  // cambiano. destroy_texture prima di load_texture, altrimenti la
-  // vecchia VkImage/VkImageView/VkSampler perderebbero il riferimento
-  // senza mai essere liberate.
-  vkDeviceWaitIdle(VK_CTX(app)->logical_device);
-  destroy_texture(app, &g_textures[slot]);
-  load_texture(app, g_paths[slot], &g_textures[slot]);
-
-  if (g_textures[slot].view == VK_NULL_HANDLE ||
-      g_textures[slot].sampler == VK_NULL_HANDLE) {
+  if (replacement.view == VK_NULL_HANDLE ||
+      replacement.sampler == VK_NULL_HANDLE) {
+    destroy_texture(app, &replacement);
     LOG_ERROR("Hot-reload fallito per %s (slot %d)", g_paths[slot], slot);
-    g_slot_used[slot] = false;
     return false;
   }
 
-  update_descriptor_texture_slot(app, slot, &g_textures[slot]);
+  vkDeviceWaitIdle(VK_CTX(app)->logical_device);
+  Texture previous = g_textures[slot];
+  g_textures[slot] = replacement;
+  update_descriptor_texture_slot_no_wait(app, slot, &g_textures[slot]);
+  destroy_texture(app, &previous);
+  g_lastMtime[slot] = mtime;
 
   LOG_INFO("Texture ricaricata a caldo: %s (slot %d)", g_paths[slot], slot);
   return true;

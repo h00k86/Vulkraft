@@ -4,7 +4,7 @@
 #include "log/log.h"
 #include <stdlib.h>
 
-void create_descriptor_set_layout(APP *app) {
+bool create_descriptor_set_layout(APP *app) {
 
   VkDescriptorSetLayoutBinding bindings[2] = {0}; // era [3]
 
@@ -34,12 +34,14 @@ void create_descriptor_set_layout(APP *app) {
   if (vkCreateDescriptorSetLayout(VK_CTX(app)->logical_device, &info, NULL,
                                   &app->renderer.gpu->descriptor_set_layout) !=
       VK_SUCCESS) {
+    app->renderer.gpu->descriptor_set_layout = VK_NULL_HANDLE;
     LOG_ERROR("descriptor set layout failed");
-    exit(1);
+    return false;
   }
+  return true;
 }
 
-void create_descriptor_pool(APP *app) {
+bool create_descriptor_pool(APP *app) {
   VkDescriptorPoolSize sizes[2] = {
     {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT},
     {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURE_SLOTS * MAX_FRAMES_IN_FLIGHT}
@@ -48,10 +50,14 @@ void create_descriptor_pool(APP *app) {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
     .poolSizeCount = 2, .pPoolSizes = sizes, .maxSets = MAX_FRAMES_IN_FLIGHT
   };
-  if (vkCreateDescriptorPool(VK_CTX(app)->logical_device, &info, NULL, &app->renderer.gpu->descriptor_pool) != VK_SUCCESS) exit(1);
+  if (vkCreateDescriptorPool(VK_CTX(app)->logical_device, &info, NULL, &app->renderer.gpu->descriptor_pool) != VK_SUCCESS) {
+    app->renderer.gpu->descriptor_pool = VK_NULL_HANDLE;
+    return false;
+  }
+  return true;
 }
 
-void create_hud_descriptor_set(APP *app) {
+bool create_hud_descriptor_set(APP *app) {
   VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT];
   for (int f = 0; f < MAX_FRAMES_IN_FLIGHT; ++f)
     layouts[f] = app->renderer.gpu->descriptor_set_layout;
@@ -66,7 +72,7 @@ void create_hud_descriptor_set(APP *app) {
                                app->renderer.gpu->hud_descriptor_set) !=
       VK_SUCCESS) {
     LOG_ERROR("hud descriptor allocation failed");
-    exit(1);
+    return false;
   }
 
   VkDescriptorImageInfo imageInfos[MAX_TEXTURE_SLOTS];
@@ -100,11 +106,14 @@ void create_hud_descriptor_set(APP *app) {
 
     vkUpdateDescriptorSets(VK_CTX(app)->logical_device, 2, writes, 0, NULL);
   }
+  return true;
 }
 
 void destroy_descriptors(APP *app) {
   vkDestroyDescriptorPool(VK_CTX(app)->logical_device, app->renderer.gpu->descriptor_pool, NULL);
   vkDestroyDescriptorSetLayout(VK_CTX(app)->logical_device, app->renderer.gpu->descriptor_set_layout, NULL);
+  app->renderer.gpu->descriptor_pool = VK_NULL_HANDLE;
+  app->renderer.gpu->descriptor_set_layout = VK_NULL_HANDLE;
 }
 
 void update_descriptor_texture_slot(APP *app, int slot, Texture *texture) {

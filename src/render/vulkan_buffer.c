@@ -1,101 +1,70 @@
 #include "render/vulkan_buffer.h"
 #include "render/gfx_vulkan.h"
-#include "log/log.h"
 #include "render/vulkan_memory_tracker.h"
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
 uint32_t find_memory_type(VkPhysicalDevice phys, uint32_t type_filter,
                           VkMemoryPropertyFlags properties) {
-  VkPhysicalDeviceMemoryProperties mem_props;
-  vkGetPhysicalDeviceMemoryProperties(phys, &mem_props);
-
-  for (uint32_t i = 0; i < mem_props.memoryTypeCount; i++) {
-    if ((type_filter & (1 << i)) &&
-        (mem_props.memoryTypes[i].propertyFlags & properties) == properties) {
-      return i;
-    }
-  }
-
-  fprintf(stderr,
-          "[FATAL] find_memory_type failed\n"
-          "type_filter = %u\n",
-          type_filter);
-
-  abort(); // IMPORTANTISSIMO: mai continuare
+  VkPhysicalDeviceMemoryProperties available;
+  vkGetPhysicalDeviceMemoryProperties(phys, &available);
+  for (uint32_t i = 0; i < available.memoryTypeCount; ++i)
+    if ((type_filter & (1u << i)) &&
+        (available.memoryTypes[i].propertyFlags & properties) == properties) return i;
+  return UINT32_MAX;
 }
 
-void create_buffer(VkPhysicalDevice phys, VkDevice device, VkDeviceSize size,
-                   VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                   VkBuffer *buffer, VkDeviceMemory *bufferMemory) {
-
-  VkBufferCreateInfo bufferInfo = {.sType =
-                                       VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-                                   .size = size,
-                                   .usage = usage,
-                                   .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
-
-  if (vkCreateBuffer(device, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
-    fprintf(stderr, "Errore creazione buffer\n");
-    exit(1);
+bool create_buffer(VkPhysicalDevice phys, VkDevice device, VkDeviceSize size,
+                    VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+                    VkBuffer *buffer, VkDeviceMemory *memory) {
+  *buffer = VK_NULL_HANDLE; *memory = VK_NULL_HANDLE;
+  VkBufferCreateInfo info = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+                             .size = size, .usage = usage,
+                             .sharingMode = VK_SHARING_MODE_EXCLUSIVE};
+  if (!size || vkCreateBuffer(device, &info, NULL, buffer) != VK_SUCCESS) {
+    *buffer = VK_NULL_HANDLE; return false;
   }
-
-  VkMemoryRequirements memReqs;
-  vkGetBufferMemoryRequirements(device, *buffer, &memReqs);
-
-  uint32_t memoryTypeIndex =
-      find_memory_type(phys, memReqs.memoryTypeBits, properties);
-  VkMemoryAllocateInfo allocInfo = {
-      .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-      .allocationSize = memReqs.size,
-      .memoryTypeIndex = memoryTypeIndex};
-
-  if (vkAllocateMemory(device, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
-    fprintf(stderr, "Errore allocazione memoria buffer\n");
-    exit(1);
+  VkMemoryRequirements requirements;
+  vkGetBufferMemoryRequirements(device, *buffer, &requirements);
+  uint32_t type = find_memory_type(phys, requirements.memoryTypeBits, properties);
+  VkMemoryAllocateInfo allocation = {.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                                     .allocationSize = requirements.size, .memoryTypeIndex = type};
+  if (type == UINT32_MAX || vkAllocateMemory(device, &allocation, NULL, memory) != VK_SUCCESS) {
+    *memory = VK_NULL_HANDLE;
+    vkDestroyBuffer(device, *buffer, NULL); *buffer = VK_NULL_HANDLE; return false;
   }
-
-  vulkan_memory_track_allocation(
-      phys, *bufferMemory, VULKAN_MEMORY_RESOURCE_BUFFER,
-      "unclassified-buffer", size, &memReqs, memoryTypeIndex, -1, true);
-
-  vkBindBufferMemory(device, *buffer, *bufferMemory, 0);
+  if (vkBindBufferMemory(device, *buffer, *memory, 0) != VK_SUCCESS) {
+    vkDestroyBuffer(device, *buffer, NULL); vkFreeMemory(device, *memory, NULL);
+    *buffer = VK_NULL_HANDLE; *memory = VK_NULL_HANDLE; return false;
+  }
+  vulkan_memory_track_allocation(phys, *memory, VULKAN_MEMORY_RESOURCE_BUFFER,
+                                 "unclassified-buffer", size, &requirements, type, -1, true);
+  return true;
 }
 
 VkCommandBuffer begin_single_time_commands(APP *app) {
-  VkCommandBufferAllocateInfo allocInfo = {
-      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-      .commandPool = VK_CTX(app)->render_context.commands.pool,
+  VkDevice device = VK_CTX(app)->logical_device;
+  VkCommandBufferAllocateInfo allocation = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY, .commandPool = VK_CTX(app)->render_context.commands.pool,
       .commandBufferCount = 1};
-
-  VkCommandBuffer commandBuffer;
-
-  vkAllocateCommandBuffers(VK_CTX(app)->logical_device, &allocInfo,
-                           &commandBuffer);
-
-  VkCommandBufferBeginInfo beginInfo = {
-      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-      .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
-
-  vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-  return commandBuffer;
+  VkCommandBuffer command = VK_NULL_HANDLE;
+  if (vkAllocateCommandBuffers(device, &allocation, &command) != VK_SUCCESS) return VK_NULL_HANDLE;
+  VkCommandBufferBeginInfo begin = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                                   .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+  if (vkBeginCommandBuffer(command, &begin) != VK_SUCCESS) {
+    vkFreeCommandBuffers(device, allocation.commandPool, 1, &command); return VK_NULL_HANDLE;
+  }
+  return command;
 }
 
-void end_single_time_commands(APP *app, VkCommandBuffer commandBuffer) {
-
-  vkEndCommandBuffer(commandBuffer);
-
-  VkSubmitInfo submitInfo = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                             .commandBufferCount = 1,
-                             .pCommandBuffers = &commandBuffer};
-
-  vkQueueSubmit(VK_CTX(app)->graphic_queue, 1, &submitInfo, VK_NULL_HANDLE);
-
-  vkQueueWaitIdle(VK_CTX(app)->graphic_queue);
-
-  vkFreeCommandBuffers(VK_CTX(app)->logical_device,
-                       VK_CTX(app)->render_context.commands.pool, 1,
-                       &commandBuffer);
+bool end_single_time_commands(APP *app, VkCommandBuffer command) {
+  VkDevice device = VK_CTX(app)->logical_device;
+  bool ok = vkEndCommandBuffer(command) == VK_SUCCESS;
+  if (ok) {
+    VkSubmitInfo submit = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                           .commandBufferCount = 1, .pCommandBuffers = &command};
+    ok = vkQueueSubmit(VK_CTX(app)->graphic_queue, 1, &submit, VK_NULL_HANDLE) == VK_SUCCESS;
+    if (ok) ok = vkQueueWaitIdle(VK_CTX(app)->graphic_queue) == VK_SUCCESS;
+  }
+  vkFreeCommandBuffers(device, VK_CTX(app)->render_context.commands.pool, 1, &command);
+  return ok;
 }

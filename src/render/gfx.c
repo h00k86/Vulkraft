@@ -23,36 +23,25 @@ void gfx_wait_idle(APP *app) {
     vkDeviceWaitIdle(VK_CTX((APP *)app)->logical_device);
 }
 
-void gfx_init(APP *app) {
-  if (!app)
-    return;
-  /* PORTING (E14, 2026-09-25): il contesto del backend e' un blocco a
-   * parte, allocato QUI. Prima stava dentro APP per valore e non serviva
-   * allocarlo; quando e' diventato un puntatore, per un momento nessuno lo
-   * allocava piu' e ogni scrittura finiva nel contesto di riserva di
-   * VK_CTX -- che e' `static inline`, cioe' UNO PER FILE: vulkan_instance.c
-   * scriveva nella sua copia e vulkan_surface.c leggeva dalla propria,
-   * trovandola vuota. Il sintomo era un assert di GLFW
-   * ("instance != VK_NULL_HANDLE") al primo avvio del gioco impacchettato. */
-  if (!app->context) {
-    app->context = (VulkanContext *)calloc(1, sizeof(VulkanContext));
-    if (!app->context) {
-      LOG_ERROR("Rendering: memoria insufficiente per il contesto del backend");
-      return;
-    }
+bool gfx_init(APP *app) {
+  if (!app) return false;
+  if (app->context || app->renderer.gpu || app->window) {
+    app->error = (AppError){APP_ERROR_STATE, "graphics already initialized"};
+    return false;
   }
-  /* Stesso discorso per lo stato GPU del Renderer: sopra il confine e' solo
-   * un puntatore opaco, e qualcuno deve allocarlo. calloc, non malloc: la
-   * distruzione passa su ogni handle e uno non inizializzato non si
-   * distingue da uno valido. */
-  if (!app->renderer.gpu) {
-    app->renderer.gpu = (RendererGpu *)calloc(1, sizeof(RendererGpu));
-    if (!app->renderer.gpu) {
-      LOG_ERROR("Rendering: memoria insufficiente per lo stato GPU");
-      return;
-    }
+  app->context = calloc(1, sizeof(VulkanContext));
+  app->renderer.gpu = calloc(1, sizeof(RendererGpu));
+  if (!app->context || !app->renderer.gpu) {
+    app->error = (AppError){APP_ERROR_MEMORY, "graphics state allocation"};
+    gfx_shutdown(app);
+    return false;
   }
-  init_vulkan(app);
+  if (!init_vulkan(app)) {
+    gfx_shutdown(app);
+    return false;
+  }
+  app->error = (AppError){0};
+  return true;
 }
 
 void gfx_shutdown(APP *app) {

@@ -10,7 +10,7 @@
 static uint32_t count_device(VkInstance instance) {
 
   uint32_t count = 0;
-  vkEnumeratePhysicalDevices(instance, &count, NULL);
+  if (vkEnumeratePhysicalDevices(instance, &count, NULL) != VK_SUCCESS) return 0;
   return count;
 }
 
@@ -348,12 +348,14 @@ VkPhysicalDevice select_device(VkInstance instance, VkSurfaceKHR surface) {
   if (count == 0) {
 
     LOG_ERROR("no device suitable \n");
-    exit(123);
+    return VK_NULL_HANDLE;
   }
 
-  VkPhysicalDevice devices[count];
-
-  vkEnumeratePhysicalDevices(instance, &count, devices);
+  VkPhysicalDevice *devices = malloc((size_t)count * sizeof(*devices));
+  if (!devices) return VK_NULL_HANDLE;
+  if (vkEnumeratePhysicalDevices(instance, &count, devices) != VK_SUCCESS) {
+    free(devices); return VK_NULL_HANDLE;
+  }
 
   // Scavalco esplicito: GAME_GPU=integrated|discrete|<pezzo del nome>.
   // Nessuna euristica indovina sempre — se il gioco diventa pesante di GPU
@@ -406,9 +408,10 @@ VkPhysicalDevice select_device(VkInstance instance, VkSurfaceKHR surface) {
     }
   }
 
+  free(devices);
   if (!found) {
     LOG_ERROR("no device supports graphics, present and swapchain");
-    exit(123);
+    return VK_NULL_HANDLE;
   }
 
   if (forced) {

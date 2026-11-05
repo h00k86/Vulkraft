@@ -1,5 +1,6 @@
 #include "render/vulkan_command.h"
 #include "render/gfx_vulkan.h"
+#include "render/vulkan_error.h"
 #include "app/application.h"
 #include "render/vulkan_vertex_buffer.h"
 #include "render/text_renderer.h"
@@ -8,7 +9,7 @@
 #include <string.h>
 static RenderCommandStats g_command_stats;
 
-void create_command_buffers(APP *app) {
+bool create_command_buffers(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
   RenderContext *ctx = &VK_CTX(app)->render_context;
 
@@ -21,10 +22,13 @@ void create_command_buffers(APP *app) {
       .queueFamilyIndex = VK_CTX(app)->family_queue_index,
       .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT};
 
-  vkCreateCommandPool(device, &poolInfo, NULL, &ctx->commands.pool);
+  if (vkCreateCommandPool(device, &poolInfo, NULL, &ctx->commands.pool) != VK_SUCCESS) {
+    ctx->commands.pool = VK_NULL_HANDLE; return false;
+  }
 
   ctx->commands.buffers =
-      malloc(sizeof(VkCommandBuffer) * MAX_FRAMES_IN_FLIGHT);
+      calloc(MAX_FRAMES_IN_FLIGHT, sizeof(VkCommandBuffer));
+  if (!ctx->commands.buffers) return false;
 
   VkCommandBufferAllocateInfo alloc = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -32,30 +36,44 @@ void create_command_buffers(APP *app) {
       .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
       .commandBufferCount = MAX_FRAMES_IN_FLIGHT};
 
-  vkAllocateCommandBuffers(device, &alloc, ctx->commands.buffers);
+  if (vkAllocateCommandBuffers(device, &alloc, ctx->commands.buffers) != VK_SUCCESS) return false;
 
   VkCommandBuffer upload_commands[MAX_FRAMES_IN_FLIGHT];
-  vkAllocateCommandBuffers(device, &alloc, upload_commands);
+  if (vkAllocateCommandBuffers(device, &alloc, upload_commands) != VK_SUCCESS) return false;
   for (uint32_t frame = 0; frame < MAX_FRAMES_IN_FLIGHT; ++frame)
     ctx->transfers[frame].command_buffer = upload_commands[frame];
 
+  return true;
 }
 
+/* Registra le copie dello slot corrente e la barriera verso l'uso come vertici.
+ * Un trasferimento inviato prima di un acquire fallito deve essere atteso
+ * anche se nessun submit grafico successivo lo coprira con la propria fence. */
 bool submit_pending_uploads(APP *app, uint32_t frame_index) {
+  if (!vulkan_frame_ready(app)) return false;
+  if (frame_index >= MAX_FRAMES_IN_FLIGHT) {
+    app->error = (AppError){APP_ERROR_STATE, "invalid command frame index"};
+    return false;
+  }
   RenderContext *ctx = &VK_CTX(app)->render_context;
   FrameTransferState *transfer = &ctx->transfers[frame_index];
   VkCommandBuffer cmd = transfer->command_buffer;
+  if (!cmd) {
+    app->error = (AppError){APP_ERROR_STATE, "missing upload command buffer"};
+    return false;
+  }
   RenderCommandStats stats = {0};
   VertexBuffer *upload_buffers[1] = {
       &app->renderer.gpu->hud_buffer,
   };
 
-  vkResetCommandBuffer(cmd, 0);
+  g_command_stats = stats;
+  if (!vulkan_check(app, vkResetCommandBuffer(cmd, 0), "upload command reset")) return false;
   VkCommandBufferBeginInfo begin_info = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
       .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
   };
-  if (vkBeginCommandBuffer(cmd, &begin_info) != VK_SUCCESS) {
+  if (!vulkan_check(app, vkBeginCommandBuffer(cmd, &begin_info), "upload command begin")) {
     LOG_ERROR("upload command buffer begin failed for frame %u", frame_index);
     g_command_stats = stats;
     return false;
@@ -69,6 +87,9 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
                                     &barriers[upload_count])) {
       stats.transfer_bytes += vb->upload_size[frame_index];
       upload_count++;
+    } else if (vb->upload_requested[frame_index]) {
+      app->error = (AppError){APP_ERROR_STATE, "invalid vertex upload range"};
+      return false;
     }
   }
   if (upload_count > 0) {
@@ -76,7 +97,7 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
                          VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, NULL,
                          upload_count, barriers, 0, NULL);
   }
-  if (vkEndCommandBuffer(cmd) != VK_SUCCESS) {
+  if (!vulkan_check(app, vkEndCommandBuffer(cmd), "upload command end")) {
     LOG_ERROR("upload command buffer end failed for frame %u", frame_index);
     g_command_stats = stats;
     return false;
@@ -88,8 +109,8 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
     return true;
   }
 
-  vkResetFences(VK_CTX(app)->logical_device, 1,
-                &transfer->completion_fence);
+  if (!vulkan_check(app, vkResetFences(VK_CTX(app)->logical_device, 1,
+                &transfer->completion_fence), "upload fence reset")) return false;
   VkSubmitInfo submit_info = {
       .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
       .commandBufferCount = 1,
@@ -99,7 +120,7 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
   VkResult result = vkQueueSubmit(VK_CTX(app)->graphic_queue, 1, &submit_info,
                                   transfer->completion_fence);
 
-  if (result != VK_SUCCESS) {
+  if (!vulkan_check(app, result, "upload queue submit")) {
     LOG_ERROR("upload queue submit failed for frame %u: %d", frame_index,
               result);
     g_command_stats = stats;
@@ -112,8 +133,20 @@ bool submit_pending_uploads(APP *app, uint32_t frame_index) {
   return true;
 }
 
-void record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index) {
+/* Registra il disegno senza inviarlo alla coda. La fence grafica verra
+ * resettata dal chiamante soltanto dopo una registrazione riuscita. */
+bool record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index) {
+  if (!vulkan_frame_ready(app)) return false;
+  if (frame_index >= MAX_FRAMES_IN_FLIGHT) {
+    app->error = (AppError){APP_ERROR_STATE, "invalid command frame index"};
+    return false;
+  }
   RenderContext *ctx = &VK_CTX(app)->render_context;
+  if (!ctx->commands.buffers || frame_index >= ctx->commands.count ||
+      image_index >= ctx->swapchain.image_count || !ctx->swapchain.framebuffers) {
+    app->error = (AppError){APP_ERROR_STATE, "invalid graphics command resources"};
+    return false;
+  }
   VkCommandBuffer cmd = ctx->commands.buffers[frame_index];
   VertexBuffer *vb_hud = &app->renderer.gpu->hud_buffer;
   RenderCommandStats stats = g_command_stats;
@@ -121,7 +154,7 @@ void record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index)
   VkRect2D worldScissor = ctx->swapchain.viewport_rect;
   VkViewport viewport = {0, 0, (float)ctx->swapchain.extent.width, (float)ctx->swapchain.extent.height, 0, 1};
   VkCommandBufferBeginInfo beginInfo = {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-  if (vkBeginCommandBuffer(cmd, &beginInfo) != VK_SUCCESS) exit(1);
+  if (!vulkan_check(app, vkBeginCommandBuffer(cmd, &beginInfo), "graphics command begin")) return false;
   VkClearValue clearValues = {.color = {{0.008f, 0.009f, 0.012f, 1.0f}}};
   VkRenderPassBeginInfo rpInfo2 = {
     .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
@@ -168,8 +201,9 @@ void record_command_buffer(APP *app, uint32_t frame_index, uint32_t image_index)
 
   vkCmdEndRenderPass(cmd);
   frame_dump_record(app, cmd, frame_index, image_index);
-  if (vkEndCommandBuffer(cmd) != VK_SUCCESS) exit(1);
+  if (!vulkan_check(app, vkEndCommandBuffer(cmd), "graphics command end")) return false;
   g_command_stats = stats;
+  return true;
 }
 
 void destroy_command_buffers(APP *app) {
@@ -179,6 +213,7 @@ void destroy_command_buffers(APP *app) {
 
   vkDestroyCommandPool(device, cs->pool, NULL);
   free(cs->buffers);
+  *cs = (CommandSystem){0};
 }
 
 RenderCommandStats render_command_get_stats(void) { return g_command_stats; }

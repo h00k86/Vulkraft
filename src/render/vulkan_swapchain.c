@@ -1,248 +1,176 @@
 #include "app/application.h"
 #include "render/gfx_vulkan.h"
+#include "render/vulkan_error.h"
 #include "render/vulkan_swapchain.h"
 #include "render/vulkan_sync.h"
 #include "render/vsync_settings.h"
 #include "render/vulkan_framebuffer.h"
 #include "render/vulkan_pipeline.h"
-#include "render/vulkan_uniform_buffer.h"
+#include "render/vulkan_renderpass.h"
 #include "log/log.h"
-#include <GLFW/glfw3.h>
+#include "platform/window.h"
 #include <stdlib.h>
 
 static VkPresentModeKHR choose_present_mode(APP *app) {
-  /* test only (2026-10-16): APP_NO_VSYNC=1 per i fotogrammi di prova con
-   * lo schermo spento (FIFO aspetta il monitor: un fotogramma al secondo) */
-  if (vsync_get_enabled() && !getenv("APP_NO_VSYNC"))
+  if (vsync_get_enabled() && !getenv("APP_NO_VSYNC")) return VK_PRESENT_MODE_FIFO_KHR;
+  uint32_t count = 0;
+  VkPhysicalDevice physical = VK_CTX(app)->physical_device;
+  VkSurfaceKHR surface = VK_CTX(app)->render_context.surface;
+  if (vkGetPhysicalDeviceSurfacePresentModesKHR(physical, surface, &count, NULL) != VK_SUCCESS || !count)
     return VK_PRESENT_MODE_FIFO_KHR;
-
-  uint32_t modeCount = 0;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(
-      VK_CTX(app)->physical_device, VK_CTX(app)->render_context.surface, &modeCount,
-      NULL);
-
-  if (modeCount == 0)
-    return VK_PRESENT_MODE_FIFO_KHR; // difesa: nessuna modalità
-                                     // riportata, resta sul sicuro
-
-  VkPresentModeKHR modes[16];
-  if (modeCount > 16)
-    modeCount = 16; // difesa: più di 16 modalità è oltre qualunque
-                    // driver reale conosciuto, non serve un malloc
-                    // dinamico per questo
-  vkGetPhysicalDeviceSurfacePresentModesKHR(
-      VK_CTX(app)->physical_device, VK_CTX(app)->render_context.surface, &modeCount,
-      modes);
-
-  bool hasMailbox = false, hasImmediate = false;
-  for (uint32_t i = 0; i < modeCount; i++) {
-    if (modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
-      hasMailbox = true;
-    else if (modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
-      hasImmediate = true;
+  VkPresentModeKHR *modes = malloc((size_t)count * sizeof(*modes));
+  if (!modes) return VK_PRESENT_MODE_FIFO_KHR;
+  VkPresentModeKHR selected = VK_PRESENT_MODE_FIFO_KHR;
+  if (vkGetPhysicalDeviceSurfacePresentModesKHR(physical, surface, &count, modes) == VK_SUCCESS) {
+    for (uint32_t i = 0; i < count; ++i)
+      if (modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) selected = modes[i];
+    for (uint32_t i = 0; i < count; ++i)
+      if (modes[i] == VK_PRESENT_MODE_MAILBOX_KHR) selected = modes[i];
   }
+  free(modes);
+  return selected;
+}
 
-  if (hasMailbox)
-    return VK_PRESENT_MODE_MAILBOX_KHR;
-  if (hasImmediate)
-    return VK_PRESENT_MODE_IMMEDIATE_KHR;
-
-  LOG_WARN("V-Sync spento richiesto ma il driver non supporta MAILBOX né "
-           "IMMEDIATE — resto su FIFO (V-Sync di fatto acceso)");
-  return VK_PRESENT_MODE_FIFO_KHR;
+/* Pure policy function, also exercised with synthetic surface capabilities. */
+static bool choose_surface(const VkSurfaceCapabilitiesKHR *caps,
+                            const VkSurfaceFormatKHR *formats, uint32_t count,
+                            uint32_t width, uint32_t height, bool capture,
+                            VkSwapchainCreateInfoKHR *info) {
+  if (!count || !(caps->supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) ||
+      !caps->supportedCompositeAlpha || !caps->supportedTransforms) return false;
+  VkSurfaceFormatKHR format = formats[0];
+  if (count == 1 && format.format == VK_FORMAT_UNDEFINED) format.format = VK_FORMAT_B8G8R8A8_SRGB;
+  for (uint32_t i = 0; i < count; ++i)
+    if (formats[i].format == VK_FORMAT_R8G8B8A8_SRGB && formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+      format = formats[i];
+  for (uint32_t i = 0; i < count; ++i)
+    if (formats[i].format == VK_FORMAT_B8G8R8A8_SRGB && formats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+      format = formats[i];
+  info->imageFormat = format.format; info->imageColorSpace = format.colorSpace;
+  info->minImageCount = caps->minImageCount > 3 ? caps->minImageCount : 3;
+  if (caps->maxImageCount && info->minImageCount > caps->maxImageCount) info->minImageCount = caps->maxImageCount;
+  info->imageExtent = caps->currentExtent;
+  if (info->imageExtent.width == UINT32_MAX) {
+    info->imageExtent.width = width < caps->minImageExtent.width ? caps->minImageExtent.width : width;
+    info->imageExtent.height = height < caps->minImageExtent.height ? caps->minImageExtent.height : height;
+    if (info->imageExtent.width > caps->maxImageExtent.width) info->imageExtent.width = caps->maxImageExtent.width;
+    if (info->imageExtent.height > caps->maxImageExtent.height) info->imageExtent.height = caps->maxImageExtent.height;
+  }
+  if (!info->imageExtent.width || !info->imageExtent.height) return false;
+  info->imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  bool capture_format = format.format == VK_FORMAT_B8G8R8A8_SRGB || format.format == VK_FORMAT_R8G8B8A8_SRGB ||
+                        format.format == VK_FORMAT_B8G8R8A8_UNORM || format.format == VK_FORMAT_R8G8B8A8_UNORM;
+  if (capture && capture_format && (caps->supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT))
+    info->imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+  info->preTransform = (caps->supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+                           ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR : caps->currentTransform;
+  if (!(info->preTransform & caps->supportedTransforms)) return false;
+  const VkCompositeAlphaFlagBitsKHR alpha[] = {VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+    VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR, VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR, VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR};
+  for (unsigned i = 0; i < sizeof(alpha) / sizeof(alpha[0]); ++i)
+    if (caps->supportedCompositeAlpha & alpha[i]) { info->compositeAlpha = alpha[i]; break; }
+  info->imageArrayLayers = 1;
+  info->imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  info->clipped = capture && (info->imageUsage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) ? VK_FALSE : VK_TRUE;
+  return info->compositeAlpha != 0;
 }
 
 VkSwapchainCreateInfoKHR create_swapchain_info(APP *app) {
-
-  VkSurfaceCapabilitiesKHR capabilities;
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-      VK_CTX(app)->physical_device, VK_CTX(app)->render_context.surface, &capabilities);
-
-  VkSwapchainCreateInfoKHR swapInfo = {0};
-  swapInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-
-  swapInfo.surface = VK_CTX(app)->render_context.surface;
-
-  // Prima era un "3" fisso, mai verificato contro ciò che il driver
-  // supporta davvero (appena letto sopra in 'capabilities', poi
-  // ignorato). Su un driver/GPU con un range diverso (es. solo 2
-  // immagini) vkCreateSwapchainKHR può fallire o comportarsi in modo
-  // imprevisto. maxImageCount == 0 significa "nessun limite" per spec,
-  // va trattato come tale, non come "zero".
-  uint32_t desiredImageCount = 3; // minimo safe che volevamo comunque
-  if (desiredImageCount < capabilities.minImageCount)
-    desiredImageCount = capabilities.minImageCount;
-  if (capabilities.maxImageCount > 0 &&
-      desiredImageCount > capabilities.maxImageCount)
-    desiredImageCount = capabilities.maxImageCount;
-  swapInfo.minImageCount = desiredImageCount;
-
-  swapInfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-  swapInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-
-  // currentExtent.width == 0xFFFFFFFF è il valore sentinella con cui
-  // alcune piattaforme (tipicamente Wayland) dicono "decidi tu le
-  // dimensioni" — usato direttamente (come prima) crea una swapchain con
-  // extent invalida lì. In quel caso si chiede a GLFW la dimensione vera
-  // del framebuffer e la si clampa dentro i limiti min/max del driver.
-  VkExtent2D extent = capabilities.currentExtent;
-  if (extent.width == 0xFFFFFFFFu) {
-    int fbW = 0, fbH = 0;
-    glfwGetFramebufferSize(app->window, &fbW, &fbH);
-    extent.width = (uint32_t)fbW;
-    extent.height = (uint32_t)fbH;
-
-    if (extent.width < capabilities.minImageExtent.width)
-      extent.width = capabilities.minImageExtent.width;
-    if (extent.width > capabilities.maxImageExtent.width)
-      extent.width = capabilities.maxImageExtent.width;
-    if (extent.height < capabilities.minImageExtent.height)
-      extent.height = capabilities.minImageExtent.height;
-    if (extent.height > capabilities.maxImageExtent.height)
-      extent.height = capabilities.maxImageExtent.height;
-  }
-  swapInfo.imageExtent = extent;
-  swapInfo.imageArrayLayers = 1;
-  // MACROTASK MULTI-GIOCO: TRANSFER_SRC per il dump diagnostico del frame
-  // (APP_FRAME_DUMP_DIR, render/vulkan_draw.c) -- letto in host memory
-  // dopo la present, mai nel percorso normale.
-  swapInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-
-  swapInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-  swapInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-
-  swapInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-
-  swapInfo.presentMode = choose_present_mode(app);
-
-  swapInfo.clipped = VK_TRUE;
-
-  return swapInfo;
+  VkSwapchainCreateInfoKHR info = {0};
+  VkSurfaceCapabilitiesKHR caps;
+  VkPhysicalDevice physical = VK_CTX(app)->physical_device;
+  VkSurfaceKHR surface = VK_CTX(app)->render_context.surface;
+  if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface, &caps) != VK_SUCCESS) return info;
+  uint32_t count = 0;
+  if (vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, &count, NULL) != VK_SUCCESS || !count) return info;
+  VkSurfaceFormatKHR *formats = malloc((size_t)count * sizeof(*formats));
+  if (!formats) return info;
+  int width, height; platform_framebuffer_size(app->window, &width, &height);
+  const char *capture_dir = getenv("APP_FRAME_DUMP_DIR");
+  bool capture = capture_dir && *capture_dir;
+  bool ok = vkGetPhysicalDeviceSurfaceFormatsKHR(physical, surface, &count, formats) == VK_SUCCESS &&
+            choose_surface(&caps, formats, count, width > 0 ? (uint32_t)width : 0,
+                           height > 0 ? (uint32_t)height : 0, capture, &info);
+  free(formats);
+  if (!ok) return (VkSwapchainCreateInfoKHR){0};
+  if (capture && !(info.imageUsage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT))
+    LOG_WARN("Frame capture unavailable for this surface; rendering remains enabled");
+  info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  info.surface = surface; info.presentMode = choose_present_mode(app);
+  return info;
 }
 
-void create_image_views(APP *app) {
-
+bool create_image_views(APP *app) {
   Swapchain *swap = &VK_CTX(app)->render_context.swapchain;
-
-  swap->image_views = malloc(sizeof(VkImageView) * swap->image_count);
-
-  for (uint32_t i = 0; i < swap->image_count; i++) {
-
-    VkImageViewCreateInfo viewInfo = {0};
-    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-
-    viewInfo.image = swap->images[i];
-
-    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = swap->format; // stesso della swapchain
-
-    viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;
-
-    if (vkCreateImageView(VK_CTX(app)->logical_device, &viewInfo, NULL,
-                          &swap->image_views[i]) != VK_SUCCESS) {
-
-      LOG_ERROR("failed to create image view");
-      exit(1);
+  swap->image_views = calloc(swap->image_count, sizeof(*swap->image_views));
+  if (!swap->image_views) return false;
+  for (uint32_t i = 0; i < swap->image_count; ++i) {
+    VkImageViewCreateInfo info = {.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+      .image = swap->images[i], .viewType = VK_IMAGE_VIEW_TYPE_2D, .format = swap->format,
+      .subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
+    if (vkCreateImageView(VK_CTX(app)->logical_device, &info, NULL, &swap->image_views[i]) != VK_SUCCESS) {
+      swap->image_views[i] = VK_NULL_HANDLE; return false;
     }
   }
-
-  LOG_INFO("image views created");
+  return true;
 }
 
 Swapchain create_swapchain(APP *app) {
-
-  LOG_INFO("creating swapchain");
-
   Swapchain swap = {0};
-
-  VkSwapchainCreateInfoKHR swapInfo = create_swapchain_info(app);
-
-  if (vkCreateSwapchainKHR(VK_CTX(app)->logical_device, &swapInfo, NULL,
-                           &swap.handle) != VK_SUCCESS) {
-
-    LOG_ERROR("error creating swapchain");
-    exit(123);
-  }
-
-  // 🔥 salva info utili
-  swap.format = swapInfo.imageFormat;
-  swap.present_mode = swapInfo.presentMode;
-  swap.extent = swapInfo.imageExtent;
-  {
-    int width = 0, height = 0;
-    glfwGetWindowSize(app->window, &width, &height);
-    g_virtualWidth = width > 0 ? (float)width : (float)swap.extent.width;
-    g_virtualHeight = height > 0 ? (float)height : (float)swap.extent.height;
-    swap.viewport_rect = (VkRect2D){.offset = {0, 0}, .extent = swap.extent};
-    LOG_INFO("Application surface %ux%u, logical %.0fx%.0f", swap.extent.width, swap.extent.height, VIRTUAL_W, VIRTUAL_H);
-  }
-
-  // 🔥 ottieni numero immagini
-  vkGetSwapchainImagesKHR(VK_CTX(app)->logical_device, swap.handle,
-                          &swap.image_count, NULL);
-
-  // 🔥 malloc immagini
-  swap.images = malloc(sizeof(VkImage) * swap.image_count);
-
-  vkGetSwapchainImagesKHR(VK_CTX(app)->logical_device, swap.handle,
-                          &swap.image_count, swap.images);
-
-  LOG_INFO("swapchain images: %d", swap.image_count);
+  if (!app || !app->context || !app->window || !app->context->logical_device) return swap;
+  VkDevice device = VK_CTX(app)->logical_device;
+  VkSwapchainCreateInfoKHR info = create_swapchain_info(app);
+  if (!info.sType || vkCreateSwapchainKHR(device, &info, NULL, &swap.handle) != VK_SUCCESS) return (Swapchain){0};
+  swap.format = info.imageFormat; swap.present_mode = info.presentMode; swap.extent = info.imageExtent;
+  swap.transfer_src = (info.imageUsage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) != 0;
+  if (vkGetSwapchainImagesKHR(device, swap.handle, &swap.image_count, NULL) != VK_SUCCESS || !swap.image_count) goto fail;
+  swap.images = malloc((size_t)swap.image_count * sizeof(*swap.images));
+  if (!swap.images || vkGetSwapchainImagesKHR(device, swap.handle, &swap.image_count, swap.images) != VK_SUCCESS) goto fail;
+  int width, height; platform_window_size(app->window, &width, &height);
+  g_virtualWidth = width > 0 ? (float)width : (float)swap.extent.width;
+  g_virtualHeight = height > 0 ? (float)height : (float)swap.extent.height;
+  swap.viewport_rect = (VkRect2D){.extent = swap.extent};
   return swap;
+fail:
+  free(swap.images); vkDestroySwapchainKHR(device, swap.handle, NULL);
+  return (Swapchain){0};
 }
 
 void destroy_swapchain(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
-  Swapchain *sc = &VK_CTX(app)->render_context.swapchain; // NOME CORRETTO
-
-  if (sc->image_views) {
-    for (uint32_t i = 0; i < sc->image_count; i++) {
-      vkDestroyImageView(device, sc->image_views[i], NULL);
-    }
-    free(sc->image_views);
-    sc->image_views = NULL;
-  }
-
-  if (sc->images) {
-    free(sc->images);
-    sc->images = NULL;
-  }
-
-  // NON liberare ctx->images_in_flight qui!
-  vkDestroySwapchainKHR(device, sc->handle, NULL);
-  LOG_INFO("destroyed swapchain");
+  Swapchain *swap = &VK_CTX(app)->render_context.swapchain;
+  if (swap->image_views)
+    for (uint32_t i = 0; i < swap->image_count; ++i)
+      if (swap->image_views[i]) vkDestroyImageView(device, swap->image_views[i], NULL);
+  free(swap->image_views); free(swap->images);
+  if (swap->handle) vkDestroySwapchainKHR(device, swap->handle, NULL);
+  *swap = (Swapchain){0};
 }
 
 void recreate_swapchain(APP *app) {
-  int width = 0, height = 0;
-  glfwGetFramebufferSize(app->window, &width, &height);
-  while ((width == 0 || height == 0) && !glfwWindowShouldClose(app->window)) {
-    glfwWaitEvents();
-    glfwGetFramebufferSize(app->window, &width, &height);
+  if (!app || app->error.code) return;
+  if (!app->context || !app->window || !app->context->logical_device) {
+    app->error = (AppError){APP_ERROR_STATE, "swapchain recreation without device"};
+    return;
   }
-  if (glfwWindowShouldClose(app->window)) return;
-  vkDeviceWaitIdle(VK_CTX(app)->logical_device);
-  destroy_framebuffers(app);
-  destroy_pipeline(app);
-  destroy_swapchain(app);
+  int width = 0, height = 0;
+  platform_framebuffer_size(app->window, &width, &height);
+  while ((!width || !height) && !platform_window_should_close(app->window)) {
+    platform_wait_events(); platform_framebuffer_size(app->window, &width, &height);
+  }
+  if (platform_window_should_close(app->window)) return;
+  if (!vulkan_check(app, vkDeviceWaitIdle(VK_CTX(app)->logical_device), "swapchain recreation idle wait")) goto fail;
+  destroy_framebuffers(app); destroy_pipeline(app); destroy_renderpass(app); destroy_swapchain(app);
   VK_CTX(app)->render_context.swapchain = create_swapchain(app);
-  create_image_views(app);
-  sync_resize_swapchain_objects(app);
-  create_pipeline(app);
-  create_framebuffers(app);
+  if (!VK_CTX(app)->render_context.swapchain.handle || !create_image_views(app) ||
+      !sync_resize_swapchain_objects(app) || !create_renderpass(app) ||
+      !create_pipeline(app) || !create_framebuffers(app)) goto fail;
+  return;
+fail:
+  if (!app->error.code) app->error = (AppError){APP_ERROR_GRAPHICS, "swapchain recreation"};
+  platform_window_set_should_close(app->window, PLATFORM_TRUE);
 }
 
 void vsync_toggle_and_apply(APP *app, bool enabled) {
-  vsync_set_enabled(enabled);
-  app->framebuffer_resized = true;
+  vsync_set_enabled(enabled); app->framebuffer_resized = true;
 }

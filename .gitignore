@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 /evidence/frames/
 /evidence/app-[0-9][0-9].png
+
+# Local validation output and game narrative are not framework sources.
+/evidence/
+/docs/narrativa/

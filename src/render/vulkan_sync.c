@@ -4,7 +4,7 @@
 #include "log/log.h"
 #include <stdlib.h>
 
-void create_sync_objects(APP *app) {
+bool create_sync_objects(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
   RenderContext *ctx = &VK_CTX(app)->render_context;
 
@@ -14,16 +14,16 @@ void create_sync_objects(APP *app) {
     VkFenceCreateInfo fenceInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
                                    .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
-    vkCreateSemaphore(device, &semInfo, NULL,
-                      &ctx->frames[i].image_available_semaphore);
-    vkCreateFence(device, &fenceInfo, NULL, &ctx->frames[i].in_flight_fence);
-    vkCreateFence(device, &fenceInfo, NULL,
-                  &ctx->transfers[i].completion_fence);
+    if (vkCreateSemaphore(device, &semInfo, NULL,
+                      &ctx->frames[i].image_available_semaphore) != VK_SUCCESS) { ctx->frames[i].image_available_semaphore = VK_NULL_HANDLE; return false; }
+    if (vkCreateFence(device, &fenceInfo, NULL, &ctx->frames[i].in_flight_fence) != VK_SUCCESS) { ctx->frames[i].in_flight_fence = VK_NULL_HANDLE; return false; }
+    if (vkCreateFence(device, &fenceInfo, NULL,
+                  &ctx->transfers[i].completion_fence) != VK_SUCCESS) { ctx->transfers[i].completion_fence = VK_NULL_HANDLE; return false; }
     ctx->transfers[i].submitted = false;
     ctx->transfers[i].covered_by_render_fence = false;
   }
 
-  sync_resize_swapchain_objects(app);
+  return sync_resize_swapchain_objects(app);
 }
 
 // Perche' il semaforo "render finito" e' per IMMAGINE e non per frame.
@@ -51,7 +51,7 @@ void create_sync_objects(APP *app) {
 // riallocati ad ogni ricreazione: il numero di immagini cambia (3 con FIFO
 // all'avvio, 4 con MAILBOX/IMMEDIATE). Scrivere all'indice 3 di un array da
 // 3 e' un overflow vero — era gia' successo con images_in_flight.
-void sync_resize_swapchain_objects(APP *app) {
+bool sync_resize_swapchain_objects(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
   RenderContext *ctx = &VK_CTX(app)->render_context;
 
@@ -70,32 +70,35 @@ void sync_resize_swapchain_objects(APP *app) {
 
   if (ctx->swapchain.image_count == 0) {
     LOG_ERROR("cannot allocate per-image sync objects for an empty swapchain");
-    exit(1);
+    return false;
   }
 
   ctx->images_in_flight = calloc(ctx->swapchain.image_count, sizeof(VkFence));
   if (!ctx->images_in_flight) {
     LOG_ERROR("cannot allocate images_in_flight");
-    exit(1);
+    return false;
   }
 
   ctx->render_finished_semaphores =
       calloc(ctx->swapchain.image_count, sizeof(VkSemaphore));
   if (!ctx->render_finished_semaphores) {
     LOG_ERROR("cannot allocate render_finished_semaphores");
-    exit(1);
+    return false;
   }
 
+  ctx->render_finished_semaphore_count = ctx->swapchain.image_count;
   VkSemaphoreCreateInfo semInfo = {
       .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
   for (uint32_t i = 0; i < ctx->swapchain.image_count; i++) {
     if (vkCreateSemaphore(device, &semInfo, NULL,
                           &ctx->render_finished_semaphores[i]) != VK_SUCCESS) {
+      ctx->render_finished_semaphores[i] = VK_NULL_HANDLE;
       LOG_ERROR("cannot create render finished semaphore %u", i);
-      exit(1);
+      return false;
     }
   }
   ctx->render_finished_semaphore_count = ctx->swapchain.image_count;
+  return true;
 }
 
 void destroy_sync_objects(APP *app) {

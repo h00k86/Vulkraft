@@ -35,6 +35,7 @@
 bool platform_path_exists(const char *path) {
   return path && *path && GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
+bool platform_path_entry_exists(const char *path) { return platform_path_exists(path); }
 
 bool platform_file_exists(const char *path) {
   if (!path || !*path)
@@ -106,14 +107,21 @@ bool platform_set_cwd(const char *path) { return path && _chdir(path) == 0; }
 bool platform_real_path(const char *path, char *out, size_t cap) {
   if (!path || !out || cap == 0)
     return false;
-  DWORD n = GetFullPathNameA(path, (DWORD)cap, out, NULL);
-  if (n == 0 || n >= cap)
-    return false;
+  HANDLE handle = CreateFileA(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                              NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+  if (handle == INVALID_HANDLE_VALUE) return false;
+  char resolved[PLATFORM_PATH_MAX];
+  DWORD n = GetFinalPathNameByHandleA(handle, resolved, sizeof(resolved), FILE_NAME_NORMALIZED);
+  CloseHandle(handle);
+  if (!n || n >= sizeof(resolved)) return false;
+  const char *start = resolved;
+  if (!strncmp(start, "\\\\?\\UNC\\", 8)) {
+    resolved[6] = '\\'; start = resolved + 6;
+  } else if (!strncmp(start, "\\\\?\\", 4)) start += 4;
+  if (strlen(start) >= cap) return false;
+  memcpy(out, start, strlen(start) + 1);
   platform_fs_normalize_separators(out);
-  /* GetFullPathNameA non verifica l'esistenza, realpath(3) si': si allinea
-   * al comportamento POSIX, altrimenti project.c accetterebbe cartelle di
-   * progetto inesistenti solo su Windows. */
-  return platform_dir_exists(out) || platform_file_exists(out);
+  return true;
 }
 
 bool platform_exe_dir(char *out, size_t cap) {
@@ -197,6 +205,10 @@ bool platform_path_exists(const char *path) {
     return false;
   struct stat st;
   return stat(path, &st) == 0;
+}
+bool platform_path_entry_exists(const char *path) {
+  struct stat st;
+  return path && *path && lstat(path, &st) == 0;
 }
 
 bool platform_file_exists(const char *path) {
@@ -387,4 +399,92 @@ bool platform_dir_entry_is_dir(const char *dirPath, const PlatformDirEntry *entr
   if (k <= 0 || (size_t)k >= sizeof(full))
     return false;
   return platform_dir_exists(full);
+}
+
+bool platform_resolve_within(const char *root, const char *path,
+                             bool allow_missing_leaf, char *out, size_t cap) {
+  if (!root || !path || !out || !cap) return false;
+  char base[PLATFORM_PATH_MAX], resolved[PLATFORM_PATH_MAX];
+  if (!platform_real_path(root, base, sizeof(base)) || !platform_dir_exists(base)) return false;
+  if (!platform_real_path(path, resolved, sizeof(resolved))) {
+    if (!allow_missing_leaf || platform_path_entry_exists(path) || strlen(path) >= sizeof(resolved)) return false;
+    char parent[PLATFORM_PATH_MAX], canonical_parent[PLATFORM_PATH_MAX];
+    memcpy(parent, path, strlen(path) + 1);
+    platform_fs_normalize_separators(parent);
+    char *slash = strrchr(parent, '/');
+    const char *leaf = slash ? slash + 1 : parent;
+    char name[PLATFORM_PATH_MAX];
+    if (!*leaf || !strcmp(leaf, ".") || !strcmp(leaf, "..")) return false;
+    memcpy(name, leaf, strlen(leaf) + 1);
+    if (!slash) strcpy(parent, ".");
+    else if (slash == parent
+#ifdef _WIN32
+             || (slash == parent + 2 && parent[1] == ':')
+#endif
+            ) slash[1] = 0;
+    else *slash = 0;
+    if (!platform_real_path(parent, canonical_parent, sizeof(canonical_parent)) ||
+        !platform_dir_exists(canonical_parent)) return false;
+    int n = snprintf(resolved, sizeof(resolved), "%s%s%s", canonical_parent,
+                     canonical_parent[strlen(canonical_parent)-1] == '/' ? "" : "/", name);
+    if (n < 0 || (size_t)n >= sizeof(resolved)) return false;
+  }
+  size_t n = strlen(base);
+#ifdef _WIN32
+  bool prefix = _strnicmp(base, resolved, n) == 0;
+#else
+  bool prefix = strncmp(base, resolved, n) == 0;
+#endif
+  if (!prefix || (base[n - 1] != '/' && resolved[n] && resolved[n] != '/')) return false;
+  size_t length = strlen(resolved);
+  if (length >= cap) return false;
+  memcpy(out, resolved, length + 1);
+  return true;
+}
+
+/* Keep partial output away from the destination until close has succeeded. */
+bool platform_write_file_atomic(const char *path,const void *data,size_t size) {
+  if(!path || !*path || (!data && size)) return false;
+  char temp[PLATFORM_PATH_MAX];
+#ifdef _WIN32
+  DWORD attr=GetFileAttributesA(path);
+  if(attr!=INVALID_FILE_ATTRIBUTES && (attr&(FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT|FILE_ATTRIBUTE_READONLY))) return false;
+  HANDLE file=INVALID_HANDLE_VALUE;
+  for(unsigned i=0;i<128;++i) {
+    int n=snprintf(temp,sizeof(temp),"%s.tmp.%lu.%u",path,(unsigned long)GetCurrentProcessId(),i);
+    if(n<0 || (size_t)n>=sizeof(temp)) return false;
+    file=CreateFileA(temp,GENERIC_WRITE,0,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
+    if(file!=INVALID_HANDLE_VALUE) break;
+    if(GetLastError()!=ERROR_FILE_EXISTS && GetLastError()!=ERROR_ALREADY_EXISTS) return false;
+  }
+  if(file==INVALID_HANDLE_VALUE) return false;
+  bool ok=true; size_t done=0;
+  while(done<size) {
+    DWORD written=0,chunk=(DWORD)((size-done)>1048576?1048576:size-done);
+    if(!WriteFile(file,(const char *)data+done,chunk,&written,NULL) || !written) { ok=false; break; }
+    done+=written;
+  }
+  if(ok && !FlushFileBuffers(file)) ok=false;
+  if(!CloseHandle(file)) ok=false;
+  if(ok) ok=MoveFileExA(temp,path,MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0;
+  if(!ok) DeleteFileA(temp);
+  return ok;
+#else
+  struct stat st; bool exists=lstat(path,&st)==0;
+  if(exists && !S_ISREG(st.st_mode)) return false;
+  int n=snprintf(temp,sizeof(temp),"%s.tmp.XXXXXX",path);
+  if(n<0 || (size_t)n>=sizeof(temp)) return false;
+  int fd=mkstemp(temp);
+  if(fd<0) return false;
+  bool ok=!exists || fchmod(fd,st.st_mode&0777)==0;
+  FILE *file=fdopen(fd,"wb");
+  if(!file) { close(fd); unlink(temp); return false; }
+  if(ok && size && fwrite(data,1,size,file)!=size) ok=false;
+  if(ok && fflush(file)!=0) ok=false;
+  if(ok && fsync(fd)!=0) ok=false;
+  if(fclose(file)!=0) ok=false;
+  if(ok && rename(temp,path)!=0) ok=false;
+  if(!ok) unlink(temp);
+  return ok;
+#endif
 }

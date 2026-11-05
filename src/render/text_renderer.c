@@ -1,3 +1,4 @@
+#include "text/utf8.h"
 #include "render/text_renderer.h"
 #include "render/gfx_vulkan.h"
 
@@ -14,6 +15,9 @@
 
 #define INITIAL_HUD_BATCH_CAPACITY 128u
 #define MAX_HUD_CLIP_DEPTH 16
+/* Geometria CPU condivisa dal renderer UI: le primitive aggiungono vertici
+ * e i batch conservano il clipping. text_end prepara il buffer GPU; il submit
+ * avviene successivamente nel backend. Non e ancora una draw-list pubblica autonoma. */
 static Vertex *text_vertices = NULL;
 static uint32_t text_vertex_capacity = 0;
 static uint32_t text_offset = 0;
@@ -185,26 +189,8 @@ static bool draw_char_colored(Glyph *g, float x, float y, float scale, float r,
   return text_append_vertices(quad, 6);
 }
 
-// ---- Menu principale provvisorio (2026-09-11): stile testo dedicato ----
-// vedi il commento in include/render/text_renderer.h (UITextStyle) sul
-// perche' isWater e' il canale riusato per portare lo stato al fragment
-// shader senza toccare il layout dei vertici o la pipeline generica.
-
-// Hash intero economico (Wang hash), deterministico: stesso ingresso ->
-// stessa uscita SEMPRE, nessuno stato/rand() globale -- e' quello che
-// rende "seed deterministico per carattere" letterale, non un'
-// approssimazione.
-
-
-
-// Vertice di un glifo con rotazione/offset (effetto stop-motion, tutto
-// CPU-side: nessuna modifica alla pipeline/al layout Vertex) e canale
-// isWater riusato per lo STATO (vedi header) -- unica differenza reale
-// rispetto a draw_char_colored sopra.
-
-
-
-
+/* Apre un frame vuoto mantenendo la capacita gia allocata. Il primo livello
+ * di clipping copre l'intero canvas virtuale e deve restare bilanciato. */
 void text_begin(APP *app) {
   (void)app;
   text_offset = 0;
@@ -216,6 +202,8 @@ void text_begin(APP *app) {
   text_begin_batch();
 }
 
+/* Se una prenotazione di geometria fallisce, scarta il frame invece di
+ * inviare dati parziali. La diagnostica resta separata dagli errori Vulkan fatali. */
 void text_end(APP *app) {
   if (g_clip_depth != 1) {
     fprintf(stderr, "UI clip stack imbalance at frame end (depth %d)\n",
@@ -301,8 +289,10 @@ void draw_text_colored(APP *app, Font *font, const char *text, float x,
   (void)app;
   float cursor_x = x;
 
-  while (*text && !text_geometry_failed) {
-    Glyph *g = font_get(font, (uint32_t)*text);
+  size_t remaining=strlen(text);
+  while (remaining && !text_geometry_failed) {
+    uint32_t cp; size_t bytes=utf8_decode(text,remaining,&cp);
+    Glyph *g = font_get_fallback(font, cp);
     if (g) {
       if (!draw_char_colored(g, cursor_x, y, scale, r, col_g, b))
         break;
@@ -311,7 +301,7 @@ void draw_text_colored(APP *app, Font *font, const char *text, float x,
           g->plane_right > g->advance ? g->plane_right : g->advance;
       cursor_x += glyph_width * scale;
     }
-    text++;
+    text+=bytes; remaining-=bytes;
   }
 }
 
@@ -338,16 +328,20 @@ void draw_text(APP *app, Font *font, const char *text, float x, float y,
   draw_text_colored(app, font, text, x, y, scale, 1.0f, 1.0f, 1.0f);
 }
 
+/* Usa gli stessi scalari, fallback e avanzamenti del disegno: misurare per
+ * byte produrrebbe disallineamenti di cursore e layout con testo UTF-8. */
 float measure_text_width(Font *font, const char *text, float scale) {
   float width = 0.0f;
-  while (*text) {
-    Glyph *g = font_get(font, (uint32_t)*text);
+  size_t remaining=strlen(text);
+  while (remaining) {
+    uint32_t cp; size_t bytes=utf8_decode(text,remaining,&cp);
+    Glyph *g = font_get_fallback(font, cp);
     if (g) {
       float glyph_width =
           g->plane_right > g->advance ? g->plane_right : g->advance;
       width += glyph_width * scale;
     }
-    text++;
+    text+=bytes; remaining-=bytes;
   }
   return width;
 }

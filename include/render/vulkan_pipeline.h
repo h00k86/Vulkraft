@@ -1,6 +1,7 @@
 
 
 #pragma once
+#include <stdbool.h>
 
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
@@ -10,5 +11,5 @@ typedef struct APP APP;
 #include "log/log.h"
 
 
-void create_pipeline(APP *app);
+bool create_pipeline(APP *app);
 void destroy_pipeline(APP *app);

@@ -16,34 +16,35 @@ void app_draw(APP *app) {
   float width = VIRTUAL_W - pad * 2;
   if (width < 20) return;
   draw_text_colored(app, font, "Graphics App Base", pad, 45, 28, theme.text.r, theme.text.g, theme.text.b);
-  draw_text_colored(app, font, "C  /  GLFW  /  Vulkan", pad, 73, 15, theme.text_muted.r, theme.text_muted.g, theme.text_muted.b);
+  draw_text_colored(app, font, "C  /  Platform  /  Vulkan", pad, 73, 15, theme.text_muted.r, theme.text_muted.g, theme.text_muted.b);
   UIRect bounds = {pad, 96, width, VIRTUAL_H - 120};
   UIScrollScope scroll = ui_scroll_begin("starter/content", bounds, 1);
+  if (!scroll.clip_pushed) { ui_scroll_end(&scroll); return; }
   UILayout layout = scroll.layout;
   float y = ui_layout_next_row(&layout);
   draw_text_colored(app, font, "Testo, input, pulsanti e layout riutilizzabili", pad + 8, y + 18, 17, theme.text.r, theme.text.g, theme.text.b);
   y = ui_layout_next_row(&layout);
   UIButtonStyle field = {.min_height = 34};
-  ui_text_input(app, "starter/text", font, ANCHOR_TOP_LEFT, 0, 18, pad + 8, y, width - 32, text, sizeof(text), &field);
+  ui_text_input("starter/text", font, ANCHOR_TOP_LEFT, 0, 18, pad + 8, y, width - 32, text, sizeof(text), &field);
   ui_layout_space(&layout, 16);
   y = ui_layout_next_row(&layout);
   UIButtonStyle button = {.min_width = 190, .max_width = 190, .min_height = 34};
-  if (ui_button_labeled(app, "starter/button", "Premi qui", font, ANCHOR_TOP_LEFT, 0, 18, pad + 8, y, &button)) clicks++;
+  if (ui_button_labeled("starter/button", "Premi qui", font, ANCHOR_TOP_LEFT, 0, 18, pad + 8, y, &button)) clicks++;
   y = ui_layout_next_row(&layout);
   char message[96]; snprintf(message, sizeof(message), "Click: %d", clicks);
   draw_text_colored(app, font, message, pad + 8, y + 18, 17, theme.text.r, theme.text.g, theme.text.b);
   y = ui_layout_next_row(&layout);
-  if (ui_button_labeled(app, "starter/theme", light ? "Tema scuro" : "Tema chiaro", font, ANCHOR_TOP_LEFT, 0, 18, pad + 8, y, &button)) {
+  if (ui_button_labeled("starter/theme", light ? "Tema scuro" : "Tema chiaro", font, ANCHOR_TOP_LEFT, 0, 18, pad + 8, y, &button)) {
     light = !light; ui_set_theme(light ? ui_theme_light() : ui_theme_dark());
   }
   ui_layout_space(&layout, 16);
   UIPropertyLayout props = ui_property_layout_begin(pad + 8, layout.cursor_y, width - 32, 1);
-  ui_property_checkbox(app, &props, "starter/enabled", font, "Opzione", &checked);
-  ui_property_float(app, &props, "starter/value", font, "Valore", &value, 0, 1);
+  ui_property_checkbox(&props, "starter/enabled", font, "Opzione", &checked);
+  ui_property_float(&props, "starter/value", font, "Valore", &value, 0, 1);
   ui_property_layout_commit(&layout, &props);
   y = ui_layout_next_row(&layout);
   draw_text_colored(app, font, text, pad + 8, y + 18, 18, theme.accent.r, theme.accent.g, theme.accent.b);
   scroll.layout = layout;
-  ui_scroll_end(app, &scroll);
+  ui_scroll_end(&scroll);
   draw_text_colored(app, font, "Ridimensiona la finestra: canvas e puntatore restano allineati.", pad, VIRTUAL_H - 16, 14, theme.text_muted.r, theme.text_muted.g, theme.text_muted.b);
 }

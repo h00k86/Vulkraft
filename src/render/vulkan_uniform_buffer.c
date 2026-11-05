@@ -7,21 +7,23 @@
 #include "render/vulkan_memory_tracker.h"
 #include <string.h>
 
-void create_ubo_camera(APP *app, UniformBuffer *ub) {
+bool create_ubo_camera(APP *app, UniformBuffer *ub) {
   VkDeviceSize bufferSize = sizeof(CameraData);
   ub->size = bufferSize;
 
-  create_buffer(VK_CTX(app)->physical_device, VK_CTX(app)->logical_device, bufferSize,
+  if (!create_buffer(VK_CTX(app)->physical_device, VK_CTX(app)->logical_device, bufferSize,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                &ub->buffer, &ub->memory);
+                &ub->buffer, &ub->memory)) return false;
 
   if (vkMapMemory(VK_CTX(app)->logical_device, ub->memory, 0, bufferSize, 0,
                   &ub->mapped) != VK_SUCCESS) {
     LOG_ERROR("camera UBO map failed");
-    exit(1);
+    ub->mapped = NULL;
+    return false;
   }
+  return true;
 }
 
 void update_ubo_camera(UniformBuffer *ub, const CameraData *data) {
@@ -43,4 +45,5 @@ void destroy_ubo_camera(APP *app, UniformBuffer *ub) {
     vulkan_memory_track_free(ub->memory);
     vkFreeMemory(device, ub->memory, NULL);
   }
+  *ub = (UniformBuffer){0};
 }

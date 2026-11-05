@@ -4,6 +4,7 @@
 
 #include "log/log.h"
 #include "render/vulkan_buffer.h"
+#include "render/vulkan_error.h"
 #include "render/vulkan_memory_tracker.h"
 #include <assert.h>
 #include <inttypes.h>
@@ -42,6 +43,9 @@ static void destroy_storage_set(
       vulkan_memory_track_free(gpu_memory[i]);
     if (gpu_memory[i])
       vkFreeMemory(device, gpu_memory[i], NULL);
+    gpu[i] = staging[i] = VK_NULL_HANDLE;
+    gpu_memory[i] = staging_memory[i] = VK_NULL_HANDLE;
+    mapped[i] = NULL;
   }
 }
 
@@ -54,32 +58,34 @@ static bool create_storage_set(
     void *mapped[MAX_FRAMES_IN_FLIGHT]) {
   VkDevice device = VK_CTX(app)->logical_device;
   for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-    create_buffer(VK_CTX(app)->physical_device, device, size,
+    if (!create_buffer(VK_CTX(app)->physical_device, device, size,
                   VK_BUFFER_USAGE_TRANSFER_DST_BIT |
                       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &gpu[i],
-                  &gpu_memory[i]);
+                  &gpu_memory[i])) goto fail;
     char label[96];
     snprintf(label, sizeof(label), "%s/device",
              debug_name ? debug_name : "vertex-buffer");
     vulkan_memory_track_label(gpu_memory[i], label, (int)i, true);
-    create_buffer(VK_CTX(app)->physical_device, device, size,
+    if (!create_buffer(VK_CTX(app)->physical_device, device, size,
                   VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                  &staging[i], &staging_memory[i]);
+                  &staging[i], &staging_memory[i])) goto fail;
     snprintf(label, sizeof(label), "%s/staging",
              debug_name ? debug_name : "vertex-buffer");
     vulkan_memory_track_label(staging_memory[i], label, (int)i, true);
     if (vkMapMemory(device, staging_memory[i], 0, size, 0, &mapped[i]) !=
         VK_SUCCESS) {
       LOG_ERROR("vertex-buffer staging map failed for frame %u", i);
-      destroy_storage_set(device, gpu, gpu_memory, staging, staging_memory,
-                          mapped);
-      return false;
+      mapped[i] = NULL;
+      goto fail;
     }
   }
   return true;
+fail:
+  destroy_storage_set(device, gpu, gpu_memory, staging, staging_memory, mapped);
+  return false;
 }
 
 static bool wait_until_storage_is_unused(APP *app, VertexBuffer *vb) {
@@ -88,8 +94,8 @@ static bool wait_until_storage_is_unused(APP *app, VertexBuffer *vb) {
   for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     render_fences[i] =
         VK_CTX(app)->render_context.frames[i].in_flight_fence;
-  if (vkWaitForFences(device, MAX_FRAMES_IN_FLIGHT, render_fences, VK_TRUE,
-                      UINT64_MAX) != VK_SUCCESS) {
+  if (!vulkan_check(app, vkWaitForFences(device, MAX_FRAMES_IN_FLIGHT, render_fences, VK_TRUE,
+                      UINT64_MAX), "vertex growth frame wait")) {
     LOG_ERROR("%s vertex-buffer growth render-fence wait failed",
               vb->debug_name ? vb->debug_name : "unnamed");
     return false;
@@ -97,8 +103,8 @@ static bool wait_until_storage_is_unused(APP *app, VertexBuffer *vb) {
   for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
     FrameTransferState *transfer = &VK_CTX(app)->render_context.transfers[i];
     if (transfer->submitted && !transfer->covered_by_render_fence &&
-        vkWaitForFences(device, 1, &transfer->completion_fence, VK_TRUE,
-                        UINT64_MAX) != VK_SUCCESS) {
+        !vulkan_check(app, vkWaitForFences(device, 1, &transfer->completion_fence, VK_TRUE,
+                        UINT64_MAX), "vertex growth upload wait")) {
       LOG_ERROR("%s vertex-buffer growth orphaned-upload wait failed",
                 vb->debug_name ? vb->debug_name : "unnamed");
       return false;
@@ -230,7 +236,7 @@ bool vertex_buffer_record_upload(VertexBuffer *vb, uint32_t frame,
   return true;
 }
 
-void create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
+bool create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
                                       uint32_t initial_vertex_capacity,
                                       uint32_t maximum_vertex_capacity,
                                       const char *debug_name) {
@@ -241,12 +247,12 @@ void create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
     LOG_ERROR("invalid %s vertex-buffer capacity range: initial=%u max=%u",
               debug_name ? debug_name : "unnamed", initial_vertex_capacity,
               maximum_vertex_capacity);
-    exit(1);
+    return false;
   }
   if (!vertex_capacity_bytes(initial_vertex_capacity, &vb->size)) {
     LOG_ERROR("invalid initial %s vertex-buffer capacity: %u",
               debug_name ? debug_name : "unnamed", initial_vertex_capacity);
-    exit(1);
+    return false;
   }
   vb->capacity = initial_vertex_capacity;
   vb->maximum_capacity = maximum_vertex_capacity;
@@ -255,7 +261,7 @@ void create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
   if (!create_storage_set(app, vb->size, vb->debug_name, vb->gpu_buffer,
                           vb->gpu_buffer_memory, vb->staging_buffer,
                           vb->staging_buffer_memory, vb->mapped))
-    exit(1);
+    return false;
 
   // ESSENZIALE: un buffer GPU PER OGNI frame in volo, non uno solo
   // condiviso — prima, una copia nuova (per il frame N) poteva
@@ -265,12 +271,13 @@ void create_vertex_buffer_ext_limited(APP *app, VertexBuffer *vb,
   // applicato a immagine offscreen, profondità, descriptor set. La copia è
   // registrata nello stesso command buffer del draw: la fence di render dello
   // slot protegge staging, device buffer e command buffer insieme.
+  return true;
 }
 
-void create_vertex_buffer_ext(APP *app, VertexBuffer *vb,
+bool create_vertex_buffer_ext(APP *app, VertexBuffer *vb,
                               uint32_t initial_vertex_capacity,
                               const char *debug_name) {
-  create_vertex_buffer_ext_limited(app, vb, initial_vertex_capacity,
+  return create_vertex_buffer_ext_limited(app, vb, initial_vertex_capacity,
                                    UINT32_MAX, debug_name);
 }
 
@@ -396,4 +403,5 @@ void destroy_vertex_buffer_ext(APP *app, VertexBuffer *vb) {
     if (vb->gpu_buffer_memory[i])
       vkFreeMemory(device, vb->gpu_buffer_memory[i], NULL);
   }
+  memset(vb, 0, sizeof(*vb));
 }

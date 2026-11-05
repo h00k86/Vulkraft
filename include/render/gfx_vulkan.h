@@ -44,6 +44,7 @@ typedef struct {
     uint32_t image_count;
     VkFormat format;
     VkPresentModeKHR present_mode;
+    bool transfer_src;
     VkExtent2D extent;
     VkFramebuffer *framebuffers;
     // camera3d.md fase 2 (decisione 6: bande nere): rettangolo utile 16:9

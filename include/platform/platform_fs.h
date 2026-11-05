@@ -31,6 +31,12 @@
 /* Esiste, qualunque cosa sia (file, cartella, altro). Equivale al vecchio
  * "stat() == 0" sparso nel motore, che era vero anche per le cartelle. */
 bool platform_path_exists(const char *path);
+/* Includes dangling symlinks/reparse points. */
+bool platform_path_entry_exists(const char *path);
+/* Canonical containment check. For a new file, only the final component may
+ * be missing. Output is unchanged on failure. This is not an atomic open. */
+bool platform_resolve_within(const char *root, const char *path,
+                             bool allow_missing_leaf, char *out, size_t cap);
 /* Esiste ed e' un file leggibile. */
 bool platform_file_exists(const char *path);
 /* Esiste ed e' una cartella. */
@@ -48,6 +54,11 @@ bool platform_make_dir(const char *path);
 /* Crea tutta la catena di cartelle del percorso. */
 bool platform_make_dirs(const char *path);
 bool platform_remove_file(const char *path);
+/* Write a sibling temporary file, then replace path atomically. Failure leaves
+ * the previous destination intact. Existing symlinks/non-regular files are
+ * rejected. This is not conflict detection against other writers or a promise
+ * of directory durability after power loss. */
+bool platform_write_file_atomic(const char *path, const void *data, size_t size);
 /* Rimuove una cartella VUOTA; false se non lo e'. Non esiste una rimozione
  * ricorsiva di proposito: cancellare alberi interi non e' una cosa che il
  * motore debba poter fare per sbaglio. */

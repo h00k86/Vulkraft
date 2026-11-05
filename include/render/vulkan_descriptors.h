@@ -1,9 +1,10 @@
 #pragma once
+#include <stdbool.h>
 #include "render/gfx_vulkan.h"
 typedef struct APP APP;
-void create_descriptor_set_layout(APP *app);
-void create_descriptor_pool(APP *app);
-void create_hud_descriptor_set(APP *app);
+bool create_descriptor_set_layout(APP *app);
+bool create_descriptor_pool(APP *app);
+bool create_hud_descriptor_set(APP *app);
 void destroy_descriptors(APP *app);
 
 void update_descriptor_texture_slot(APP *app, int slot, Texture *texture);

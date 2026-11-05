@@ -1,5 +1,14 @@
 # Verifiche dell'estrazione
 
+Per il framework attuale usare [PROJECT_VALIDATION.md](PROJECT_VALIDATION.md):
+`make validate`, `make validate-native` e benchmark ripetibile. Il contenuto
+seguente documenta la sessione storica di estrazione.
+
+Aggiornamento runtime successivo: vedi [RUNTIME_VALIDATION.md](RUNTIME_VALIDATION.md).
+Il backend ha superato le prove descritte. La perdita di input tra frame
+è stata poi verificata isolatamente e corretta: [INPUT_EVENT_FIX.md](INPUT_EVENT_FIX.md). I limiti e gli esiti riportati sotto sono quelli della
+sessione originale.
+
 Eseguite il 26 ottobre 2026 su Linux, usando il codice corrente del workspace
 ENGINE (comprese le sue modifiche locali), senza compilare o scrivere nel
 checkout originale.

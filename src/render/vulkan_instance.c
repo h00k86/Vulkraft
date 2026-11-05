@@ -1,6 +1,4 @@
-/* PORTING (E14): questo file usa l'interoperabilita' GLFW/Vulkan, quindi
- * chiede lui la dichiarazione -- non glfw_helper.h per tutti. */
-#define GLFW_INCLUDE_VULKAN
+#include "render/platform_surface.h"
 #include "platform/window.h"
 #include "render/vulkan_instance.h"
 #include "render/gfx_vulkan.h"
@@ -17,7 +15,8 @@
 VkInstance create_instance() {
 
   uint32_t extCount = 0;
-  const char **exts = glfwGetRequiredInstanceExtensions(&extCount);
+  const char **exts = platform_vulkan_extensions(&extCount);
+  if (!exts || !extCount) return VK_NULL_HANDLE;
   VkApplicationInfo appInfo = {0};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "Vulkan app";
@@ -48,10 +47,13 @@ VkInstance create_instance() {
   bool validationRequested = getenv("NO_VALIDATION") == NULL;
 
   uint32_t availableLayerCount = 0;
-  vkEnumerateInstanceLayerProperties(&availableLayerCount, NULL);
+  if (vkEnumerateInstanceLayerProperties(&availableLayerCount, NULL) != VK_SUCCESS) return VK_NULL_HANDLE;
   VkLayerProperties *availableLayers =
       malloc(sizeof(VkLayerProperties) * availableLayerCount);
-  vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers);
+  if (availableLayerCount && (!availableLayers ||
+      vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers) != VK_SUCCESS)) {
+    free(availableLayers); return VK_NULL_HANDLE;
+  }
 
   bool validationAvailable = false;
   for (uint32_t i = 0; i < availableLayerCount; i++) {
@@ -81,7 +83,7 @@ VkInstance create_instance() {
   if (vkCreateInstance(&instInfo, NULL, &instance) != VK_SUCCESS) {
 
     LOG_ERROR("error creation instance\n");
-    exit(10);
+    return VK_NULL_HANDLE;
   }
 
   return instance;

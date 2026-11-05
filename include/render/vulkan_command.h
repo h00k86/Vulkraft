@@ -21,11 +21,11 @@ typedef struct {
   uint64_t transfer_bytes;
 } RenderCommandStats;
 
-void create_command_buffers(APP *app);
+bool create_command_buffers(APP *app);
 
 bool submit_pending_uploads(APP *app, uint32_t frame_index);
 
-void record_command_buffer(APP *app,
+bool record_command_buffer(APP *app,
                             uint32_t frame_index,
                             uint32_t image_index);
 

@@ -4,6 +4,7 @@
 
 #include "log/log.h"
 #include "render/vulkan_buffer.h"
+#include "render/vulkan_memory_tracker.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,20 +42,22 @@ static void init_once(void) {
     g_fps = (float)atof(fps);
 }
 
-static void slot_ensure(APP *app, FrameDumpSlot *s, VkDeviceSize size) {
+static bool slot_ensure(APP *app, FrameDumpSlot *s, VkDeviceSize size) {
   if (s->buffer != VK_NULL_HANDLE && s->size >= size)
-    return;
+    return true;
   VkDevice device = VK_CTX(app)->logical_device;
   if (s->buffer != VK_NULL_HANDLE) {
     vkDestroyBuffer(device, s->buffer, NULL);
+    vulkan_memory_track_free(s->memory);
     vkFreeMemory(device, s->memory, NULL);
     s->buffer = VK_NULL_HANDLE;
     s->memory = VK_NULL_HANDLE;
   }
-  create_buffer(VK_CTX(app)->physical_device, device, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+  if (!create_buffer(VK_CTX(app)->physical_device, device, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                &s->buffer, &s->memory);
+                &s->buffer, &s->memory)) return false;
   s->size = size;
+  return true;
 }
 
 void frame_dump_record(APP *app, GfxCommandList cmdIn, uint32_t frame_index,
@@ -82,7 +85,7 @@ void frame_dump_record(APP *app, GfxCommandList cmdIn, uint32_t frame_index,
   FrameDumpSlot *s = &g_slots[frame_index];
   if (s->pending)
     return; /* lo slot precedente non e' ancora stato scritto */
-  slot_ensure(app, s, (VkDeviceSize)w * h * 4);
+  if (!rc->swapchain.transfer_src || !slot_ensure(app, s, (VkDeviceSize)w * h * 4)) return;
   s->width = w;
   s->height = h;
   s->format = rc->swapchain.format;
@@ -157,14 +160,17 @@ void frame_dump_collect(APP *app, uint32_t frame_index) {
 }
 
 void frame_dump_shutdown(APP *app) {
-  if (!g_enabled)
-    return;
   VkDevice device = VK_CTX(app)->logical_device;
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
     if (g_slots[i].buffer != VK_NULL_HANDLE) {
       vkDestroyBuffer(device, g_slots[i].buffer, NULL);
+      vulkan_memory_track_free(g_slots[i].memory);
       vkFreeMemory(device, g_slots[i].memory, NULL);
     }
     memset(&g_slots[i], 0, sizeof(g_slots[i]));
   }
+  g_initialized = g_enabled = false;
+  g_dir = NULL;
+  g_every = 30; g_max = 100000; g_counter = g_written = 0;
+  g_fps = g_nextTime = 0;
 }

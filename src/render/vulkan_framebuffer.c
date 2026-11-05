@@ -4,14 +4,14 @@
 #include "log/log.h"
 #include <stdlib.h>
 
-void create_framebuffers(APP *app) {
+bool create_framebuffers(APP *app) {
   RenderContext *ctx = &VK_CTX(app)->render_context;
   Swapchain *sc = &ctx->swapchain;
 
-  sc->framebuffers = malloc(sizeof(VkFramebuffer) * sc->image_count);
+  sc->framebuffers = calloc(sc->image_count, sizeof(VkFramebuffer));
   if (!sc->framebuffers) {
     LOG_ERROR("cannot allocate swapchain framebuffers");
-    exit(1);
+    return false;
   }
 
   for (uint32_t i = 0; i < sc->image_count; i++) {
@@ -29,12 +29,15 @@ void create_framebuffers(APP *app) {
 
     if (vkCreateFramebuffer(VK_CTX(app)->logical_device, &fbInfo, NULL,
                             &sc->framebuffers[i]) != VK_SUCCESS) {
-      exit(1);
+      sc->framebuffers[i] = VK_NULL_HANDLE;
+      return false;
     }
   }
+  return true;
 }
 
 void destroy_framebuffers(APP *app) {
+  if (!VK_CTX(app)->render_context.swapchain.framebuffers) return;
 
   for (uint32_t i = 0; i < VK_CTX(app)->render_context.swapchain.image_count;
        i++) {

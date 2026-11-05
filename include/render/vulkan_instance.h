@@ -3,7 +3,7 @@
 #pragma once
 
 #include <vulkan/vulkan_core.h>
-#include <GLFW/glfw3.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 

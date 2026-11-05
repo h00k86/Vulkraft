@@ -4,7 +4,7 @@
 #include "log/log.h"
 #include <stdlib.h>
 
-void create_renderpass(APP *app) {
+bool create_renderpass(APP *app) {
   VkDevice device = VK_CTX(app)->logical_device;
 
   VkAttachmentDescription colorAtt = {0};
@@ -100,10 +100,12 @@ void create_renderpass(APP *app) {
                          &VK_CTX(app)->render_context.renderpass) !=
       VK_SUCCESS) {
     LOG_ERROR("renderpass creation failed");
-    exit(1);
+    VK_CTX(app)->render_context.renderpass = VK_NULL_HANDLE;
+    return false;
   }
 
   LOG_INFO("renderpass created");
+  return true;
 }
 
 void destroy_renderpass(APP *app) {

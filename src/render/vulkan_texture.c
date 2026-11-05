@@ -12,11 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void transition_image_layout(APP *app, VkImage image,
+static bool transition_image_layout(APP *app, VkImage image,
                                     VkImageLayout oldLayout,
                                     VkImageLayout newLayout,
                                     uint32_t levelCount) {
   VkCommandBuffer cmd = begin_single_time_commands(app);
+  if (!cmd) return false;
 
   VkImageMemoryBarrier barrier = {
       .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -59,19 +60,21 @@ static void transition_image_layout(APP *app, VkImage image,
     dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
   } else {
     LOG_ERROR("unsupported image layout transition");
-    exit(1);
+    vkFreeCommandBuffers(VK_CTX(app)->logical_device, VK_CTX(app)->render_context.commands.pool, 1, &cmd);
+    return false;
   }
 
   vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, NULL, 0, NULL, 1,
                        &barrier);
 
-  end_single_time_commands(app, cmd);
+  return end_single_time_commands(app, cmd);
 }
 
-static void copy_buffer_to_image(APP *app, VkBuffer buffer, VkImage image,
+static bool copy_buffer_to_image(APP *app, VkBuffer buffer, VkImage image,
                                  uint32_t width, uint32_t height) {
 
   VkCommandBuffer cmd = begin_single_time_commands(app);
+  if (!cmd) return false;
 
   VkBufferImageCopy region = {
 
@@ -98,7 +101,7 @@ static void copy_buffer_to_image(APP *app, VkBuffer buffer, VkImage image,
   vkCmdCopyBufferToImage(cmd, buffer, image,
                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-  end_single_time_commands(app, cmd);
+  return end_single_time_commands(app, cmd);
 }
 
 /* Livelli di mipmap per una texture larga w e alta h: si dimezza fino a
@@ -126,8 +129,9 @@ static uint32_t mip_levels_for(APP *app, uint32_t w, uint32_t h) {
  * sparsi e viene fuori brulicante. Misurato su questo progetto: una cassa
  * del kit guerra ha 256 texel su 87 pixel di schermo, cioe' tre texel per
  * pixel -- non poca risoluzione, troppa, compressa a forza. */
-static void generate_mipmaps(APP *app, Texture *texture) {
+static bool generate_mipmaps(APP *app, Texture *texture) {
   VkCommandBuffer cmd = begin_single_time_commands(app);
+  if (!cmd) return false;
   VkImageMemoryBarrier barrier = {
       .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
       .image = texture->image,
@@ -176,10 +180,10 @@ static void generate_mipmaps(APP *app, Texture *texture) {
   barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
   vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,
                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
-  end_single_time_commands(app, cmd);
+  return end_single_time_commands(app, cmd);
 }
 
-static void create_image(APP *app, Texture *texture, const char *filename) {
+static bool create_image(APP *app, Texture *texture, const char *filename) {
 
   VkImageCreateInfo info = {
 
@@ -211,7 +215,8 @@ static void create_image(APP *app, Texture *texture, const char *filename) {
   if (vkCreateImage(VK_CTX(app)->logical_device, &info, NULL,
                     &texture->image) != VK_SUCCESS) {
     LOG_ERROR("create image failed");
-    exit(1);
+    texture->image = VK_NULL_HANDLE;
+    return false;
   }
 
   VkMemoryRequirements mem;
@@ -230,10 +235,11 @@ static void create_image(APP *app, Texture *texture, const char *filename) {
 
       .memoryTypeIndex = memory_type_index};
 
-  if (vkAllocateMemory(VK_CTX(app)->logical_device, &alloc, NULL,
+  if (memory_type_index == UINT32_MAX || vkAllocateMemory(VK_CTX(app)->logical_device, &alloc, NULL,
                        &texture->memory) != VK_SUCCESS) {
     LOG_ERROR("texture memory allocation failed");
-    exit(1);
+    texture->memory = VK_NULL_HANDLE;
+    return false;
   }
 
   char label[96];
@@ -252,11 +258,11 @@ static void create_image(APP *app, Texture *texture, const char *filename) {
                                  texture->height, info.format,
                                  info.mipLevels, info.arrayLayers);
 
-  vkBindImageMemory(VK_CTX(app)->logical_device, texture->image,
-                    texture->memory, 0);
+  return vkBindImageMemory(VK_CTX(app)->logical_device, texture->image,
+                    texture->memory, 0) == VK_SUCCESS;
 }
 
-static void create_view(APP *app, Texture *texture) {
+static bool create_view(APP *app, Texture *texture) {
 
   VkImageViewCreateInfo info = {
 
@@ -276,10 +282,13 @@ static void create_view(APP *app, Texture *texture) {
 
           .layerCount = 1}};
 
-  vkCreateImageView(VK_CTX(app)->logical_device, &info, NULL, &texture->view);
+  if (vkCreateImageView(VK_CTX(app)->logical_device, &info, NULL, &texture->view) != VK_SUCCESS) {
+    texture->view = VK_NULL_HANDLE; return false;
+  }
+  return true;
 }
 
-static void create_sampler(APP *app, Texture *texture,
+static bool create_sampler(APP *app, Texture *texture,
                            VkSamplerAddressMode addressMode) {
 
   /* Anisotropia: solo se la GPU la espone (ed e' stata chiesta alla
@@ -325,99 +334,54 @@ static void create_sampler(APP *app, Texture *texture,
       .mipLodBias = texture->mipLevels > 1 ? -0.5f : 0.0f,
       .minLod = 0.0f,
       .maxLod = (float)texture->mipLevels};
-  vkCreateSampler(VK_CTX(app)->logical_device, &info, NULL, &texture->sampler);
+  if (vkCreateSampler(VK_CTX(app)->logical_device, &info, NULL, &texture->sampler) != VK_SUCCESS) {
+    texture->sampler = VK_NULL_HANDLE; return false;
+  }
+  texture->address_mode = addressMode;
+  return true;
 }
 
 static void load_texture_internal(APP *app, const char *filename,
                                   Texture *texture,
                                   VkSamplerAddressMode addressMode) {
 
-  int channels;
-
-  unsigned char *pixels =
-      stbi_load(filename, (int *)&texture->width, (int *)&texture->height,
-                &channels, STBI_rgb_alpha);
-
-  if (!pixels) {
-    // MACROTASK MULTI-GIOCO (2026-09-17): un file mancante NON e' un
-    // errore fatale del motore -- e' una risorsa che il progetto aperto
-    // non ha (es. nuovo gioco laterale senza gli atlas della donnola).
-    // Lasciamo view/sampler a VK_NULL_HANDLE: texture_manager_load scarta
-    // lo slot e restituisce -1, il box viene disegnato come quad colorato
-    // (box_renderer: textureID <= 0). Gli errori Vulkan sotto restano
-    // fatali: quelli sono davvero guasti del motore.
-    LOG_ERROR("cannot load texture %s", filename);
-    texture->width = 0;
-    texture->height = 0;
-    return;
-  }
-
-  VkDeviceSize size =
-      (VkDeviceSize)texture->width * (VkDeviceSize)texture->height * 4u;
-
-  VkBuffer staging;
-  VkDeviceMemory stagingMemory;
-
-  create_buffer(VK_CTX(app)->physical_device, VK_CTX(app)->logical_device, size,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                &staging, &stagingMemory);
-  char staging_label[96];
-  snprintf(staging_label, sizeof(staging_label), "texture staging:%s",
-           filename ? filename : "unnamed");
-  vulkan_memory_track_label(stagingMemory, staging_label, -1, false);
-
-  void *data;
-
-  vkMapMemory(VK_CTX(app)->logical_device, stagingMemory, 0, size, 0, &data);
-
-  memcpy(data, pixels, size);
-
-  vkUnmapMemory(VK_CTX(app)->logical_device, stagingMemory);
-
+  int channels, width, height;
+  VkDevice device = VK_CTX(app)->logical_device;
+  VkBuffer staging = VK_NULL_HANDLE;
+  VkDeviceMemory staging_memory = VK_NULL_HANDLE;
+  unsigned char *pixels = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
+  bool ok = false;
+  if (!pixels) { LOG_ERROR("cannot load texture %s", filename); return; }
+  texture->width = (uint32_t)width; texture->height = (uint32_t)height;
+  VkDeviceSize size = (VkDeviceSize)texture->width * texture->height * 4u;
+  if (!create_buffer(VK_CTX(app)->physical_device, device, size,
+                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                     &staging, &staging_memory)) goto cleanup;
+  void *data = NULL;
+  if (vkMapMemory(device, staging_memory, 0, size, 0, &data) != VK_SUCCESS) goto cleanup;
+  memcpy(data, pixels, (size_t)size);
+  vkUnmapMemory(device, staging_memory);
+  texture->mipLevels = addressMode == VK_SAMPLER_ADDRESS_MODE_REPEAT
+                          ? mip_levels_for(app, texture->width, texture->height) : 1;
+  if (!create_image(app, texture, filename) ||
+      !transition_image_layout(app, texture->image, VK_IMAGE_LAYOUT_UNDEFINED,
+                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->mipLevels) ||
+      !copy_buffer_to_image(app, staging, texture->image, texture->width, texture->height)) goto cleanup;
+  if (texture->mipLevels > 1) {
+    if (!generate_mipmaps(app, texture)) goto cleanup;
+  } else if (!transition_image_layout(app, texture->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1)) goto cleanup;
+  ok = create_view(app, texture) && create_sampler(app, texture, addressMode);
+cleanup:
   stbi_image_free(pixels);
+  if (staging) vkDestroyBuffer(device, staging, NULL);
+  if (staging_memory) {
+    vulkan_memory_track_free(staging_memory);
+    vkFreeMemory(device, staging_memory, NULL);
+  }
+  if (!ok) { destroy_texture(app, texture); LOG_ERROR("Texture GPU upload failed: %s", filename); }
 
-  /* MIPMAP SOLO PER LE TEXTURE RIPETUTE.
-   *
-   * Una texture con REPEAT e' una superficie del mondo (i kit 3D, i muri,
-   * il terreno): li' le mipmap tolgono il brulichio e sono tutto guadagno.
-   * Una con CLAMP e' quasi sempre un ATLAS di animazione o un elemento di
-   * interfaccia, e li' le mipmap fanno danno: ai livelli grossolani i
-   * fotogrammi vicini si mescolano fra loro, che e' lo stesso difetto per
-   * cui gli atlas usano CLAMP invece di REPEAT (vedi load_texture).
-   * Il modo di indirizzamento e' quindi anche il modo per distinguere le
-   * due cose senza inventarsi una bandiera nuova. */
-  texture->mipLevels = (addressMode == VK_SAMPLER_ADDRESS_MODE_REPEAT)
-                           ? mip_levels_for(app, texture->width, texture->height)
-                           : 1;
-
-  create_image(app, texture, filename);
-
-  transition_image_layout(app, texture->image, VK_IMAGE_LAYOUT_UNDEFINED,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->mipLevels);
-
-  copy_buffer_to_image(app, staging, texture->image, texture->width,
-                       texture->height);
-
-  if (texture->mipLevels > 1)
-    generate_mipmaps(app, texture);
-  else
-    transition_image_layout(app, texture->image,
-                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
-
-  vkDestroyBuffer(VK_CTX(app)->logical_device, staging, NULL);
-
-  vulkan_memory_track_free(stagingMemory);
-  vkFreeMemory(VK_CTX(app)->logical_device, stagingMemory, NULL);
-
-  create_view(app, texture);
-
-  create_sampler(app, texture, addressMode);
-
-  LOG_INFO("texture uploaded %ux%u (%u livelli mip)", texture->width, texture->height,
-           texture->mipLevels);
 }
 
 void load_texture(APP *app, const char *filename, Texture *texture) {
@@ -457,6 +421,7 @@ void destroy_texture(APP *app, Texture *texture) {
     vulkan_memory_track_free(texture->memory);
   if (texture->memory)
     vkFreeMemory(device, texture->memory, NULL);
+  *texture = (Texture){0};
 }
 
 // Ricrea SOLO il sampler di una texture già caricata, con una nuova
@@ -471,6 +436,11 @@ void destroy_texture(APP *app, Texture *texture) {
 // quello che sfora sul pixel di bordo).
 void set_texture_address_mode(APP *app, Texture *texture,
                               VkSamplerAddressMode addressMode) {
+  if (texture->address_mode == addressMode) return;
+  Texture replacement = *texture;
+  replacement.sampler = VK_NULL_HANDLE;
+  if (!create_sampler(app, &replacement, addressMode)) return;
   vkDestroySampler(VK_CTX(app)->logical_device, texture->sampler, NULL);
-  create_sampler(app, texture, addressMode);
+  texture->sampler = replacement.sampler;
+  texture->address_mode = addressMode;
 }
