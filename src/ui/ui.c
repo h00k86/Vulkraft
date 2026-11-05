@@ -617,6 +617,33 @@ void ui_set_sentence_case(bool enabled) {
   ui_state_style(ui_ctx())->sentence_case=enabled;
 }
 
+static bool ui_label_word_byte(unsigned char c) {
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+         (c >= '0' && c <= '9') || c == '_';
+}
+
+bool ui_set_sentence_case_exceptions(const char *const *words, size_t count) {
+  if (count && !words) return false;
+  for (size_t i = 0; i < count; ++i) {
+    if (!words[i] || !words[i][0]) return false;
+    for (const unsigned char *p = (const unsigned char *)words[i]; *p; ++p)
+      if (!ui_label_word_byte(*p)) return false;
+  }
+  UIStyleState *style = ui_state_style(ui_ctx());
+  style->sentence_case_exceptions = count ? words : NULL;
+  style->sentence_case_exception_count = count;
+  return true;
+}
+
+static bool ui_label_exception(const UIStyleState *style, const char *word,
+                               size_t bytes) {
+  for (size_t i = 0; i < style->sentence_case_exception_count; ++i) {
+    const char *entry = style->sentence_case_exceptions[i];
+    if (strlen(entry) == bytes && !memcmp(entry, word, bytes)) return true;
+  }
+  return false;
+}
+
 void ui_humanize_label(const char *in, char *out, size_t outSize) {
   if (!out || !outSize) return;
   if (!in) { out[0]=0; return; }
@@ -646,6 +673,8 @@ void ui_humanize_label(const char *in, char *out, size_t outSize) {
   size_t i = 0;
   bool firstLetter = true;
   depth = 0;
+  const char *preserve_end = in;
+  const UIStyleState *style = ui_state_style(ctx);
   for (const char *p = in; *p && i < limit; p++, i++) {
     char c = *p;
     if (c == '(') depth++;
@@ -654,8 +683,19 @@ void ui_humanize_label(const char *in, char *out, size_t outSize) {
       if (c == ')') depth--;
       continue;
     }
+    /* Scan full input tokens, even when the output ends inside a word.
+     * Non-ASCII neighbors prevent matches embedded
+     * in UTF-8 words such as ÉFX. */
+    if (ui_label_word_byte((unsigned char)c) &&
+        (p == in || (!ui_label_word_byte((unsigned char)p[-1]) &&
+                     (unsigned char)p[-1] < 128))) {
+      const char *end = p;
+      while (ui_label_word_byte((unsigned char)*end)) ++end;
+      if ((unsigned char)*end < 128 &&
+          ui_label_exception(style, p, (size_t)(end - p))) preserve_end = end;
+    }
     if (c >= 'A' && c <= 'Z') {
-      out[i] = firstLetter ? c : (char)(c - 'A' + 'a');
+      out[i] = firstLetter || p < preserve_end ? c : (char)(c - 'A' + 'a');
       firstLetter = false;
     } else {
       out[i] = c;

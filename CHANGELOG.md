@@ -1,5 +1,16 @@
 # Changelog UI Framework
 
+## 0.3.0 — sigle nelle etichette
+
+- Nuova `ui_set_sentence_case_exceptions`: elenco facoltativo per contesto di
+  parole ASCII da conservare con sentence case attivo, senza vocabolario
+  incorporato o allocazioni; array e stringhe sono presi in prestito.
+- Confronto esatto per parola, sensibile alle maiuscole, anche in presenza
+  di punteggiatura; reset e sostituzione eliminano la configurazione precedente.
+- Test su testo disegnato, parole composte, confini UTF-8, troncamento,
+  input non valido e isolamento dei contesti.
+- GraphicsApp 0.5.0 richiede UIFramework 0.3.0; ricompilazione necessaria.
+
 ## 0.2.0 — comportamento di integrazione UI
 
 - Etichette conservate come fornite; nuova opzione per contesto

@@ -1,6 +1,6 @@
 # Comportamento UI per l’integrazione host
 
-Versioni: UIFramework 0.2.0 e GraphicsApp 0.4.0. Il codice dell’host non viene
+Versioni: UIFramework 0.3.0 e GraphicsApp 0.5.0. Il codice dell’host non viene
 modificato in questo repository. Il commit preciso da importare accompagna
 questa consegna; aggiornare la copia locale in modo esplicito.
 
@@ -53,6 +53,40 @@ La preferenza appartiene al contesto corrente e `ui_context_reset` la disattiva.
 `ui_humanize_label` rispetta questa preferenza. I campi di testo non subiscono
 trasformazioni. I buffer di output restano terminati e il troncamento conserva
 i confini UTF-8.
+
+Per conservare le sigle con sentence case attivo, l'host può fornire un elenco:
+
+```c
+static const char *const acronyms[] = { "FX", "VFX", "GLB", "FPS", "HUD", "UI", "NPC" };
+ui_context_set_current(context);
+if (!ui_set_sentence_case_exceptions(acronyms,
+                                    sizeof(acronyms) / sizeof(acronyms[0]))) {
+    /* Configurazione non valida: gestire l'errore nell'host. */
+}
+ui_set_sentence_case(true); /* MOSTRA FX -> Mostra FX */
+```
+
+L'elenco iniziale è vuoto e non abilita la normalizzazione. Array e stringhe
+sono presi in prestito: devono restare vivi e invariati fino a sostituzione,
+reset o distruzione del contesto. Usare storage statico per le sigle del motore.
+Il toolkit non include un vocabolario specifico dell'applicazione.
+
+Le voci sono parole ASCII non vuote composte da lettere, cifre o underscore;
+il confronto è esatto e sensibile alle maiuscole. Punteggiatura e spazi separano
+le parole: `FX/VFX` conserva entrambe, mentre `AFX`, `FX2`, `FX_TEST` e parole
+UTF-8 che inglobano `FX` non corrispondono alla voce `FX`. Il riconoscimento
+considera la parola completa anche se il buffer di output la tronca.
+`ui_set_sentence_case_exceptions(NULL, 0)` svuota l'elenco. Un array NULL con
+conteggio non zero, una voce NULL/vuota o contenente separatori restituiscono
+false e lasciano intatta la configurazione precedente. Il reset svuota l'elenco
+e disabilita sentence case. Nessuna allocazione è necessaria.
+
+Nell'adattatore del motore riportare le sigle effettivamente protette dalla sua
+funzione `keep_upper_word`: `PREFAB` compare nell'array storico ma viene escluso
+esplicitamente dal codice, quindi non va aggiunto automaticamente alla nuova
+lista. La nuova API non replica altre euristiche del motore sulle singole
+lettere o sulle parole contenenti numeri: includere le parole desiderate o
+conservarle direttamente nell'etichetta.
 
 ## Prova da ripetere nell’host
 

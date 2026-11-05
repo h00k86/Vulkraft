@@ -2,7 +2,7 @@
 
 L'editor di configurazione è un esempio di riferimento per un'applicazione con
 modello, proprietà modificabili, undo/redo, file e conferma di chiusura.
-Questa guida usa l'host Vulkan di GraphicsApp 0.4.0, disponibile nel checkout
+Questa guida usa l'host Vulkan di GraphicsApp 0.5.0, disponibile nel checkout
 completo e nel relativo SDK. Il pacchetto UIFramework da solo comprende invece
 il toolkit UI e l'esempio con host SDL software.
 

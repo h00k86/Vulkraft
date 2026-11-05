@@ -74,3 +74,11 @@ Autofocus e ripristino del focus non implicano input da tastiera; l'anello
 segue il metodo di input attivo. Dettagli in
 [UI_INTEGRATION_BEHAVIOR.md](UI_INTEGRATION_BEHAVIOR.md). Ricompilare consumatori
 e librerie con la stessa versione; i package CMake richiedono la versione esatta.
+
+## Migrazione a 0.3.0
+
+L'API opzionale `ui_set_sentence_case_exceptions(words, count)` preserva parole
+ASCII esatte con sentence case attivo. Nessun elenco è installato per default;
+le chiamate precedenti mantengono il loro comportamento. L'host possiede array
+e stringhe fino a sostituzione/reset/distruzione del contesto. Il contratto e
+l'esempio sono in [UI_INTEGRATION_BEHAVIOR.md](UI_INTEGRATION_BEHAVIOR.md).

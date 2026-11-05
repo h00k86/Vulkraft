@@ -168,12 +168,48 @@ static void label_policy(void) {
   ui_humanize_label("FX (px)",output,sizeof(output)); CHECK(!strcmp(output,"Fx (px)"));
   ui_humanize_label("3D",output,sizeof(output)); CHECK(!strcmp(output,"3D"));
   char small[3]; ui_humanize_label("A€",small,sizeof(small)); CHECK(!strcmp(small,"A"));
+  static const char *const acronyms[]={"FX","VFX","GLB","FPS","HUD","UI","NPC","3D"};
+  CHECK(ui_set_sentence_case_exceptions(acronyms,sizeof(acronyms)/sizeof(acronyms[0])));
+  const char *inputs[]={"FX", "FX ATTIVO", "MOSTRA FX/VFX, GLB: FPS HUD UI NPC",
+                        "EFFETTO AFX FX2 FX_TEST FX", "VISTA 3D", "FX (px)",
+                        "FX già scritto", "ÉFX FXÉ FX"};
+  const char *expected[]={"FX", "FX attivo", "Mostra FX/VFX, GLB: FPS HUD UI NPC",
+                          "Effetto afx fx2 fx_test FX", "Vista 3D", "FX (px)",
+                          "FX già scritto", "ÉFx fxÉ FX"};
+  begin(NULL,0); label_count=0;
+  for(size_t i=0;i<sizeof(inputs)/sizeof(inputs[0]);++i) {
+    ui_humanize_label(inputs[i],output,sizeof(output)); CHECK(!strcmp(output,expected[i]));
+    char id[32]; snprintf(id,sizeof(id),"acronym%zu",i);
+    ui_button_labeled(id,inputs[i],font,ANCHOR_TOP_LEFT,0,14,20,20+i*40,NULL);
+  }
+  CHECK(label_count==8);
+  for(int i=0;i<8;++i) CHECK(!strcmp(label_trace[i],expected[i]));
+  ui_end_frame();
+  char clipped[9]; ui_humanize_label("MOSTRA FX2",clipped,sizeof(clipped)); CHECK(!strcmp(clipped,"Mostra f"));
+  ui_humanize_label("MOSTRA FX",clipped,sizeof(clipped)); CHECK(!strcmp(clipped,"Mostra F"));
+  strcpy(output,"MOSTRA FX"); ui_humanize_label(output,output,sizeof(output)); CHECK(!strcmp(output,"Mostra FX"));
+  const char *bad_empty[]={""}, *bad_null[]={NULL}, *bad_phrase[]={"FX VFX"};
+  CHECK(!ui_set_sentence_case_exceptions(NULL,1));
+  CHECK(!ui_set_sentence_case_exceptions(bad_empty,1));
+  CHECK(!ui_set_sentence_case_exceptions(bad_null,1));
+  CHECK(!ui_set_sentence_case_exceptions(bad_phrase,1));
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"FX"));
+  CHECK(ui_set_sentence_case_exceptions(NULL,0));
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"Fx"));
+  static const char *const lowercase[]={"fx"};
+  CHECK(ui_set_sentence_case_exceptions(lowercase,1));
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"Fx"));
+  CHECK(ui_set_sentence_case_exceptions(acronyms,8));
   UIContext *b=context();
   ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"FX"));
-  CHECK(ui_context_set_current(a));
+  ui_set_sentence_case(true);
   ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"Fx"));
+  CHECK(ui_context_set_current(a));
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"FX"));
   CHECK(ui_context_reset(a));
   ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"FX"));
+  ui_set_sentence_case(true);
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"Fx"));
   CHECK(ui_context_destroy(a)&&ui_context_set_current(b)&&ui_context_destroy(b));
 }
 static void modality_frame(bool *open,const UIFrameInput *input) {

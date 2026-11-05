@@ -92,6 +92,10 @@ int main(void) {
   ui_humanize_label("FX",label,sizeof(label));
   if(strcmp(label,"FX")) return 3;
   ui_set_sentence_case(true);
+  static const char *const acronyms[]={"FX","VFX"};
+  if(!ui_set_sentence_case_exceptions(acronyms,2)) return 6;
+  ui_humanize_label("MOSTRA FX/VFX",label,sizeof(label));
+  if(strcmp(label,"Mostra FX/VFX")) return 7;
   ui_humanize_label("NUOVO LAYER",label,sizeof(label));
   if(strcmp(label,"Nuovo layer") || !ui_context_reset(ctx)) return 4;
   ui_humanize_label("FX",label,sizeof(label));

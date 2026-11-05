@@ -398,6 +398,15 @@ int ui_clip_depth(void);
  * false: preserve caller text. Mixed-case labels are preserved even when true.
  * Reset restores false; text input buffers are never normalized. */
 void ui_set_sentence_case(bool enabled);
+/* Optional exact, case-sensitive ASCII words preserved during sentence case.
+ * A word contains letters, digits or underscore; ASCII punctuation delimits
+ * words, while adjacent non-ASCII bytes prevent a match.
+ * The array and its NUL-terminated strings are borrowed: keep them alive and
+ * unchanged until replaced, context reset or destruction. Default empty.
+ * count == 0 clears the list (words may be NULL). Invalid entries/NULL array
+ * with nonzero count return false and leave the previous list unchanged.
+ * Does not enable sentence case. Reset clears both settings. */
+bool ui_set_sentence_case_exceptions(const char *const *words, size_t count);
 /* Shared label formatting; bounded UTF-8 copy when normalization is disabled. */
 void ui_humanize_label(const char *in, char *out, size_t out_size);
 
