@@ -10,6 +10,7 @@
 #include "ui_state_buttons_internal.h"
 #include "ui_state_modals_internal.h"
 #include "ui_state_style_internal.h"
+#include "ui_state_colors_internal.h"
 #include "ui_state_menu_internal.h"
 #include "ui_state_numeric_internal.h"
 #include "ui_state_sliders_internal.h"
@@ -30,6 +31,7 @@ struct UIContext {
   UIButtonsState buttons;
   UIModalsState modals;
   UIStyleState style;
+  UIColorsState colors;
   UIMenuState menu;
   UINumericState numeric;
   UISlidersState sliders;

@@ -40,7 +40,8 @@ inline: otto preset, tre slider con campo numerico (0–255), codice `#RRGGBB`
 di sola lettura e anteprima. Occupa sei righe del property layout, eredita
 focus/modalità dalla UI e supporta Tab, frecce e Home/End tramite i controlli
 esistenti. Il valore `UIColor` appartiene all'applicazione; il widget non cambia
-il tema da solo. Non include alpha, area HSV o contagocce dello schermo.
+il tema da solo. Le varianti estese aggiungono RGBA e area HSV; non c’è
+un contagocce dello schermo.
 
 La variante estesa aggiunge presentazione intera e inizio del trascinamento:
 
@@ -56,7 +57,8 @@ bool changed = ui_property_color_ex(&layout, "color", font, "Colore", &color,
 
 `out_drag_started` è opzionale e viene sempre inizializzato a false, anche se
 l'input non è valido. Diventa true soltanto nel primo frame di un trascinamento
-RGB con il puntatore, anche se il valore non cambia. Restano false i clic sui
+RGB con il puntatore, anche se il valore non cambia. In HSV/RGBA il segnale
+comprende anche il riquadro SV, H/S/V e alfa. Restano false i clic sui
 preset, le modifiche nel campo numerico e i comandi da tastiera. Non occorre
 conoscere gli ID dei widget figli. Snapshot e raggruppamento undo appartengono
 all'host: il valore precedente va copiato **prima** della chiamata.
@@ -69,7 +71,7 @@ Le opzioni sono lette durante la chiamata, senza trattenerne il puntatore.
 
 I canali visualizzati usano la conversione già adottata da `ui_color_srgb`
 (gamma 2.2 approssimata); il colore del renderer resta lineare. Una modifica
-quantizza a 8 bit per canale. Il semplice disegno non modifica colori validi né
+in modalità RGB quantizza a 8 bit per canale; HSV mantiene i float. Il semplice disegno non modifica colori validi né
 ne riduce la precisione; componenti non finite o fuori intervallo vengono
 normalizzate. Le istanze devono avere ID distinti, anche dentro scope ripetuti.
 
@@ -223,3 +225,122 @@ senza inizializzare contesto o backend. CMake espone `UIFramework_VERSION`.
 Regole di aggiornamento, distinzione API pubbliche/private e compatibilità
 sono in [UI_COMPATIBILITY.md](UI_COMPATIBILITY.md); generazione del pacchetto
 e associazione delle verifiche in [UI_RELEASE.md](UI_RELEASE.md).
+
+## Segnaposto nei campi
+
+`ui_text_input_ex` aggiunge `UITextInputOptions` senza cambiare `ui_text_input`:
+
+```c
+UITextInputOptions options = { .placeholder = "Cerca nella scena..." };
+ui_text_input_ex("search", font, ANCHOR_TOP_LEFT, 0, 14, x, y, width,
+                 search, sizeof(search), &options);
+```
+
+Il suggerimento appare nel colore muted quando il buffer è vuoto, anche con
+il cursore attivo. È ritagliato al campo e non entra nel buffer, nella
+clipboard, negli snapshot o nella cronologia undo. Lo stile opzionale resta
+`options.style`. Stringhe e opzioni sono prese in prestito soltanto per la
+chiamata. Password e API precedenti conservano il loro comportamento.
+
+## Bottoni con icona
+
+```c
+UIIcon icon = { .kind = UI_ICON_LOCK };
+UIButtonStyle style = { .selected = locked };
+if (ui_icon_button("lock", font, bounds, &icon, NULL, &style)) locked = !locked;
+ui_tooltip("lock", font, bounds, "Blocca il layer", 0.4f);
+```
+
+Camera, occhio, lucchetto aperto/chiuso, cartella, file, più, meno, chiusura,
+play e pausa sono sagome geometriche: non richiedono glifi né asset aggiuntivi.
+Un'etichetta facoltativa appare accanto all'icona. I bottoni supportano
+mouse, Tab/Invio/Spazio, selected e disabled; si disegnano nel rettangolo dato.
+Le metriche min/max dello stile non ridimensionano quel rettangolo.
+Per un'icona senza testo `font` può essere NULL; serve per etichetta e tooltip.
+
+`UI_ICON_TEXTURE` usa `texture_slot` e UV `u0,v0,u1,v1` compresi in [0,1],
+con ampiezza positiva. L'host possiede texture e durata delle risorse; il widget
+non carica file. Le texture conservano i propri colori, mentre sagome e testo
+usano il colore dello stile/tema. UV non validi vengono ignorati senza click.
+
+## Lista e albero
+
+```c
+UIListItem items[] = {{"box", "Box", false}, {"light", "Luce", false}};
+UICollectionResult result = ui_list("objects", font, viewport, items, 2, &selected);
+if (result.activated_index >= 0) { /* Aprire l'elemento scelto. */ }
+
+UITreeNode nodes[] = {
+    {"scene", "Scena", 0, true, false},
+    {"box", "Box", 1, false, false},
+    {"light", "Luce", 1, false, false}
+};
+result = ui_tree("scene", font, viewport, nodes, 3, &selected_node);
+```
+
+Array, stringhe, selezione ed espansione appartengono all'host e devono essere
+stabili tra le chiamate. Esempi locali: in un'applicazione conservare selezione
+e `nodes[].expanded` nel modello, evitando di reinizializzarli ogni frame.
+Le liste non trattengono puntatori agli array. Gli ID delle righe devono essere
+univoci nella vista; dopo ordinamenti o rimozioni rimappare la selezione
+tramite ID. `selected == -1` indica nessuna selezione.
+
+L'albero usa preorder con prima profondità zero, massimo 64 e incrementi di
+al massimo uno. I figli sono dedotti dalla profondità successiva; un ramo
+chiuso nasconde tutti i discendenti. La selezione di un discendente nascosto
+ritorna al ramo visibile. Un input non valido viene ignorato; una vista vuota
+accetta array NULL e svuota la selezione.
+
+Ogni vista occupa un solo stop Tab. Su/Giù e Home/End selezionano righe
+abilitate, Invio/Spazio restituiscono `activated_index`. Nell'albero Destra
+espande o entra nei figli, Sinistra chiude o risale. Il clic su una riga la
+seleziona; il clic sul simbolo +/- espande senza attivare la riga. I risultati
+separano `selection_changed` ed `expansion_changed`.
+
+La rotella e la scrollbar usano il contesto UI; la selezione da tastiera viene
+portata nel viewport. Vengono disegnate solo le righe visibili, con clipping e
+abbreviazione UTF-8. L'attraversamento del modello rimane O(n) per frame;
+non è un indice virtuale per milioni di nodi. Questa prima API usa selezione
+singola; multiselezione e drag/reparenting non sono inclusi.
+
+## RGBA e HSV (SDR)
+
+`UIColor` resta RGB lineare. Per l'alfa usare il nuovo `UIColorRGBA`, con alfa
+straight in [0,1], senza conversione gamma sul canale A:
+
+```c
+UIColorPickerOptions options = { .mode = UI_COLOR_HSV, .integer_channels = true };
+bool drag_started = false;
+ui_property_color_rgba(&layout, "tint", font, "Tinta", &rgba, &options, &drag_started);
+```
+
+`mode` zero significa RGB, come prima. La variante RGB conserva le sei righe
+originali; RGBA aggiunge la riga Alpha, l'hex `#RRGGBBAA` e un'anteprima su
+scacchiera. Modificare solo alfa conserva esattamente RGB, e viceversa.
+
+HSV aggiunge un riquadro per saturazione/valore, una striscia di tonalità e i
+campi H/S/V. H usa gradi [0,360), S/V [0,1], dopo la conversione gamma già usata
+dal framework. Il riquadro risponde al mouse e alle frecce (passo .01);
+Home sceglie S=0,V=1, End S=1,V=1. Si può scorrere fuori dal riquadro durante
+un trascinamento: i valori sono limitati ai bordi. Per RGB senza alfa usare
+`ui_property_color_ex` con `.mode=UI_COLOR_HSV`.
+
+A riposo H usa un decimale, S/V e alfa tre; i campi attivi conservano il testo
+float preciso. Questa presentazione non arrotonda il modello.
+
+La tonalità dei grigi e la saturazione del nero vengono ricordate per ID nel
+contesto; reset/distruzione le eliminano. La cache usa 64 slot riutilizzabili,
+senza allocazioni; esaurimento nello stesso frame segnala `UI_ERROR_LIMIT`
+con `UI_OPERATION_COLOR_PICKER`. I registri condivisi di slider/campi numerici
+restano gli stessi del framework e possono imporre un limite inferiore.
+
+`ui_color_to_hsv` e `ui_color_from_hsv` sono conversioni indipendenti dal contesto.
+Le varianti SDR normalizzano componenti non finite o fuori [0,1]; H finito
+viene avvolto. Non usare questi controlli per preservare intensità HDR.
+HDR ed eyedropper restano lavori distinti. I picker HSV non hanno una ruota:
+la selezione bidimensionale è il riquadro SV.
+
+La demo SDL/Vulkan offre **Componenti e colore RGBA/HSV**, in fondo al pannello:
+la prima scheda mostra segnaposto, icone, lista e albero; la seconda RGB/HSV e
+alfa. Nessuna modifica viene salvata su disco. Le regressioni automatiche sono
+in `tests/ui_components_test.c` e nella suite del color picker.

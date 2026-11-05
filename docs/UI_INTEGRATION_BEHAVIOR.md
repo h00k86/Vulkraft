@@ -1,6 +1,6 @@
 # Comportamento UI per l’integrazione host
 
-Versioni: UIFramework 0.4.0 e GraphicsApp 0.6.0. Il codice dell’host non viene
+Versioni: UIFramework 0.5.0 e GraphicsApp 0.7.0. Il codice dell’host non viene
 modificato in questo repository. Il commit preciso da importare accompagna
 questa consegna; aggiornare la copia locale in modo esplicito.
 
@@ -149,3 +149,25 @@ La funzione precedente resta disponibile; alfa/HDR e palette non cambiano.
 I tab usano le etichette complete dell'host e le accorciano in base alla larghezza.
 Verificare nel motore undo per un preset seguito da un trascinamento, canali
 interi e conferma senza modifiche, e tab con nomi completi a 956 px.
+
+## Componenti aggiuntivi (0.5.0)
+
+L'host può sostituire il testo sovrapposto alla ricerca con `ui_text_input_ex`
+e un `UITextInputOptions.placeholder`. Non inserire il suggerimento nel buffer.
+Per camera/occhio/lucchetto usare `ui_icon_button` con le icone integrate o una
+texture dell'host; selected/disabled e tooltip restano espliciti.
+
+Lista e albero hanno una sola selezione, ID di riga stabili e stato di espansione
+nel modello dell'host. Non trattenere l'indice dopo un ordinamento senza
+rimapparlo tramite ID. Usare gli eventi `UICollectionResult` per selezione,
+espansione e attivazione; nessuna semantica di gioco viene eseguita dal widget.
+
+RGBA usa un nuovo tipo, senza cambiare `UIColor`. Non applicare gamma all'alfa.
+HSV ed alfa conservano il segnale pubblico di trascinamento e gli snapshot undo
+restano dell'host. HSV è un riquadro SV con H/S/V numerici, nel dominio SDR;
+non è un controllo HDR. Opzioni azzerate conservano RGB e le chiamate precedenti.
+
+Dopo l'importazione provare ricerca vuota/focus/undo, camera e lock con mouse e
+Tab, selezione/espansione dell'albero, cambio di selezione con scroll e undo del
+colore dopo drag SV/H/alfa. La demo rende questi controlli ispezionabili, ma non
+sostituisce il collaudo nell'editor del motore.

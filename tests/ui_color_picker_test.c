@@ -102,6 +102,10 @@ int main(void) {
   activate("reference/options"); CHECK(scene.options);
   activate("reference/reset-accent"); CHECK(!scene.custom_accent&&same(ui_get_theme().accent,ui_theme_light().accent));
   CHECK(same(ui_get_theme().selected,ui_theme_light().selected));
+  scene.components=true;
+  draw_options(NULL); scene.component_tab=1; draw_options(NULL);
+  scene.color_mode=1; draw_options(NULL);
+  CHECK(scene.rgba.a==.65f&&scene.nodes[0].expanded);
   CHECK(clips==0&&ui_context_destroy(c));
   puts("Color picker: PASS (sRGB, presets, public drag start, integer presentation, exact edits, keyboard RGB, normalization, live accent, theme switch, reset)");
 }

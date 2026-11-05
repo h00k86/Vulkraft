@@ -19,6 +19,8 @@ ui_state_access = {'ui_buttons.c': {'frame', 'navigation', 'buttons', 'tooltip'}
                   'picker',
                   'sliders',
                   'text_fields'},
+ 'ui_collections.c': {'buttons', 'panels', 'frame'},
+ 'ui_color_controls.c': {'colors', 'sliders', 'frame'},
  'ui_dropdown.c': {'frame', 'navigation', 'dropdowns'},
  'ui_file_picker.c': {'render', 'picker'},
  'ui_menu.c': {'frame', 'menu'},

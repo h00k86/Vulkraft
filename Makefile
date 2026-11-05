@@ -15,9 +15,9 @@ PLATFORM_LIBS := $(if $(filter glfw,$(PLATFORM)),-lglfw,)
 endif
 CPPFLAGS += -Iinclude
 # Independently compiled UI modules, also linked by white-box core tests.
-LINKED_UI_TESTS := ui_navigation_test ui_interaction_test ui_tabs_splitter_test ui_basic_widgets_test ui_text_edit_test ui_text_edit_app_test ui_renderer_test ui_frame_input_test ui_draw_list_test config_editor_ui_test ui_color_picker_test
+LINKED_UI_TESTS := ui_components_test ui_navigation_test ui_interaction_test ui_tabs_splitter_test ui_basic_widgets_test ui_text_edit_test ui_text_edit_app_test ui_renderer_test ui_frame_input_test ui_draw_list_test config_editor_ui_test ui_color_picker_test
 UI_STANDALONE_LIB := build/libui_$(BUILD).a
-UI_CORE_MODULE_SRCS := src/ui/ui_buttons.c src/ui/ui_numeric_controls.c src/ui/ui_text_field.c src/ui/ui_capture.c src/ui/ui_menu.c src/ui/ui_dropdown.c src/ui/ui_modals.c src/ui/ui_layout.c src/ui/ui_properties.c src/ui/ui_panels.c src/ui/ui_text_edit.c src/ui/ui_navigation.c src/ui/ui_theme.c src/ui/ui_color_picker.c src/ui/ui_progress.c
+UI_CORE_MODULE_SRCS := src/ui/ui_buttons.c src/ui/ui_numeric_controls.c src/ui/ui_text_field.c src/ui/ui_capture.c src/ui/ui_menu.c src/ui/ui_dropdown.c src/ui/ui_modals.c src/ui/ui_layout.c src/ui/ui_properties.c src/ui/ui_panels.c src/ui/ui_text_edit.c src/ui/ui_navigation.c src/ui/ui_theme.c src/ui/ui_collections.c src/ui/ui_color_controls.c src/ui/ui_color_picker.c src/ui/ui_progress.c
 CFLAGS += -std=c11 -Wall -Wextra -Wno-unused-parameter -MMD -MP
 ifeq ($(BUILD),release)
 CFLAGS += -O2 -DNDEBUG
@@ -109,7 +109,7 @@ test-sanitize: build/ui_memory_safety_test_sanitize build/texture_reload_test_sa
 
 DROPDOWN_TEST_ALLOC_FLAGS := -Wl,--wrap=realloc -Wl,--wrap=free
 UI_STORAGE_TEST_ALLOC_FLAGS := -DUI_STORAGE_TEST_ALLOC -Wl,--wrap=realloc -Wl,--wrap=free
-MEDIUM_TESTS := ui_error_test ui_session_test ui_navigation_batch_test ui_menu_storage_test ui_dropdown_storage_test ui_state_contract_test ui_overlay_modules_test ui_layout_modules_test ui_text_edit_module_test ui_navigation_module_test ui_interaction_test ui_basic_widgets_test ui_tabs_splitter_test ui_text_edit_test ui_text_edit_app_test ui_navigation_test ui_draw_list_test ui_renderer_test ui_frame_input_test ui_context_test utf8_editor_test utf8_render_test app_loop_failure_test render_failure_test keyboard_event_test ui_medium_test font_parser_test path_containment_test swapchain_policy_test init_failure_test buffer_failure_test texture_upload_failure_test
+MEDIUM_TESTS := ui_components_test ui_error_test ui_session_test ui_navigation_batch_test ui_menu_storage_test ui_dropdown_storage_test ui_state_contract_test ui_overlay_modules_test ui_layout_modules_test ui_text_edit_module_test ui_navigation_module_test ui_interaction_test ui_basic_widgets_test ui_tabs_splitter_test ui_text_edit_test ui_text_edit_app_test ui_navigation_test ui_draw_list_test ui_renderer_test ui_frame_input_test ui_context_test utf8_editor_test utf8_render_test app_loop_failure_test render_failure_test keyboard_event_test ui_medium_test font_parser_test path_containment_test swapchain_policy_test init_failure_test buffer_failure_test texture_upload_failure_test
 MEDIUM_BINS := $(addprefix build/,$(MEDIUM_TESTS))
 build/ui_medium_test: tests/ui_medium_test.c tests/ui_memory_safety_test.c src/input/keyboard.c src/ui/ui.c $(wildcard src/ui/*.h) src/ui/ui_app_adapter.c tests/ui_app_test_adapter.h tests/ui_test_renderer.h $(wildcard include/*/*.h) $(UI_CORE_MODULE_SRCS)
 	$(CC) $(CPPFLAGS) $(TEST_FLAGS) $< $(UI_CORE_MODULE_SRCS) -Wl,--gc-sections -lm -o $@
@@ -449,3 +449,7 @@ test-platform-sdl2: build/platform_sdl2_test
 	SDL_VIDEODRIVER=dummy ./build/platform_sdl2_test
 test-platform-sdl2-sanitize: build/platform_sdl2_test_sanitize
 	SDL_VIDEODRIVER=dummy ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 ./build/platform_sdl2_test_sanitize
+
+build/ui_components_test: tests/ui_components_test.c tests/ui_navigation_test.c $(wildcard src/ui/*.h include/*/*.h) $(UI_STANDALONE_LIB)
+	$(CC) $(CPPFLAGS) $(TEST_FLAGS) $< $(UI_STANDALONE_LIB) -Wl,--gc-sections -lm -o $@
+build/ui_components_test_sanitize: tests/ui_components_test.c tests/ui_navigation_test.c

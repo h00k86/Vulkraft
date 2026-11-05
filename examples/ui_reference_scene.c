@@ -26,6 +26,13 @@ bool ui_reference_navigation_result(const UIReferenceScene *s) {
 void ui_reference_init(UIReferenceScene *s) {
   *s=(UIReferenceScene){.value=.5f,.checked=true};
   s->split_ratio=.5f; s->accent=ui_theme_dark().accent;
+  s->list_selection=s->tree_selection=-1;
+  s->rgba=(UIColorRGBA){.2f,.4f,.8f,.65f};
+  s->nodes[0]=(UITreeNode){"scene","Scena",0,true,false};
+  s->nodes[1]=(UITreeNode){"objects","Oggetti",1,true,false};
+  s->nodes[2]=(UITreeNode){"box","Box",2,false,false};
+  s->nodes[3]=(UITreeNode){"light","Luce",2,false,false};
+  s->nodes[4]=(UITreeNode){"bones","Ossa",1,false,false};
   snprintf(s->text,sizeof(s->text),"Caffè € — testo UTF-8");
 }
 static void reference_accent(UIReferenceScene *s) {
@@ -91,6 +98,7 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
       p.cursor_y+=188;
       if(ui_property_action(&p,"reference/basic",font,"Widget basilari",false)) s->basic_dialog=true;
       if(ui_property_action(&p,"reference/options",font,"Opzioni aspetto",false)) s->options=true;
+      if(ui_property_action(&p,"reference/components",font,"Componenti e colore RGBA/HSV",false)) s->components=true;
       ui_property_layout_commit(&scroll.layout,&p);
     }
     ui_scroll_end(&scroll);
@@ -142,6 +150,45 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
       if(ui_property_action(&p,"reference/options-close",font,"Chiudi",false)) s->options=false;
     }
     ui_modal_end("reference/options-modal",s->options);
+  }
+  if(s->components) {
+    float x,y,w,h;
+    if(ui_modal_begin("reference/components-modal","Componenti",font,660,620,&s->components,&x,&y,&w,&h)) {
+      UIScrollScope content=ui_scroll_begin("reference/components-scroll",(UIRect){x+12,y+12,w-24,h-24},1);
+      if(content.clip_pushed) {
+        UIPropertyLayout p=ui_property_layout_begin(content.layout.bounds.x,content.layout.cursor_y,content.layout.bounds.w,1);
+        const UITab tabs[]={{"Campi, icone, lista e albero",false},{"RGBA e HSV",false}};
+        ui_tabs("reference/component-tabs",font,(UIRect){p.x,p.cursor_y,p.width,32},tabs,2,&s->component_tab);
+        p.cursor_y+=40;
+        if(s->component_tab==0) {
+          UITextInputOptions options={.placeholder="Cerca nella scena..."};
+          ui_text_input_ex("reference/search",font,ANCHOR_TOP_LEFT,0,14,p.x,ui_property_layout_next_row(&p),
+                            p.width,s->search,sizeof(s->search),&options);
+          UIIconKind kinds[]={UI_ICON_CAMERA,UI_ICON_EYE,UI_ICON_LOCK,UI_ICON_UNLOCK,UI_ICON_FOLDER};
+          const char *names[]={"Camera","Visibile","Blocca","Sblocca","Cartella"};
+          float row=ui_property_layout_next_row(&p);
+          for(int i=0;i<5;++i) {
+            UIIcon icon={.kind=kinds[i]}; char id[64]; snprintf(id,sizeof(id),"reference/icon/%d",i);
+            UIRect r={p.x+i*40,row,32,28};
+            ui_icon_button(id,font,r,&icon,NULL,NULL); ui_tooltip(id,font,r,names[i],.4f);
+          }
+          p.cursor_y+=8;
+          const UIListItem items[]={{"box","Box",false},{"light","Luce",false},{"disabled","Non disponibile",true}};
+          ui_list("reference/list",font,(UIRect){p.x,p.cursor_y,p.width,100},items,3,&s->list_selection);
+          p.cursor_y+=108;
+          ui_tree("reference/tree",font,(UIRect){p.x,p.cursor_y,p.width,150},s->nodes,5,&s->tree_selection);
+          p.cursor_y+=158;
+        } else {
+          const char *modes[]={"RGB","HSV"};
+          ui_property_dropdown(&p,"reference/color-mode",font,"Spazio",modes,2,&s->color_mode);
+          UIColorPickerOptions options={.integer_channels=true,.mode=s->color_mode?UI_COLOR_HSV:UI_COLOR_RGB};
+          ui_property_color_rgba(&p,"reference/rgba",font,"Colore RGBA",&s->rgba,&options,NULL);
+        }
+        ui_property_layout_commit(&content.layout,&p);
+      }
+      ui_scroll_end(&content);
+    }
+    ui_modal_end("reference/components-modal",s->components);
   }
   ui_file_picker_draw(font,s->path,sizeof(s->path));
 }

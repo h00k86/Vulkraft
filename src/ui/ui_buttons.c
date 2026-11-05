@@ -470,3 +470,80 @@ void ui_tooltip_draw_pending(void) {
   ui_paint_draw_quad(x,y,w,h,t.panel_header.r,t.panel_header.g,t.panel_header.b);
   ui_paint_draw_text_colored(tooltip_view->tooltip_font,shown,x+pad,y+(h+ui_paint_font_ascent(tooltip_view->tooltip_font,size))*.5f,size,t.text.r,t.text.g,t.text.b);
 }
+
+/* Eight-pixel silhouettes avoid a dependency on icon fonts or texture atlases. */
+static void ui_builtin_icon(UIIconKind kind,UIRect r,UIColor color) {
+  static const char *const masks[]={
+    "        " "        " "        " "        " "        " "        " "        " "        ",
+    "  ####  " " ###### " "##    ##" "## ## ##" "## ## ##" "##    ##" "########" "        ",
+    "        " "  ####  " " ##  ## " "## ## ##" "## ## ##" " ##  ## " "  ####  " "        ",
+    "  ####  " " ##  ## " " ##  ## " "########" "###  ###" "###  ###" "########" "        ",
+    "  ####  " " ##  ## " " ##     " "########" "###  ###" "###  ###" "########" "        ",
+    "        " "####    " "########" "##      " "##      " "##      " "########" "        ",
+    " #####  " " ## ### " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ###### " "        ",
+    "   ##   " "   ##   " "   ##   " "########" "########" "   ##   " "   ##   " "   ##   ",
+    "        " "        " "        " "########" "########" "        " "        " "        ",
+    "##    ##" " ##  ## " "  ####  " "   ##   " "  ####  " " ##  ## " "##    ##" "        ",
+    " ##     " " ###    " " ####   " " #####  " " ####   " " ###    " " ##     " "        ",
+    " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " "        "
+  };
+  if(kind<UI_ICON_NONE||kind>=UI_ICON_TEXTURE) return;
+  const char *mask=masks[kind]; float px=r.w/8,py=r.h/8;
+  for(int y=0;y<8;++y) for(int x=0;x<8;) {
+    if(mask[y*8+x]!='#') { ++x; continue; }
+    int first=x; while(x<8&&mask[y*8+x]=='#') ++x;
+    ui_paint_draw_quad(r.x+first*px,r.y+y*py,(x-first)*px,py,color.r,color.g,color.b);
+  }
+}
+bool ui_icon_button(const char *id,Font *font,UIRect r,const UIIcon *icon,
+                    const char *label,const UIButtonStyle *style) {
+  bool has_label=label&&label[0];
+  if(!ui_valid_id(id)||!ui_layout_rect_valid(r)||!icon||
+     icon->kind<UI_ICON_NONE||icon->kind>UI_ICON_TEXTURE||(has_label&&!font)) return false;
+  if(icon->kind==UI_ICON_TEXTURE && (icon->texture_slot<0||
+     !isfinite(icon->u0)||!isfinite(icon->v0)||!isfinite(icon->u1)||!isfinite(icon->v1)||
+     icon->u0<0||icon->v0<0||icon->u1>1||icon->v1>1||icon->u1<=icon->u0||icon->v1<=icon->v0)) return false;
+  UIState *state=ui_button_state(id); if(!state) return false;
+  bool enabled=!style||!style->disabled;
+  bool hover=enabled&&ui_pointer_hit(r.x,r.y,r.w,r.h)&&ui_nav_allowed(ui_overlay_context());
+  state->is_hover=hover;
+  if(hover) ui_state_frame(ui_overlay_context())->g_any_hover=true;
+  ui_nav_register(ui_overlay_context(),id,r,UI_NAV_BUTTON,enabled,hover);
+  bool clicked=enabled&&ui_nav_activate(ui_overlay_context(),id);
+  clicked|=ui_pointer_activate(&state->is_pressed,hover,enabled);
+  UITheme t=ui_get_theme();
+  UIColor bg=style&&style->has_custom_color?style->color_normal:t.button_normal;
+  UIColor fg=style&&style->has_custom_text?style->color_text:t.text;
+  UIColor border=style&&style->has_custom_color?style->color_border:t.button_border;
+  if(style&&style->danger) bg=t.danger;
+  if(style&&style->selected) bg=t.selected;
+  if(hover) bg=style&&style->has_custom_color?style->color_hover:t.button_hover;
+  if(state->is_pressed) bg=style&&style->has_custom_color?style->color_pressed:t.button_pressed;
+  if(!enabled) { bg=t.disabled; fg=t.text_muted; }
+  if(ui_clip_push(r)) {
+    ui_paint_draw_quad(r.x,r.y,r.w,r.h,border.r,border.g,border.b);
+    float edge=style&&style->border<0?0:style&&style->border>0?style->border:t.border_thickness;
+    edge=fminf(edge,fminf(r.w,r.h)*.5f);
+    ui_paint_draw_quad(r.x+edge,r.y+edge,r.w-2*edge,r.h-2*edge,bg.r,bg.g,bg.b);
+    float pad=style&&style->padding_x>0?style->padding_x:6;
+    float size=fmaxf(0,fminf(18,fminf(r.h-2*pad,r.w-2*pad)));
+    bool has_icon=icon->kind!=UI_ICON_NONE;
+    float ix=has_label?r.x+pad:r.x+(r.w-size)*.5f;
+    UIRect ir={ix,r.y+(r.h-size)*.5f,size,size};
+    if(size>0&&has_icon) {
+      if(icon->kind==UI_ICON_TEXTURE)
+        ui_paint_draw_textured_quad(ir.x,ir.y,ir.w,ir.h,icon->texture_slot,
+                                    icon->u0,icon->v0,icon->u1,icon->v1);
+      else ui_builtin_icon(icon->kind,ir,fg);
+    }
+    if(has_label) {
+      float x=r.x+pad+(has_icon?size+pad:0),available=fmaxf(0,r.x+r.w-pad-x);
+      float text_size=fminf(14,r.h*.6f); char display[512]={0};
+      if(available>0) ui_ellipsize_right(font,label,text_size,available,display,sizeof(display));
+      ui_paint_draw_text_colored(font,display,x,r.y+(r.h+ui_paint_font_ascent(font,text_size))*.5f,
+                                text_size,fg.r,fg.g,fg.b);
+    }
+    ui_clip_pop();
+  }
+  ui_nav_ring(id,r); return clicked;
+}

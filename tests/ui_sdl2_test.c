@@ -1,6 +1,7 @@
 #include "backends/ui_sdl2.h"
 #include "ui/draw_list.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
@@ -41,6 +42,25 @@ static void scene(const UIRenderer *r,void *u,Font *font) {
   r->draw_quad_alpha(u,40,40,20,20,0,0,1,.5f);
   r->draw_text_colored(u,font,"Caffè € — AV",10,110,24,1,1,1);
   r->draw_textured_quad(u,160,10,32,32,0,0,0,1,1);
+}
+static int component_scene(Font *font) {
+  char search[64]=""; UITextInputOptions hint={.placeholder="Cerca nella scena..."};
+  ui_text_input_ex("search",font,ANCHOR_TOP_LEFT,0,16,20,20,210,search,sizeof(search),&hint);
+  const UIIconKind kinds[]={UI_ICON_CAMERA,UI_ICON_EYE,UI_ICON_LOCK,UI_ICON_UNLOCK,UI_ICON_FOLDER};
+  for(int i=0;i<5;++i) {
+    UIIcon icon={.kind=kinds[i]}; char id[32]; snprintf(id,sizeof(id),"icon%d",i);
+    ui_icon_button(id,font,(UIRect){20+i*40,65,32,30},&icon,NULL,NULL);
+  }
+  UIListItem items[]={{"box","Box",false},{"light","Luce",false},{"disabled","Disabilitato",true}};
+  int selected=0; ui_list("list",font,(UIRect){20,120,210,110},items,3,&selected);
+  UITreeNode nodes[]={{"scene","Scena",0,true,false},{"objects","Oggetti",1,true,false},
+                      {"box","Box",2,false,false},{"bone","Osso è",2,false,false}};
+  ui_tree("tree",font,(UIRect){20,250,210,170},nodes,4,&selected);
+  UIPropertyLayout layout=ui_property_layout_begin(270,20,430,1);
+  UIColorPickerOptions hsv={.mode=UI_COLOR_HSV}; UIColorRGBA color={.2f,.4f,.8f,.6f},before=color;
+  CHECK(!ui_property_color_rgba(&layout,"rgba",font,"Colore RGBA",&color,&hsv,NULL));
+  CHECK(!memcmp(&before,&color,sizeof(color))&&!search[0]);
+  return 0;
 }
 int main(void) {
   CHECK(SDL_Init(SDL_INIT_VIDEO)==0);
@@ -230,6 +250,27 @@ int main(void) {
   Uint32 selected_pixel=*(Uint32 *)((char *)s->pixels+35*s->pitch+30*4);
   Uint32 empty_pixel=*(Uint32 *)((char *)s->pixels+75*s->pitch+30*4);
   CHECK(selected_pixel!=empty_pixel);
+  /* Actual glyph metrics and the growing draw list must render the new
+   * components identically to the immediate software path. */
+  CHECK(ui_sdl2_resize(b,740,620));
+  uint64_t component_hash=0;
+  for(int deferred=0;deferred<2;++deferred) {
+    CHECK(ui_context_reset(ctx)&&ui_context_set_renderer(ctx,deferred?ui_draw_list_renderer():r,deferred?(void *)list:(void *)b));
+    frame=(UIFrameInput){.width=740,.height=620,.mouse_x=-1,.mouse_y=-1};
+    CHECK(ui_sdl2_begin(b)); if(deferred) CHECK(ui_draw_list_begin(list));
+    CHECK(ui_begin_frame_input(&frame)&&!component_scene(font)); ui_end_frame();
+    if(deferred) CHECK(ui_draw_list_replay(list));
+    CHECK(ui_sdl2_end(b)); s=ui_sdl2_surface(b);
+    if(!deferred) component_hash=hash(s); else CHECK(component_hash==hash(s));
+    /* The blue HSV pad must cover every pixel: fractional cells used to
+     * leave black grid seams despite immediate/deferred equality. */
+    for(int py=55;py<90;++py) for(int px=275;px<695;++px) {
+      Uint32 pixel=*(Uint32 *)((char *)s->pixels+py*s->pitch+px*4);
+      SDL_GetRGBA(pixel,s->format,&red,&green,&blue,&alpha); CHECK(blue>100);
+    }
+  }
+  const char *dump=getenv("UI_COMPONENTS_DUMP");
+  if(dump) CHECK(SDL_SaveBMP(s,dump)==0);
   CHECK(ui_context_destroy(ctx)); ui_draw_list_destroy(list); ui_sdl2_destroy(b);
   CHECK(unlink(path)==0); SDL_Quit();
   puts("SDL2 software: PASS (pixels, alpha, nested/empty clips, UTF-8 glyphs/input, clipboard/selection/undo, image, resize, frame lifecycle/recovery, immediate/deferred equality)");

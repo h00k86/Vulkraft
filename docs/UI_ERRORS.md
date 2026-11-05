@@ -80,3 +80,8 @@ ancora allocati tornino al valore iniziale; la distruzione deve portarli a zero.
 Il contatore usa i wrapper GNU ld già impiegati dal benchmark. Osserva le
 chiamate collegate staticamente, non la memoria residente né le allocazioni
 interne di libc/driver. Non sostituisce LeakSanitizer o una sessione nativa.
+
+La cache HSV usa `UI_ERROR_LIMIT` / `UI_OPERATION_COLOR_PICKER` quando tutti
+64 gli slot sono già stati usati nel frame. Il colore e il layout restano
+invariati e `out_drag_started` è false. In frame successivi gli slot non usati
+vengono riciclati; reset cancella memoria HSV ed errore.

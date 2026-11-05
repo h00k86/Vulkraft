@@ -91,6 +91,17 @@ int main(void) {
   UIColorPickerOptions options={.integer_channels=true};
   UIColor color={0}; bool started=true;
   if(ui_property_color_ex(NULL,"color",NULL,"Color",&color,&options,&started)||started) return 8;
+  options.mode=UI_COLOR_HSV;
+  UIColorRGBA rgba={.a=1};
+  if(ui_property_color_rgba(NULL,"rgba",NULL,"Color",&rgba,&options,&started)||started) return 9;
+  UIIcon icon={.kind=UI_ICON_LOCK}; int selected=-1;
+  if(ui_icon_button("icon",NULL,(UIRect){0},&icon,NULL,NULL)) return 10;
+  if(ui_list("list",NULL,(UIRect){0},NULL,0,&selected).activated_index!=-1) return 11;
+  if(ui_tree("tree",NULL,(UIRect){0},NULL,0,&selected).activated_index!=-1) return 12;
+  UITextInputOptions input={.placeholder="Search"};
+  if(ui_text_input_ex("search",NULL,ANCHOR_TOP_LEFT,0,14,0,0,100,NULL,0,&input)) return 13;
+  UIColorHSV hsv=ui_color_to_hsv((UIColor){1,0,0});
+  if(hsv.h!=0||hsv.s!=1||hsv.v!=1||ui_color_from_hsv(hsv).r!=1) return 14;
   char label[32];
   ui_humanize_label("FX",label,sizeof(label));
   if(strcmp(label,"FX")) return 3;

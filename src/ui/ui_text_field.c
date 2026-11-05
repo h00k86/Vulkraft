@@ -116,10 +116,10 @@ void ui_text_input_focus(const char *id) {
 /* Widget monoriga: il buffer appartiene al chiamante e cambia durante
  * l'editing. Il risultato true segnala conferma, non ogni modifica. Lo stato
  * persistente e individuato da id, che deve rimanere stabile fra i frame. */
-bool ui_text_input_mode(const char *id, Font *font, TextAnchor anchor,
+static bool ui_text_input_options(const char *id, Font *font, TextAnchor anchor,
                    float margin, float scale, float offset_x, float offset_y,
                    float width, char *buffer, int buffer_size,
-                   const UIButtonStyle *style,bool password,bool reveal) {
+                   const UIButtonStyle *style,bool password,bool reveal,const char *placeholder) {
   UIFrameState *frame_view=ui_state_frame(ui_overlay_context());
   UINavigationState *navigation_view=ui_state_navigation(ui_overlay_context());
   UIClipboardState *clipboard_view=ui_state_clipboard(ui_overlay_context());
@@ -296,7 +296,12 @@ bool ui_text_input_mode(const char *id, Font *font, TextAnchor anchor,
                                 theme.accent.r,theme.accent.g,theme.accent.b,.35f);
       }
     }
-    ui_paint_draw_text_colored(font,shown,x+padding_x,y+(h+ascent)*.5f,
+    if(!password && !buffer[0] && placeholder && placeholder[0]) {
+      char hint[512]={0};
+      if(availableTextW>0) ui_ellipsize_right(font,placeholder,scale,availableTextW,hint,sizeof(hint));
+      ui_paint_draw_text_colored(font,hint,x+padding_x,y+(h+ascent)*.5f,
+                                scale,theme.text_muted.r,theme.text_muted.g,theme.text_muted.b);
+    } else ui_paint_draw_text_colored(font,shown,x+padding_x,y+(h+ascent)*.5f,
                               scale,theme.text.r,theme.text.g,theme.text.b);
     if(state->focused) {
       saved=display[draw_caret]; display[draw_caret]=0;
@@ -312,6 +317,21 @@ bool ui_text_input_mode(const char *id, Font *font, TextAnchor anchor,
   if (!state->focused) { free(state->original_long); state->original_long=NULL; }
   ui_nav_ring(id,(UIRect){x,y,w,h});
   return confirmed;
+}
+
+bool ui_text_input_mode(const char *id,Font *font,TextAnchor anchor,
+                        float margin,float scale,float x,float y,float width,
+                        char *buffer,int capacity,const UIButtonStyle *style,
+                        bool password,bool reveal) {
+  return ui_text_input_options(id,font,anchor,margin,scale,x,y,width,buffer,capacity,
+                               style,password,reveal,NULL);
+}
+bool ui_text_input_ex(const char *id,Font *font,TextAnchor anchor,
+                      float margin,float scale,float x,float y,float width,
+                      char *buffer,int capacity,const UITextInputOptions *options) {
+  return ui_text_input_options(id,font,anchor,margin,scale,x,y,width,buffer,capacity,
+                               options?options->style:NULL,false,false,
+                               options?options->placeholder:NULL);
 }
 
 bool ui_text_input(const char *id,Font *font,TextAnchor anchor,float margin,float scale,

@@ -26,7 +26,7 @@ if(GRAPHICS_APP_WITH_VULKAN)
   set(UI_WITH_PICKER ON)
 endif()
 add_library(ui_core STATIC src/ui/ui.c src/ui/ui_draw_list.c
-  src/ui/ui_theme.c src/ui/ui_color_picker.c src/ui/ui_progress.c src/ui/ui_navigation.c src/ui/ui_text_edit.c
+  src/ui/ui_theme.c src/ui/ui_collections.c src/ui/ui_color_controls.c src/ui/ui_color_picker.c src/ui/ui_progress.c src/ui/ui_navigation.c src/ui/ui_text_edit.c
   src/ui/ui_layout.c src/ui/ui_properties.c src/ui/ui_panels.c
   src/ui/ui_capture.c src/ui/ui_menu.c src/ui/ui_dropdown.c src/ui/ui_modals.c
   src/ui/ui_buttons.c src/ui/ui_numeric_controls.c src/ui/ui_text_field.c)
@@ -94,6 +94,10 @@ if(BUILD_TESTING)
   add_executable(ui_interaction_test tests/ui_interaction_test.c)
   target_link_libraries(ui_interaction_test PRIVATE ui_core)
   add_test(NAME shared_interaction COMMAND ui_interaction_test)
+  add_executable(ui_components_test tests/ui_components_test.c)
+  target_link_libraries(ui_components_test PRIVATE ui_core)
+  add_test(NAME components COMMAND ui_components_test)
+
   add_executable(ui_basic_widgets_test tests/ui_basic_widgets_test.c)
   target_link_libraries(ui_basic_widgets_test PRIVATE ui_core)
   add_test(NAME basic_widgets COMMAND ui_basic_widgets_test)

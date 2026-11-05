@@ -18,7 +18,7 @@ e test. Nessun download automatico o installazione di dipendenze.
 Un progetto consumatore usa:
 
 ```cmake
-find_package(UIFramework 0.4.0 EXACT REQUIRED COMPONENTS core)
+find_package(UIFramework 0.5.0 EXACT REQUIRED COMPONENTS core)
 add_executable(my_app main.c)
 target_link_libraries(my_app PRIVATE UIFramework::core)
 # Se installati, sono disponibili anche UIFramework::picker e UIFramework::sdl2.

@@ -31,8 +31,9 @@ static inline bool ui_layout_pointer_hit(UIRect r) {
   return ui_pointer_hit(r.x,r.y,r.w,r.h);
 }
 
-/* Color picker presentation shares slider interaction and exact float editing. */
+/* Presentation shares slider interaction and exact float editing.
+ * idle_decimals < 0 uses compact round-trip; 0..9 sets idle-only decimals. */
 bool ui_slider_format(const char *id,Font *font,TextAnchor anchor,
                       float margin,float scale,float x,float y,float width,
                       float *value,float min,float max,const char *label,
-                      bool *out_drag_started,bool integer_display);
+                      bool *out_drag_started,int idle_decimals);

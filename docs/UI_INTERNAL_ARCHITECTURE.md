@@ -110,3 +110,15 @@ importare il relativo store. Il valore pubblico contiene codice, operazione e
 ID copiato; non introduce heap. Il rifiuto del frame resta atomico e comunica
 la causa tramite il risultato, senza aggiornare questo dominio.
 Contratti e copertura in [UI_ERRORS.md](UI_ERRORS.md).
+
+## Collezioni e interazione colore
+
+`ui_collections.c` compone una vista con un solo stop Tab e lo scroll canonico;
+accede soltanto ai domini buttons/panels/frame. Il modello delle righe e
+l'espansione non vengono copiati nel contesto.
+
+`ui_color_picker.c` conserva la composizione e le conversioni pure. Il modulo
+`ui_color_controls.c` contiene il pad e la memoria HSV per ID, con dominio
+`colors` dedicato e accesso esplicito a sliders/frame. Reset e distruzione
+azzerano la cache tramite il proprietario fisico del contesto. Le funzioni
+private in `ui_color_internal.h` tengono lo stato fuori dalla composizione.

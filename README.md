@@ -5,7 +5,7 @@ piattaforma GLFW e SDL2, testo MSDF, widget e layout. Il repository contiene
 sorgenti, risorse, esempi e strumenti necessari per compilare il framework.
 
 Per integrare una nuova applicazione usare `AppCallbacks`, `app_run()` e
-`user_data`: [contratto pubblico GraphicsApp 0.6.0](docs/GRAPHICS_APP_API.md).
+`user_data`: [contratto pubblico GraphicsApp 0.7.0](docs/GRAPHICS_APP_API.md).
 I nomi dei target CMake e delle API rimangono `GraphicsApp` e `UIFramework`.
 
 Build ed evidenze generate dalle verifiche restano locali; i comandi per
@@ -156,7 +156,7 @@ Errori e recupero della draw list: [UI_DRAW_LIST_ERRORS.md](docs/UI_DRAW_LIST_ER
 `make test-ui-sdl2` verifica pixel e input senza finestra; dipendenze opzionali.
 
 - [Backend e demo SDL](docs/UI_SDL2.md)
-- [API 0.4.0](docs/UI_API.md)
+- [API 0.5.0](docs/UI_API.md)
 - [Navigazione da tastiera](docs/UI_KEYBOARD_NAVIGATION.md)
 - [Editing, clipboard e undo/redo](docs/UI_TEXT_EDITING.md)
 - [Package CMake e distribuzione sorgente](docs/UI_PACKAGE.md)
@@ -193,7 +193,7 @@ l'SDK installato e copia font/shader accanto all'eseguibile.
 Istruzioni in [GRAPHICS_APP_SDK.md](docs/GRAPHICS_APP_SDK.md).
 
 Anche l'[editor di configurazione](examples/config_editor/CMakeLists.txt) può
-essere compilato fuori dal checkout con `find_package(GraphicsApp 0.6.0 EXACT)`.
+essere compilato fuori dal checkout con `find_package(GraphicsApp 0.7.0 EXACT)`.
 La funzione `graphics_app_deploy_resources(target)` distribuisce font e shader
 accanto all'eseguibile. Contratti pubblici e proprietà delle risorse in
 [GRAPHICS_APP_API.md](docs/GRAPHICS_APP_API.md).
@@ -207,5 +207,5 @@ La revisione dei residui e delle API senza chiamanti interni è documentata in
 [PORTING_CLEANUP.md](docs/PORTING_CLEANUP.md). Per selezionare la GPU si può usare
 `APP_GPU=integrated`, `APP_GPU=discrete` oppure una parte del nome del dispositivo.
 
-Le regole di Esc, focus e conservazione delle etichette della UI 0.4.0 sono
+Le regole di Esc, focus e conservazione delle etichette della UI 0.5.0 sono
 riassunte in [UI_INTEGRATION_BEHAVIOR.md](docs/UI_INTEGRATION_BEHAVIOR.md).

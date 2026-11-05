@@ -91,3 +91,13 @@ con `UIColorPickerOptions`; dettagli in [UI_API.md](UI_API.md).
 Gli ID dei controlli figli restano privati: l'undo non deve consultarli.
 I tab accorciano automaticamente le etichette: eliminare le abbreviazioni
 manuali dell'host quando non servono ad altri scopi.
+
+## Migrazione a 0.5.0
+
+Aggiunte pubbliche: `ui_text_input_ex`, `ui_icon_button`, `ui_list`, `ui_tree`,
+`ui_property_color_rgba`, `ui_color_to_hsv` e `ui_color_from_hsv`.
+Le firme delle funzioni precedenti non cambiano. `UIColor` rimane RGB;
+`UIColorRGBA` è un tipo separato. Inizializzare a zero `UIColorPickerOptions`
+o usare inizializzatori designati: il nuovo membro `mode` a zero mantiene RGB.
+Header e librerie vanno ricompilati insieme. Dettagli d'uso e limiti SDR,
+selezione singola e cache HSV sono in [UI_API.md](UI_API.md).

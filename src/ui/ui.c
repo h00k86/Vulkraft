@@ -62,6 +62,7 @@ UIPanelsState *ui_state_panels(UIContext *ctx) { return &ctx->panels; }
 UIButtonsState *ui_state_buttons(UIContext *ctx) { return &ctx->buttons; }
 UIModalsState *ui_state_modals(UIContext *ctx) { return &ctx->modals; }
 UIStyleState *ui_state_style(UIContext *ctx) { return &ctx->style; }
+UIColorsState *ui_state_colors(UIContext *ctx) { return &ctx->colors; }
 UIMenuState *ui_state_menu(UIContext *ctx) { return &ctx->menu; }
 UINumericState *ui_state_numeric(UIContext *ctx) { return &ctx->numeric; }
 UISlidersState *ui_state_sliders(UIContext *ctx) { return &ctx->sliders; }

@@ -100,7 +100,7 @@ static void ui_float_insert(UIFloatFieldState *state, char c) {
 static bool ui_number_field_format(const char *id, Font *font, float x, float y,
                     float width, float height, float scale, float *value,
                     float min, float max, int *integer, int int_min, int int_max,
-                    bool integer_display) {
+                    int idle_decimals) {
   UINavigationState *navigation_view=ui_state_navigation(ui_overlay_context());
 
   UIFloatFieldState *state = ui_numeric_state(id);
@@ -170,7 +170,7 @@ static bool ui_number_field_format(const char *id, Font *font, float x, float y,
   if(navigation_view->nav_enabled && !ui_nav_focused(ui_overlay_context(), id)) state->focused=false;
   if (!state->focused) {
     if (integer) snprintf(state->buffer, sizeof(state->buffer), "%d", *integer);
-    else if (integer_display) snprintf(state->buffer,sizeof(state->buffer),"%.0f",(double)*value);
+    else if (idle_decimals>=0) snprintf(state->buffer,sizeof(state->buffer),"%.*f",idle_decimals>9?9:idle_decimals,(double)*value);
     else ui_format_float(state->buffer, sizeof(state->buffer), *value);
   }
   UIColor border = state->invalid ? theme.error :
@@ -206,7 +206,7 @@ bool ui_number_field(const char *id,Font *font,float x,float y,
                       float width,float height,float scale,float *value,
                       float min,float max,int *integer,int int_min,int int_max) {
   return ui_number_field_format(id,font,x,y,width,height,scale,value,min,max,
-                                integer,int_min,int_max,false);
+                                integer,int_min,int_max,-1);
 }
 
 bool ui_float_field(const char *id, Font *font, float x, float y,
@@ -271,7 +271,7 @@ UISliderState *ui_slider_state(const char *id) {
 bool ui_slider_format(const char *id, Font *font, TextAnchor anchor,
                float margin, float scale, float offset_x, float offset_y,
                float width, float *value, float min, float max,
-               const char *label, bool *out_drag_started, bool integer_display) {
+               const char *label, bool *out_drag_started, int idle_decimals) {
   UIFrameState *frame_view=ui_state_frame(ui_overlay_context());
 
   if (!ui_valid_id(id)) return false;
@@ -429,7 +429,7 @@ bool ui_slider_format(const char *id, Font *font, TextAnchor anchor,
   changed |= ui_number_field_format(valueID, font,
                             x + trackW + sliderTheme.label_value_gap * scale, y,
                             valueW, fieldH, labelScale, value, min, max,
-                            NULL,0,0,integer_display);
+                            NULL,0,0,idle_decimals);
 
   ui_nav_ring(id,(UIRect){x,trackY-3,trackW,trackHeight+6});
   return changed;
@@ -440,7 +440,7 @@ bool ui_slider(const char *id,Font *font,TextAnchor anchor,
                float *value,float min,float max,const char *label,
                bool *out_drag_started) {
   return ui_slider_format(id,font,anchor,margin,scale,x,y,width,value,min,max,
-                          label,out_drag_started,false);
+                          label,out_drag_started,-1);
 }
 
 bool ui_slider_is_dragging(const char *id) {

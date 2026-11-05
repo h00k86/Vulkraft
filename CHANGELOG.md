@@ -1,5 +1,23 @@
 # Changelog UI Framework
 
+## 0.5.0 — campi, icone, liste e colore RGBA/HSV
+
+- `ui_text_input_ex` con segnaposto disegnato separatamente dal buffer e dalla
+  cronologia; le chiamate precedenti e i campi password restano compatibili.
+- `ui_icon_button` con icone geometriche integrate o texture dell'host, testo
+  facoltativo, stati selected/disabled e interazione standard mouse/tastiera.
+- `ui_list` e `ui_tree` con dati/espansione dell'host, selezione singola,
+  scorrimento e navigazione; risultati distinti per selezione, espansione,
+  attivazione. Disegno limitato alle righe visibili.
+- `UIColorRGBA`, conversioni HSV e modalità HSV nelle opzioni del picker:
+  riquadro SV, tonalità, H/S/V e alfa indipendente con anteprima a scacchiera.
+  `UIColor` e il picker RGB precedente mantengono la loro API. HDR separato.
+- Memoria HSV per contesto/ID con cache riutilizzabile; diagnostica
+  `UI_OPERATION_COLOR_PICKER` su esaurimento. Nessuna dipendenza dal backend.
+- Demo condivisa, test di interazione e confronto pixel SDL immediato/differito.
+- GraphicsApp 0.7.0 richiede UIFramework 0.5.0. Ricompilare host e librerie:
+  `UIColorPickerOptions` ha un nuovo membro `mode` (zero-inizializzare).
+
 ## 0.4.0 — integrazione colore e tab
 
 - Nuova `ui_property_color_ex`: opzioni facoltative e segnale pubblico

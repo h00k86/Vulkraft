@@ -2,6 +2,11 @@
 #include "ui/ui.h"
 typedef struct {
   char text[256],path[512];
+  bool components;
+  int component_tab,color_mode,list_selection,tree_selection;
+  char search[128];
+  UIColorRGBA rgba;
+  UITreeNode nodes[5];
   float value,split_ratio;
   int layout_tab;
   int choice,clicks;

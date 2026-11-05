@@ -105,6 +105,34 @@ typedef struct {
     float x, y, w, h;
 } UIRect;
 
+/* Built-in icons use geometry, independent of font glyph coverage. TEXTURE
+ * borrows a renderer texture slot and UV rectangle for this call. */
+typedef enum { UI_ICON_NONE, UI_ICON_CAMERA, UI_ICON_EYE, UI_ICON_LOCK,
+  UI_ICON_UNLOCK, UI_ICON_FOLDER, UI_ICON_FILE, UI_ICON_PLUS, UI_ICON_MINUS,
+  UI_ICON_CLOSE, UI_ICON_PLAY, UI_ICON_PAUSE, UI_ICON_TEXTURE } UIIconKind;
+typedef struct { UIIconKind kind; int texture_slot; float u0,v0,u1,v1; } UIIcon;
+/* Absolute rectangle; label NULL/empty means icon only. Font is needed only
+ * for a label. Style colors/selected/disabled apply; geometry comes from bounds.
+ * Pair with ui_tooltip using the same ID/bounds for an icon-only description. */
+bool ui_icon_button(const char *id,Font *font,UIRect bounds,const UIIcon *icon,
+                    const char *label,const UIButtonStyle *style);
+
+/* Caller-owned rows and selection. IDs must be unique and stable in a view.
+ * Trees use preorder, first depth 0, maximum 64, increasing by at most one at each row;
+ * children are inferred from the following depth. Only expanded branches show
+ * descendants. Return activated_index == -1 unless Enter/Space activates a row.
+ * Up/Down/Home/End select; Left/Right collapse/expand/navigate a tree. One Tab
+ * stop per view. Scroll state belongs to the current context. Single selection;
+ * indices refer to caller arrays, so remap selection when sorting/removing rows.
+ * Invalid input is ignored; count 0 accepts NULL rows and clears selection. */
+typedef struct { const char *id,*label; bool disabled; } UIListItem;
+typedef struct { const char *id,*label; int depth; bool expanded,disabled; } UITreeNode;
+typedef struct { bool selection_changed,expansion_changed; int activated_index; } UICollectionResult;
+UICollectionResult ui_list(const char *id,Font *font,UIRect bounds,
+                            const UIListItem *items,int count,int *selected);
+UICollectionResult ui_tree(const char *id,Font *font,UIRect bounds,
+                            UITreeNode *nodes,int count,int *selected);
+
 /* Equal-width tabs; one Tab focus stop, arrows/Home/End select enabled tabs.
  * Caller owns selection and draws only the selected page. Invalid selection
  * selects the first enabled tab; all disabled yields -1. Maximum 64 tabs.
@@ -313,12 +341,29 @@ bool ui_property_slider(UIPropertyLayout *layout, const char *id,
 /* Inline RGB picker: presets, sRGB channels 0..255, read-only hex and preview.
  * Caller owns linear UIColor. Edits quantize to 8-bit sRGB; unchanged colors
  * retain full precision. Invalid components normalize into [0,1]. No alpha.
- * Uses six property rows. IDs are scoped under id; no persistent allocation. */
+ * RGB uses six property rows; HSV adds the SV pad and hue gradient.
+ * IDs are scoped under id; no heap allocation for picker state. */
 bool ui_property_color(UIPropertyLayout *layout,const char *id,Font *font,
                        const char *label,UIColor *color);
 /* Optional presentation only: round idle channel labels to integers, without
  * changing the color. Active numeric editors retain exact float text. */
-typedef struct { bool integer_channels; } UIColorPickerOptions;
+typedef enum { UI_COLOR_RGB, UI_COLOR_HSV } UIColorPickerMode;
+typedef struct { bool integer_channels; UIColorPickerMode mode; } UIColorPickerOptions;
+typedef struct { float r,g,b,a; } UIColorRGBA;
+/* HSV uses sRGB channels: hue in degrees [0,360), S/V in [0,1]. Conversion
+ * functions accept linear RGB, clamp SDR components, and normalize nonfinite
+ * values. Hue wraps; alpha is straight, independent of gamma. */
+typedef struct { float h,s,v; } UIColorHSV;
+UIColorHSV ui_color_to_hsv(UIColor color);
+UIColor ui_color_from_hsv(UIColorHSV hsv);
+/* Same preset/RGB or HSV controls plus alpha, checkerboard preview and hex.
+ * Alpha edits preserve RGB exactly; RGB edits preserve a valid alpha exactly.
+ * SDR only: components outside [0,1] normalize, matching the RGB picker.
+ * HSV mode includes an SV pad, hue gradient and numeric H/S/V fields.
+ * out_drag_started includes SV, H/S/V and alpha pointer drags. */
+bool ui_property_color_rgba(UIPropertyLayout *layout,const char *id,Font *font,
+                            const char *label,UIColorRGBA *color,
+                            const UIColorPickerOptions *options,bool *out_drag_started);
 /* Extended picker; NULL options matches ui_property_color. out_drag_started
  * is set false on every call (including invalid input), true only on the first
  * frame of an RGB slider pointer drag, even when the value does not change.
@@ -463,6 +508,14 @@ bool ui_text_input(const char *id, Font *font, TextAnchor anchor,
                    float margin, float scale, float offset_x, float offset_y,
                    float width, char *buffer, int buffer_size,
                    const UIButtonStyle *style);
+
+/* Presentation-only hint, drawn in muted color when empty (also focused).
+ * The placeholder never enters buffer/history/clipboard/password masking.
+ * Options/strings are borrowed only for the call; NULL options matches legacy. */
+typedef struct { const char *placeholder; const UIButtonStyle *style; } UITextInputOptions;
+bool ui_text_input_ex(const char *id,Font *font,TextAnchor anchor,
+                      float margin,float scale,float x,float y,float width,
+                      char *buffer,int capacity,const UITextInputOptions *options);
 
 /* Integer property row for values where a continuous slider is misleading.
  * The value can be nudged with -/+ or entered directly; ENTER commits and
