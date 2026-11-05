@@ -1,6 +1,6 @@
 # Comportamento UI per l’integrazione host
 
-Versioni: UIFramework 0.3.1 e GraphicsApp 0.5.1. Il codice dell’host non viene
+Versioni: UIFramework 0.4.0 e GraphicsApp 0.6.0. Il codice dell’host non viene
 modificato in questo repository. Il commit preciso da importare accompagna
 questa consegna; aggiornare la copia locale in modo esplicito.
 
@@ -135,3 +135,17 @@ Le regressioni nel toolkit sono in `tests/ui_navigation_test.c` e
 `tests/ui_overlay_modules_test.c`. Non sostituiscono la prova del pannello host.
 Troncamento geometrico e fine corsa dello scroll non sono modificati da questa
 consegna: metriche, padding e adattatore dell’host richiedono il confronto dedicato.
+
+## Colore, undo e tab (0.4.0)
+
+L'host può sostituire le letture degli ID interni RGB con il flag
+`out_drag_started` di `ui_property_color_ex`. Copiare il colore prima della
+chiamata e usare lo snapshot per il gesto undo; il booleano di ritorno continua
+a segnalare i cambiamenti di valore, anche da preset e tastiera.
+`UIColorPickerOptions.integer_channels=true` mostra interi per i canali a riposo,
+senza modificare il colore. Il campo attivo conserva l'editing float preciso.
+La funzione precedente resta disponibile; alfa/HDR e palette non cambiano.
+
+I tab usano le etichette complete dell'host e le accorciano in base alla larghezza.
+Verificare nel motore undo per un preset seguito da un trascinamento, canali
+interi e conferma senza modifiche, e tab con nomi completi a 956 px.

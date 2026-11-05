@@ -121,3 +121,13 @@ del target `build/ui_navigation_module_test_sanitize` con ASan/UBSan.
 Esc nella modale segnala l’annullamento al chiamante, che gestisce i dati
 del dialogo: non ripristina automaticamente buffer già modificati. I contratti
 di integrazione sono riassunti in [UI_INTEGRATION_BEHAVIOR.md](UI_INTEGRATION_BEHAVIOR.md).
+
+## Etichette dei tab
+
+`ui_tabs` misura il testo con il renderer e riserva sei unità di margine per
+lato. Le etichette lunghe terminano con `...`, rispettando i confini UTF-8;
+se non c'è spazio neppure per i tre punti il testo non viene disegnato.
+Il clipping del tab resta attivo. L'host può fornire `Collisioni` anche in una
+finestra stretta: la stringa originale e la selezione rimangono inalterate.
+Per il buffer di presentazione sono disponibili 255 byte; anche le etichette
+che superano questo limite sono abbreviate con `...`.

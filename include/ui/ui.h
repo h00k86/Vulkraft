@@ -107,7 +107,8 @@ typedef struct {
 
 /* Equal-width tabs; one Tab focus stop, arrows/Home/End select enabled tabs.
  * Caller owns selection and draws only the selected page. Invalid selection
- * selects the first enabled tab; all disabled yields -1. Maximum 64 tabs. */
+ * selects the first enabled tab; all disabled yields -1. Maximum 64 tabs.
+ * Labels are UTF-8 ellipsized to the available width; caller strings/IDs stay intact. */
 typedef struct { const char *label; bool disabled; } UITab;
 bool ui_tabs(const char *id,Font *font,UIRect bounds,const UITab *tabs,int count,int *selected);
 typedef enum { UI_SPLIT_COLUMNS, UI_SPLIT_ROWS } UISplitAxis;
@@ -315,6 +316,18 @@ bool ui_property_slider(UIPropertyLayout *layout, const char *id,
  * Uses six property rows. IDs are scoped under id; no persistent allocation. */
 bool ui_property_color(UIPropertyLayout *layout,const char *id,Font *font,
                        const char *label,UIColor *color);
+/* Optional presentation only: round idle channel labels to integers, without
+ * changing the color. Active numeric editors retain exact float text. */
+typedef struct { bool integer_channels; } UIColorPickerOptions;
+/* Extended picker; NULL options matches ui_property_color. out_drag_started
+ * is set false on every call (including invalid input), true only on the first
+ * frame of an RGB slider pointer drag, even when the value does not change.
+ * Preset clicks, numeric edits and keyboard changes are not drags. For undo,
+ * snapshot *color before calling and use this signal with the returned change.
+ * Options are read synchronously; nothing is retained. */
+bool ui_property_color_ex(UIPropertyLayout *layout,const char *id,Font *font,
+                          const char *label,UIColor *color,
+                          const UIColorPickerOptions *options,bool *out_drag_started);
 /* Canonical non-numeric property rows.  Editor code supplies semantics, never
  * geometry: the property layout owns label/value columns and row progression. */
 bool ui_property_toggle(UIPropertyLayout *layout, const char *id,

@@ -5,7 +5,43 @@ static void pointer(float x,float y,bool down,bool lost) {
   UIFrameInput frame={.width=640,.height=480,.mouse_x=x,.mouse_y=y,.mouse_down=down,.focus_lost=lost};
   CHECK(ui_begin_frame_input(&frame));
 }
+static char long_label[1024];
+static void long_text(void *u,Font *f,const char *s,float x,float y,float z,float r,float g,float b) {
+  snprintf(long_label,sizeof(long_label),"%s",s); text(u,f,s,x,y,z,r,g,b);
+}
+static void tab_labels(void) {
+  UIContext *c=context(); int selected=0;
+  const UITab labels[]={{"Collisioni",false},{"Proprietà della scena",false},{"FX",true}};
+  float widths[]={300,150,60,15};
+  for(size_t n=0;n<sizeof(widths)/sizeof(widths[0]);++n) {
+    begin(NULL,0); label_count=0;
+    ui_tabs("labels",font,(UIRect){20,20,widths[n],32},labels,3,&selected);
+    CHECK(label_count==3);
+    float available=fmaxf(0,widths[n]/3-12);
+    for(int i=0;i<3;++i) CHECK(measure(NULL,font,label_trace[i],14)<=available);
+    if(n==0) CHECK(!strcmp(label_trace[0],"Collisioni")&&!strcmp(label_trace[1],"Propriet...")&&!strcmp(label_trace[2],"FX"));
+    if(n==1) CHECK(!strcmp(label_trace[0],"Co..."));
+    if(n>=2) CHECK(!label_trace[0][0]);
+    CHECK(!strcmp(labels[0].label,"Collisioni")&&selected==0);
+    ui_end_frame();
+  }
+  const UITab unicode[]={{"ààààààà",false}};
+  begin(NULL,0); label_count=0;
+  ui_tabs("unicode",font,(UIRect){20,20,64,32},unicode,1,&selected);
+  CHECK(!strcmp(label_trace[0],"àà...")); ui_end_frame();
+  char very_long[600]; memset(very_long,'A',sizeof(very_long)-1); very_long[599]=0;
+  const UITab long_tab[]={{very_long,false}};
+  UIRenderer long_renderer=renderer; long_renderer.draw_text_colored=long_text;
+  CHECK(ui_context_set_renderer(c,&long_renderer,NULL));
+  begin(NULL,0); label_count=0;
+  ui_tabs("long",font,(UIRect){20,20,4096,32},long_tab,1,&selected);
+  CHECK(strlen(long_label)==255&&!strcmp(long_label+252,"..."));
+  CHECK(measure(NULL,font,long_label,14)<=4096-12);
+  CHECK(very_long[598]=='A'); ui_end_frame();
+  CHECK(clips==0&&ui_context_destroy(c));
+}
 int main(void) {
+  tab_labels();
   UIContext *c=context();
   const UITab tabs[]={{"Prima",false},{"Disabilitata",true},{"Terza",false}};
   int selected=-1; UIRect area={20,20,300,32},a,b;
@@ -49,6 +85,6 @@ int main(void) {
   CHECK(ui_clip_push((UIRect){0,0,10,10})); SPLIT(); ui_clip_pop(); ui_end_frame();
   CHECK(!ui_slider_is_dragging("split"));
   CHECK(clips==0&&ui_context_destroy(c));
-  puts("Tabs/splitter: PASS (selection, disabled tabs, keyboard, drag, bounds, focus loss, clips, small areas)");
+  puts("Tabs/splitter: PASS (UTF-8 ellipsis, narrow/long labels, selection, disabled tabs, keyboard, drag, bounds, focus loss, clips, small areas)");
   return 0;
 }

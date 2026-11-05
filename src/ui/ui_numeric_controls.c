@@ -97,9 +97,10 @@ static void ui_float_insert(UIFloatFieldState *state, char c) {
   }
 }
 
-bool ui_number_field(const char *id, Font *font, float x, float y,
+static bool ui_number_field_format(const char *id, Font *font, float x, float y,
                     float width, float height, float scale, float *value,
-                    float min, float max, int *integer, int int_min, int int_max) {
+                    float min, float max, int *integer, int int_min, int int_max,
+                    bool integer_display) {
   UINavigationState *navigation_view=ui_state_navigation(ui_overlay_context());
 
   UIFloatFieldState *state = ui_numeric_state(id);
@@ -169,6 +170,7 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
   if(navigation_view->nav_enabled && !ui_nav_focused(ui_overlay_context(), id)) state->focused=false;
   if (!state->focused) {
     if (integer) snprintf(state->buffer, sizeof(state->buffer), "%d", *integer);
+    else if (integer_display) snprintf(state->buffer,sizeof(state->buffer),"%.0f",(double)*value);
     else ui_format_float(state->buffer, sizeof(state->buffer), *value);
   }
   UIColor border = state->invalid ? theme.error :
@@ -198,6 +200,13 @@ bool ui_number_field(const char *id, Font *font, float x, float y,
   }
   ui_nav_ring(id,(UIRect){x,y,width,height});
   return changed;
+}
+
+bool ui_number_field(const char *id,Font *font,float x,float y,
+                      float width,float height,float scale,float *value,
+                      float min,float max,int *integer,int int_min,int int_max) {
+  return ui_number_field_format(id,font,x,y,width,height,scale,value,min,max,
+                                integer,int_min,int_max,false);
 }
 
 bool ui_float_field(const char *id, Font *font, float x, float y,
@@ -259,10 +268,10 @@ UISliderState *ui_slider_state(const char *id) {
   return NULL;
 }
 
-bool ui_slider(const char *id, Font *font, TextAnchor anchor,
+bool ui_slider_format(const char *id, Font *font, TextAnchor anchor,
                float margin, float scale, float offset_x, float offset_y,
                float width, float *value, float min, float max,
-               const char *label, bool *out_drag_started) {
+               const char *label, bool *out_drag_started, bool integer_display) {
   UIFrameState *frame_view=ui_state_frame(ui_overlay_context());
 
   if (!ui_valid_id(id)) return false;
@@ -417,12 +426,21 @@ bool ui_slider(const char *id, Font *font, TextAnchor anchor,
 
   char valueID[UI_ID_CAPACITY + 32];
   snprintf(valueID, sizeof(valueID), "%s_exact", id);
-  changed |= ui_float_field(valueID, font,
+  changed |= ui_number_field_format(valueID, font,
                             x + trackW + sliderTheme.label_value_gap * scale, y,
-                            valueW, fieldH, labelScale, value, min, max);
+                            valueW, fieldH, labelScale, value, min, max,
+                            NULL,0,0,integer_display);
 
   ui_nav_ring(id,(UIRect){x,trackY-3,trackW,trackHeight+6});
   return changed;
+}
+
+bool ui_slider(const char *id,Font *font,TextAnchor anchor,
+               float margin,float scale,float x,float y,float width,
+               float *value,float min,float max,const char *label,
+               bool *out_drag_started) {
+  return ui_slider_format(id,font,anchor,margin,scale,x,y,width,value,min,max,
+                          label,out_drag_started,false);
 }
 
 bool ui_slider_is_dragging(const char *id) {
@@ -472,7 +490,19 @@ bool ui_tabs(const char *id,Font *font,UIRect bounds,const UITab *tabs,int count
     if(ui_clip_push(r)) {
       UIColor fg=theme.text; float dim=tabs[i].disabled?.45f:1;
       float size=fminf(14,bounds.h*.6f);
-      ui_paint_draw_text_colored(font,tabs[i].label,r.x+6,
+      char display[256]={0};
+      float available=fmaxf(0,r.w-12);
+      if(available>0) {
+        const char *label=tabs[i].label;
+        size_t bytes=strlen(label);
+        if(bytes>=sizeof(display)) {
+          size_t take=utf8_floor(label,bytes,sizeof(display)-4);
+          memcpy(display,label,take); memcpy(display+take,"...",4);
+          label=display;
+        }
+        ui_ellipsize_right(font,label,size,available,display,sizeof(display));
+      }
+      ui_paint_draw_text_colored(font,display,r.x+6,
         r.y+(r.h+ui_paint_font_ascent(font,size))*.5f,size,fg.r*dim,fg.g*dim,fg.b*dim);
       ui_clip_pop();
     }

@@ -129,7 +129,9 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
     float x,y,w,h;
     if(ui_modal_begin("reference/options-modal","Opzioni aspetto",font,560,400,&s->options,&x,&y,&w,&h)) {
       UIPropertyLayout p=ui_property_layout_begin(x+12,y+12,w-24,1);
-      if(ui_property_color(&p,"reference/accent",font,"Colore di accento",&s->accent)) {
+      const UIColorPickerOptions color_options={.integer_channels=true};
+      if(ui_property_color_ex(&p,"reference/accent",font,"Colore di accento",&s->accent,
+                              &color_options,NULL)) {
         s->custom_accent=true; reference_accent(s);
       }
       if(ui_property_action(&p,"reference/reset-accent",font,"Ripristina colore predefinito",false)) {

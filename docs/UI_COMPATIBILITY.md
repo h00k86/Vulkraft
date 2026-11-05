@@ -82,3 +82,12 @@ ASCII esatte con sentence case attivo. Nessun elenco è installato per default;
 le chiamate precedenti mantengono il loro comportamento. L'host possiede array
 e stringhe fino a sostituzione/reset/distruzione del contesto. Il contratto e
 l'esempio sono in [UI_INTEGRATION_BEHAVIOR.md](UI_INTEGRATION_BEHAVIOR.md).
+
+## Migrazione a 0.4.0
+
+`ui_property_color` conserva firma e comportamento. Per un segnale di inizio
+del trascinamento RGB e/o canali interi a riposo usare `ui_property_color_ex`
+con `UIColorPickerOptions`; dettagli in [UI_API.md](UI_API.md).
+Gli ID dei controlli figli restano privati: l'undo non deve consultarli.
+I tab accorciano automaticamente le etichette: eliminare le abbreviazioni
+manuali dell'host quando non servono ad altri scopi.

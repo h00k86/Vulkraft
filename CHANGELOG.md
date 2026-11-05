@@ -1,5 +1,18 @@
 # Changelog UI Framework
 
+## 0.4.0 — integrazione colore e tab
+
+- Nuova `ui_property_color_ex`: opzioni facoltative e segnale pubblico
+  `out_drag_started`, senza dipendere dagli ID dei controlli RGB interni.
+  La funzione precedente resta disponibile con il comportamento preesistente.
+- `UIColorPickerOptions.integer_channels` arrotonda soltanto il testo dei canali
+  a riposo; editing preciso e colore originale non vengono modificati dal disegno.
+- Tab con etichette accorciate mediante `...`, misurate dal renderer e ritagliate
+  sul bordo del tab, senza spezzare UTF-8 o cambiare selezione/etichette host.
+- Esempio Opzioni aggiornato e regressioni su gesti, tastiera, precisione del
+  colore, campi attivi, tab stretti e testo Unicode/lungo.
+- GraphicsApp 0.6.0 richiede UIFramework 0.4.0; ricompilazione necessaria.
+
 ## 0.3.1 — rilascio della tastiera e numeri compatti
 
 - Il focus lasciato da un clic non cattura la tastiera; Tab e la navigazione

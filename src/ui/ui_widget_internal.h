@@ -30,3 +30,9 @@ InputKeyEvent *ui_frame_events(size_t *count);
 static inline bool ui_layout_pointer_hit(UIRect r) {
   return ui_pointer_hit(r.x,r.y,r.w,r.h);
 }
+
+/* Color picker presentation shares slider interaction and exact float editing. */
+bool ui_slider_format(const char *id,Font *font,TextAnchor anchor,
+                      float margin,float scale,float x,float y,float width,
+                      float *value,float min,float max,const char *label,
+                      bool *out_drag_started,bool integer_display);

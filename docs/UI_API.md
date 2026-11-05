@@ -42,6 +42,31 @@ focus/modalità dalla UI e supporta Tab, frecce e Home/End tramite i controlli
 esistenti. Il valore `UIColor` appartiene all'applicazione; il widget non cambia
 il tema da solo. Non include alpha, area HSV o contagocce dello schermo.
 
+La variante estesa aggiunge presentazione intera e inizio del trascinamento:
+
+```c
+UIColorPickerOptions options = { .integer_channels = true };
+UIColor before = color;
+bool drag_started = false;
+bool changed = ui_property_color_ex(&layout, "color", font, "Colore", &color,
+                                    &options, &drag_started);
+/* Per undo: conservare before quando drag_started è true; continuare lo stesso
+ * gesto nei frame seguenti. changed segnala anche preset e modifiche da tastiera. */
+```
+
+`out_drag_started` è opzionale e viene sempre inizializzato a false, anche se
+l'input non è valido. Diventa true soltanto nel primo frame di un trascinamento
+RGB con il puntatore, anche se il valore non cambia. Restano false i clic sui
+preset, le modifiche nel campo numerico e i comandi da tastiera. Non occorre
+conoscere gli ID dei widget figli. Snapshot e raggruppamento undo appartengono
+all'host: il valore precedente va copiato **prima** della chiamata.
+
+`integer_channels` arrotonda solo la presentazione a riposo dei canali sRGB
+0–255. Per esempio `137.006` appare `137`; aprendo il campo si ritrova il testo
+preciso. Disegnare o confermare senza modifiche non quantizza un colore valido.
+Con opzioni NULL o azzerate rimane la presentazione decimale precedente.
+Le opzioni sono lette durante la chiamata, senza trattenerne il puntatore.
+
 I canali visualizzati usano la conversione già adottata da `ui_color_srgb`
 (gamma 2.2 approssimata); il colore del renderer resta lineare. Una modifica
 quantizza a 8 bit per canale. Il semplice disegno non modifica colori validi né

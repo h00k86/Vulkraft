@@ -1,5 +1,6 @@
 #include "ui/ui.h"
 #include "ui_paint_internal.h"
+#include "ui_widget_internal.h"
 #include <math.h>
 #include <stdio.h>
 /* Color editing uses sRGB channel values; UIColor remains linear for rendering. */
@@ -8,8 +9,17 @@ static float ui_color_channel_srgb(float linear) {
   /* Inverse of ui_color_srgb: preserve the framework's existing gamma 2.2 mapping. */
   return powf(linear,1.0f/2.2f);
 }
-bool ui_property_color(UIPropertyLayout *layout,const char *id,Font *font,
-                       const char *label,UIColor *color) {
+static bool ui_color_slider(UIPropertyLayout *layout,const char *id,Font *font,
+                            const char *label,float *value,bool integer_display,
+                            bool *started) {
+  float y=ui_property_layout_next_row(layout);
+  return ui_slider_format(ui_scoped_id(id),font,ANCHOR_TOP_LEFT,0,layout->scale,
+                           layout->x,y,layout->width,value,0,255,label,started,integer_display);
+}
+bool ui_property_color_ex(UIPropertyLayout *layout,const char *id,Font *font,
+                          const char *label,UIColor *color,
+                          const UIColorPickerOptions *options,bool *out_drag_started) {
+  if(out_drag_started) *out_drag_started=false;
   if(!layout||!font||!label||!color||!isfinite(layout->width)||layout->width<=0||
      !isfinite(layout->scale)||layout->scale<=0||!ui_push_id(id)) return false;
   UIColor old=*color;
@@ -33,9 +43,12 @@ bool ui_property_color(UIPropertyLayout *layout,const char *id,Font *font,
       rgb[0]=(palette[i]>>16)&255; rgb[1]=(palette[i]>>8)&255; rgb[2]=palette[i]&255; changed=true;
     }
   }
-  changed|=ui_property_slider(layout,"red",font,"Rosso",&rgb[0],0,255,NULL);
-  changed|=ui_property_slider(layout,"green",font,"Verde",&rgb[1],0,255,NULL);
-  changed|=ui_property_slider(layout,"blue",font,"Blu",&rgb[2],0,255,NULL);
+  bool integer_display=options&&options->integer_channels;
+  bool red=false,green=false,blue=false;
+  changed|=ui_color_slider(layout,"red",font,"Rosso",&rgb[0],integer_display,&red);
+  changed|=ui_color_slider(layout,"green",font,"Verde",&rgb[1],integer_display,&green);
+  changed|=ui_color_slider(layout,"blue",font,"Blu",&rgb[2],integer_display,&blue);
+  if(out_drag_started) *out_drag_started=red||green||blue;
   uint32_t hex=((uint32_t)lroundf(rgb[0])<<16)|((uint32_t)lroundf(rgb[1])<<8)|(uint32_t)lroundf(rgb[2]);
   if(changed) *color=ui_color_srgb(hex);
   char value[16]; snprintf(value,sizeof(value),"#%06X",(unsigned)hex);
@@ -44,4 +57,9 @@ bool ui_property_color(UIPropertyLayout *layout,const char *id,Font *font,
   ui_paint_draw_quad(layout->x,y,layout->width,layout->row_height,color->r,color->g,color->b);
   ui_pop_id();
   return old.r!=color->r||old.g!=color->g||old.b!=color->b;
+}
+
+bool ui_property_color(UIPropertyLayout *layout,const char *id,Font *font,
+                       const char *label,UIColor *color) {
+  return ui_property_color_ex(layout,id,font,label,color,NULL,NULL);
 }

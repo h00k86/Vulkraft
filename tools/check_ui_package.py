@@ -88,6 +88,9 @@ int main(void) {
   if(strcmp(UI_VERSION_STRING,EXPECTED_VERSION)||strcmp(ui_version_string(),UI_VERSION_STRING)) return 1;
   UIContext *ctx=ui_context_create();
   if(!ctx || !ui_context_set_current(ctx)) return 2;
+  UIColorPickerOptions options={.integer_channels=true};
+  UIColor color={0}; bool started=true;
+  if(ui_property_color_ex(NULL,"color",NULL,"Color",&color,&options,&started)||started) return 8;
   char label[32];
   ui_humanize_label("FX",label,sizeof(label));
   if(strcmp(label,"FX")) return 3;

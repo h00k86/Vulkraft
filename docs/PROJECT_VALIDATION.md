@@ -26,7 +26,7 @@ visibile `RUNNING`, senza dichiarare un risultato finale riuscito.
 I dettagli della verifica del package sono conservati in `sdk/`.
 
 La validazione include inoltre gli stage `app-source` e `app-sdk`: prepara
-l'archivio GraphicsApp 0.5.1 con lista esplicita, manifest e checksum, ne verifica
+l'archivio GraphicsApp 0.6.0 con lista esplicita, manifest e checksum, ne verifica
 la riproducibilità e ricostruisce gli SDK GLFW/SDL2 Debug/Release esclusivamente
 dalle sorgenti estratte. Controlla i 28 header pubblici, installazione spostata,
 consumer esterni, distribuzione delle risorse senza link e workflow UI/controller
