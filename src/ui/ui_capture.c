@@ -401,7 +401,14 @@ bool ui_capture_editor_escape_allowed(const UIContext *ctx) { return ui_state_me
 bool ui_capture_modal_escape_allowed(UIContext *ctx,const char *id) {
   UINavigationState *navigation_view=ui_state_navigation(ctx);
 
-  return (!navigation_view->nav_modal[0] || !strcmp(navigation_view->nav_modal,id)) && !ui_nav_editor_escape(ctx);
+  if(navigation_view->nav_modal[0] && strcmp(navigation_view->nav_modal,id)) return false;
+  /* Popup/menu dismissal keeps priority, but a focused editor must not turn
+   * modal cancellation into a two-press operation. */
+  if(ui_state_menu_read(ctx)->g_menu.depth) return false;
+  UIDropdownsState *dropdowns=ui_state_dropdowns(ctx);
+  for(int n=0;n<dropdowns->dropdown_state_count;++n)
+    if(dropdowns->dropdown_states[n].open) return false;
+  return true;
 }
 
 bool ui_capture_widget_press(UIContext *ctx) {

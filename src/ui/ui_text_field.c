@@ -105,7 +105,7 @@ bool ui_any_text_input_focused(void) {
 }
 
 void ui_text_input_focus(const char *id) {
-  if(ui_valid_id(id)) { ui_nav_set(ui_overlay_context(), id,true); ui_state_navigation(ui_overlay_context())->nav_edit=true; }
+  if(ui_valid_id(id)) { ui_nav_set(ui_overlay_context(), id,ui_state_navigation(ui_overlay_context())->nav_keyboard); ui_state_navigation(ui_overlay_context())->nav_edit=true; }
   UITextInputState *state = ui_text_field_state(id);
   if (state && !state->focused) {
     state->focused = true;

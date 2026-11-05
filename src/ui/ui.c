@@ -400,8 +400,12 @@ UIErrorCode ui_begin_frame_input_status(const UIFrameInput *input) {
   ui_state_frame(ui_ctx())->debug_keys_down=input->debug_keys_down && !input->focus_lost;
   ui_set_scroll_delta(input->focus_lost?0:input->scroll_delta);
   ui_keyboard_set_frame(input->events,input->focus_lost?0:input->event_count,input->focus_lost);
+  /* Pointer activity hides keyboard rings without discarding focus. Do this
+   * before routing Tab so subsequent keyboard navigation can show them again. */
+  if(mouse_x!=ui_state_frame(ui_ctx())->g_mouse_x || mouse_y!=ui_state_frame(ui_ctx())->g_mouse_y ||
+     mouse_down!=ui_state_frame(ui_ctx())->g_mouse_down_prev || input->scroll_delta!=0)
+    ui_state_navigation(ui_ctx())->nav_keyboard=false;
   ui_nav_begin(ui_ctx(), input->focus_lost, ui_menu_hierarchy_is_open());
-  if(input->scroll_delta!=0) ui_state_navigation(ui_ctx())->nav_keyboard=false;
   ui_feedback_frame(mouse_down);
   ++ui_state_frame(ui_ctx())->g_ui_frame_serial;
   if (ui_state_frame(ui_ctx())->g_ui_frame_serial == 0) {
@@ -609,15 +613,20 @@ static bool point_in_rect(float px, float py, float x, float y, float w,
   return px >= x && px <= x + w && py >= y && py <= y + h;
 }
 
+void ui_set_sentence_case(bool enabled) {
+  ui_state_style(ui_ctx())->sentence_case=enabled;
+}
+
 void ui_humanize_label(const char *in, char *out, size_t outSize) {
-  if (!in || outSize == 0)
+  if (!out || !outSize) return;
+  if (!in) { out[0]=0; return; }
+  UIContext *ctx=ui_context_get_current();
+  if (!ctx || !ui_state_style(ctx)->sentence_case) {
+    utf8_copy(out,outSize,in);
     return;
-  // Riorganizzazione UI 2026-09-17: le unita' fra parentesi ("(px)",
-  // "(gradi)", "(0 = sfera)") non contano come "testo scritto a mano":
-  // prima bastava una minuscola in parentesi per lasciare TUTTA l'etichetta
-  // maiuscola, e i pannelli mostravano "MARGINE SX (px)" accanto a
-  // "Ripetizioni X". La decisione guarda solo le lettere FUORI parentesi;
-  // il contenuto fra parentesi viene copiato intatto.
+  }
+  /* Explicit ASCII sentence case for all-caps labels. Mixed-case labels and
+   * parenthesized units are preserved. This is not Unicode case folding. */
   bool hasLower = false;
   int depth = 0;
   for (const char *p = in; *p; p++) {
@@ -629,29 +638,27 @@ void ui_humanize_label(const char *in, char *out, size_t outSize) {
     }
   }
   if (hasLower) {
-    strncpy(out, in, outSize - 1);
-    out[outSize - 1] = '\0';
+    utf8_copy(out,outSize,in);
     return;
   }
+  size_t bytes=strlen(in);
+  size_t limit=bytes<outSize?bytes:utf8_floor(in,bytes,outSize-1);
   size_t i = 0;
-  bool startOfWord = true;
+  bool firstLetter = true;
   depth = 0;
-  for (const char *p = in; *p && i < outSize - 1; p++, i++) {
+  for (const char *p = in; *p && i < limit; p++, i++) {
     char c = *p;
     if (c == '(') depth++;
     if (depth > 0) {
       out[i] = c; // parentesi: intatto
       if (c == ')') depth--;
-      startOfWord = true;
       continue;
     }
     if (c >= 'A' && c <= 'Z') {
-      out[i] = startOfWord ? c : (char)(c - 'A' + 'a');
-      startOfWord = false;
+      out[i] = firstLetter ? c : (char)(c - 'A' + 'a');
+      firstLetter = false;
     } else {
       out[i] = c;
-      startOfWord = (c == ' ' || c == '(' || c == '/' || c == '-' ||
-                    c == '_' || c == ':' || c == '\'');
     }
   }
   out[i] = '\0';

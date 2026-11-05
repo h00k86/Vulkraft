@@ -58,3 +58,19 @@ simulati, SDL2 e l'host Vulkan del checkout. Non certificano Windows, macOS,
 Wayland, altre GPU, shaping/grafemi/IME, accessibilità o LeakSanitizer.
 Il riepilogo di una versione distingue verifiche automatiche correnti,
 evidenze native precedenti e aspetti non verificati.
+
+## Migrazione a 0.2.0
+
+Le etichette dei widget restano nella forma fornita dall'applicazione;
+`ui_set_sentence_case(true)` abilita esplicitamente una normalizzazione ASCII
+per le etichette tutte maiuscole nel contesto corrente. La preferenza è isolata
+per contesto e il reset la disattiva. Non modifica i buffer di testo dell'utente.
+
+Esc chiude la modale attiva anche con un editor focalizzato. Gli overlay
+menu/dropdown aperti mantengono precedenza e consumano una singola pressione.
+La responsabilità di annullare i dati del dialogo resta dell'applicazione.
+
+Autofocus e ripristino del focus non implicano input da tastiera; l'anello
+segue il metodo di input attivo. Dettagli in
+[UI_INTEGRATION_BEHAVIOR.md](UI_INTEGRATION_BEHAVIOR.md). Ricompilare consumatori
+e librerie con la stessa versione; i package CMake richiedono la versione esatta.

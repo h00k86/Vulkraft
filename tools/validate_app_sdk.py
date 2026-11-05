@@ -181,7 +181,7 @@ def main():
                             header.relative_to(sdk / 'include').as_posix() + '"\n')
                     (headers / 'CMakeLists.txt').write_text('cmake_minimum_required(VERSION 3.20)\n'
                         'project(PublicHeaders C)\n'
-                        'find_package(GraphicsApp 0.2.0 EXACT QUIET)\n'
+                        'find_package(GraphicsApp 0.3.1 EXACT QUIET)\n'
                         'if(GraphicsApp_FOUND)\nmessage(FATAL_ERROR "Previous SDK version accepted")\nendif()\n'
                         f'find_package(GraphicsApp {version} EXACT REQUIRED COMPONENTS application)\n'
                         'file(GLOB sources "${CMAKE_CURRENT_SOURCE_DIR}/header_*.c")\n'

@@ -80,7 +80,26 @@ target_include_directories(probe PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(probe PRIVATE UIFramework::core)
 ''', build=True, sources={
     'expected.h.in': '#define EXPECTED_VERSION "@UIFramework_VERSION@"\n',
-    'main.c': '#include "ui/version.h"\n#include "expected.h"\n#include <stdio.h>\n#include <string.h>\nint main(void) {\n  if(strcmp(UI_VERSION_STRING,EXPECTED_VERSION)||strcmp(ui_version_string(),UI_VERSION_STRING)) return 1;\n  printf("SDK header/runtime/CMake version: %s\\n",ui_version_string()); return 0;\n}\n'
+    'main.c': '''#include "ui/ui.h"
+#include "expected.h"
+#include <stdio.h>
+#include <string.h>
+int main(void) {
+  if(strcmp(UI_VERSION_STRING,EXPECTED_VERSION)||strcmp(ui_version_string(),UI_VERSION_STRING)) return 1;
+  UIContext *ctx=ui_context_create();
+  if(!ctx || !ui_context_set_current(ctx)) return 2;
+  char label[32];
+  ui_humanize_label("FX",label,sizeof(label));
+  if(strcmp(label,"FX")) return 3;
+  ui_set_sentence_case(true);
+  ui_humanize_label("NUOVO LAYER",label,sizeof(label));
+  if(strcmp(label,"Nuovo layer") || !ui_context_reset(ctx)) return 4;
+  ui_humanize_label("FX",label,sizeof(label));
+  if(strcmp(label,"FX") || !ui_context_destroy(ctx)) return 5;
+  printf("SDK header/runtime/CMake version and label policy: %s\\n",ui_version_string());
+  return 0;
+}
+'''
 })
 components=[int(part) for part in version.split('.')]
 for label,requested in [('patch',f'{components[0]}.{components[1]}.{components[2]+1}'),

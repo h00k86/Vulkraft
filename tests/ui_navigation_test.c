@@ -5,10 +5,17 @@
 #include <string.h>
 #include <math.h>
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"navigation:%d: %s\n",__LINE__,#x); exit(1); } } while(0)
-static int clips, quads;
-static void quad(void *u,float x,float y,float w,float h,float r,float g,float b) { ++quads; }
+static int clips, quads, ring_quads;
+static int label_count;
+static char label_trace[32][96];
+static void quad(void *u,float x,float y,float w,float h,float r,float g,float b) { ++quads;
+  UIColor accent=ui_get_theme().accent;
+  if((w==2 || h==2) && r==accent.r && g==accent.g && b==accent.b) ++ring_quads;
+}
 static void alpha(void *u,float x,float y,float w,float h,float r,float g,float b,float a) { ++quads; }
-static void text(void *u,Font *f,const char *s,float x,float y,float z,float r,float g,float b) {}
+static void text(void *u,Font *f,const char *s,float x,float y,float z,float r,float g,float b) {
+  if(label_count<32) snprintf(label_trace[label_count++],96,"%s",s);
+}
 static void image(void *u,float x,float y,float w,float h,int slot,float a,float b,float c,float d) {}
 static float measure(void *u,Font *f,const char *s,float z) { return strlen(s)*z*.5f; }
 static float ascent(void *u,Font *f,float z) { return z; }
@@ -96,7 +103,11 @@ static void modals(void) {
   e=key(PLATFORM_KEY_ENTER,0); begin(&e,1); MODAL(); ui_end_frame(); CHECK(open); focus("dialog_modal_close");
   e=key(PLATFORM_KEY_TAB,0); begin(&e,1); MODAL(); ui_end_frame(); focus("edit");
   e=character('!'); begin(&e,1); MODAL(); ui_end_frame(); CHECK(!strcmp(buffer,"original!"));
-  e=key(PLATFORM_KEY_ESCAPE,0); begin(&e,1); MODAL(); ui_end_frame(); CHECK(open&&!strcmp(buffer,"original"));
+  e=key(PLATFORM_KEY_ESCAPE,0); begin(&e,1); MODAL(); ui_end_frame(); CHECK(!open&&!strcmp(buffer,"original!"));
+  UIInputDiagnostics diagnostics; CHECK(ui_get_input_diagnostics(&diagnostics));
+  CHECK(diagnostics.escape_consumed); focus("open");
+  e=key(PLATFORM_KEY_ENTER,0); begin(&e,1); MODAL(); ui_end_frame(); CHECK(open);
+  e=key(PLATFORM_KEY_TAB,0); begin(&e,1); MODAL(); ui_end_frame(); focus("edit");
   e=key(PLATFORM_KEY_TAB,0); begin(&e,1); MODAL(); ui_end_frame(); focus("close");
   begin(&e,1); MODAL(); ui_end_frame(); focus("dialog_modal_close");
   e=key(PLATFORM_KEY_ENTER,0); begin(&e,1); MODAL(); ui_end_frame(); CHECK(!open&&!background); focus("open");
@@ -139,9 +150,106 @@ static void nested_modals(void) {
   CHECK(ui_context_destroy(c));
   #undef NESTED
 }
+static void label_policy(void) {
+  UIContext *a=context(); char output[96];
+  const char *labels[]={"3D","FX","Nuovo layer","NUOVO LAYER","Caffè €"};
+  begin(NULL,0); label_count=0;
+  for(int i=0;i<5;++i) {
+    ui_humanize_label(labels[i],output,sizeof(output)); CHECK(!strcmp(output,labels[i]));
+    char id[32]; snprintf(id,sizeof(id),"label%d",i);
+    ui_button_labeled(id,labels[i],font,ANCHOR_TOP_LEFT,0,14,20,20+i*40,NULL);
+  }
+  CHECK(label_count==5);
+  for(int i=0;i<5;++i) CHECK(!strcmp(label_trace[i],labels[i]));
+  ui_end_frame();
+  ui_set_sentence_case(true);
+  ui_humanize_label("NUOVO LAYER",output,sizeof(output)); CHECK(!strcmp(output,"Nuovo layer"));
+  ui_humanize_label("Nuovo layer",output,sizeof(output)); CHECK(!strcmp(output,"Nuovo layer"));
+  ui_humanize_label("FX (px)",output,sizeof(output)); CHECK(!strcmp(output,"Fx (px)"));
+  ui_humanize_label("3D",output,sizeof(output)); CHECK(!strcmp(output,"3D"));
+  char small[3]; ui_humanize_label("A€",small,sizeof(small)); CHECK(!strcmp(small,"A"));
+  UIContext *b=context();
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"FX"));
+  CHECK(ui_context_set_current(a));
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"Fx"));
+  CHECK(ui_context_reset(a));
+  ui_humanize_label("FX",output,sizeof(output)); CHECK(!strcmp(output,"FX"));
+  CHECK(ui_context_destroy(a)&&ui_context_set_current(b)&&ui_context_destroy(b));
+}
+static void modality_frame(bool *open,const UIFrameInput *input) {
+  ring_quads=0; CHECK(ui_begin_frame_input(input));
+  if(button("launch",20,false)) *open=true;
+  if(*open) {
+    float x,y,w,h;
+    if(ui_modal_begin("mode","Rename",font,400,240,open,&x,&y,&w,&h))
+      button("action",y,false);
+    ui_modal_end("mode",*open);
+  }
+  ui_end_frame();
+}
+static void input_modality(void) {
+  UIContext *c=context(); bool open=false;
+  UIFrameInput f={.width=640,.height=480,.mouse_x=30,.mouse_y=30,.delta_time=.016f};
+  modality_frame(&open,&f); CHECK(!open&&!ring_quads);
+  f.mouse_down=true; modality_frame(&open,&f); CHECK(!open&&!ring_quads);
+  f.mouse_down=false; modality_frame(&open,&f); CHECK(open&&!ring_quads); focus("mode_modal_close");
+  InputKeyEvent e=key(PLATFORM_KEY_TAB,0); f.events=&e; f.event_count=1;
+  modality_frame(&open,&f); CHECK(open&&ring_quads==4); focus("action");
+  f.events=NULL; f.event_count=0; f.mouse_x=31;
+  modality_frame(&open,&f); CHECK(open&&!ring_quads); focus("action");
+  e=key(PLATFORM_KEY_TAB,0); f.events=&e; f.event_count=1;
+  modality_frame(&open,&f); CHECK(ring_quads==4); focus("mode_modal_close");
+  e=key(PLATFORM_KEY_ESCAPE,0); modality_frame(&open,&f); CHECK(!open); focus("launch");
+  f.events=NULL; f.event_count=0;
+  modality_frame(&open,&f); CHECK(ring_quads==4);
+  /* A pointer-opened modal must not show rings on programmatic text focus. */
+  f.mouse_x=32; modality_frame(&open,&f); CHECK(!ring_quads);
+  ring_quads=0; CHECK(ui_begin_frame_input(&f)); ui_text_input_focus("auto");
+  char buffer[64]=""; field("auto",100,buffer); ui_end_frame();
+  CHECK(ui_text_input_is_focused("auto")&&!ring_quads);
+  open=true; modality_frame(&open,&f); CHECK(open&&!ring_quads);
+  UITheme theme=ui_get_theme();
+  f.mouse_x=120+400-theme.compact_button_height*.5f-theme.row_spacing;
+  f.mouse_y=120+(theme.panel_header_height+theme.row_spacing)*.5f;
+  f.mouse_down=true; modality_frame(&open,&f); CHECK(open&&!ring_quads);
+  f.mouse_down=false; modality_frame(&open,&f); CHECK(!open&&!ring_quads); focus("launch");
+  modality_frame(&open,&f); CHECK(!ring_quads);
+  CHECK(ui_context_destroy(c));
+}
+static void editor_modal_frame(int kind,bool *open,char *buffer,float *number,bool *revealed,const InputKeyEvent *event) {
+  begin(event,event?1:0);
+  CHECK(!button("background",20,false));
+  float x,y,w,h;
+  if(ui_modal_begin("editor-dialog","Edit",font,400,240,open,&x,&y,&w,&h)) {
+    if(kind==0) ui_text_input("modal-edit",font,ANCHOR_TOP_LEFT,0,14,x,y,200,buffer,64,NULL);
+    else if(kind==1) ui_float_field("modal-number",font,x,y,200,30,14,number,0,100);
+    else {
+      UIPropertyLayout layout=ui_property_layout_begin(x,y,w,1);
+      ui_property_password(&layout,"secret",font,"Password",buffer,64,revealed);
+    }
+  }
+  ui_modal_end("editor-dialog",*open); ui_end_frame();
+}
+static void editors_cancel_dialog(void) {
+  for(int kind=0;kind<3;++kind) {
+    UIContext *c=context(); bool open=true,revealed=false; char buffer[64]="draft"; float number=1;
+    editor_modal_frame(kind,&open,buffer,&number,&revealed,NULL);
+    InputKeyEvent event=key(PLATFORM_KEY_TAB,0);
+    editor_modal_frame(kind,&open,buffer,&number,&revealed,&event);
+    focus(kind==0?"modal-edit":kind==1?"modal-number":"secret/text");
+    event=character('9'); editor_modal_frame(kind,&open,buffer,&number,&revealed,&event);
+    if(kind!=1) CHECK(!strcmp(buffer,"draft9")); else CHECK(number==1);
+    event=key(PLATFORM_KEY_ESCAPE,0);
+    editor_modal_frame(kind,&open,buffer,&number,&revealed,&event);
+    UIInputDiagnostics d; CHECK(ui_get_input_diagnostics(&d));
+    CHECK(!open&&d.escape_consumed&&!event.consumed&&!ui_any_text_input_focused());
+    CHECK(number==1); /* Uncommitted numeric text is never applied. */
+    CHECK(ui_context_destroy(c));
+  }
+}
 int main(void) {
-  traversal(); choices(); modals(); nested_modals(); scrolling();
+  traversal(); choices(); modals(); nested_modals(); scrolling(); label_policy(); input_modality(); editors_cancel_dialog();
   CHECK(clips==0&&quads>0);
-  puts("UI navigation: PASS (ordered UTF-8/Tab, reverse traversal, disabled/removed widgets, activation, modal restore, choices, scroll, contexts)");
+  puts("UI navigation: PASS (ordered UTF-8/Tab, reverse traversal, disabled/removed widgets, activation, modal one-Esc/editors, keyboard-only rings, label policy, choices, scroll, contexts)");
   return 0;
 }

@@ -15,7 +15,7 @@ il buffer del chiamante viene modificato durante l'editing.
 | Ctrl+C / Ctrl+X / Ctrl+V | Copia / taglia / incolla |
 | Ctrl+Z | Undo |
 | Ctrl+Y oppure Ctrl+Shift+Z | Redo |
-| Invio / Escape | Conferma / ripristina il testo all'ingresso in editing |
+| Invio / Escape | Conferma / ripristina il testo all'ingresso in editing, fuori dalle modali |
 
 La selezione viene evidenziata; la vista orizzontale tiene visibile il cursore.
 Click attiva il campo, ma posizionamento del cursore e selezione tramite mouse
@@ -129,3 +129,8 @@ cronologia: una lettura clipboard riuscita viene rilasciata anche se l'allocazio
 fallisce. L'iniezione usa il linker solo nel test e non aggiunge API allocatore
 al framework. Il test è incluso in Make/CTest e nel pacchetto; il target
 `build/ui_text_edit_module_test_sanitize` abilita ASan/UBSan.
+
+Dentro una modale, Esc chiude il dialogo con una sola pressione anche quando
+un campo ha il focus. L’applicazione gestisce la copia di lavoro e lo scarto
+dei dati: il toolkit non effettua rollback del documento. Un dropdown o menu
+aperto resta il primo destinatario di Esc.

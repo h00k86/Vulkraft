@@ -12,6 +12,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/* Closing a modal releases capture without changing the active input modality. */
+static void ui_modal_release_capture(void) {
+  UINavigationState *nav=ui_state_navigation(ui_overlay_context());
+  bool keyboard=nav->nav_keyboard;
+  ui_release_input_capture();
+  nav->nav_keyboard=keyboard && !nav->nav_cancelled;
+}
+
 void ui_modal_input_begin_frame(void) {
   UIModalsState *modals_view=ui_state_modals(ui_overlay_context());
 
@@ -32,7 +40,7 @@ void ui_modal_input_end_frame(void) {
   }
   if (closed_stale_modal && !ui_any_modal_open() &&
       !ui_file_picker_capture_active())
-    ui_release_input_capture();
+    ui_modal_release_capture();
 }
 
 bool ui_any_modal_open(void) {
@@ -66,7 +74,7 @@ void ui_modal_end(const char *id, bool is_open) {
     }
     if (closed_now && !ui_any_modal_open() &&
         !ui_file_picker_capture_active())
-      ui_release_input_capture();
+      ui_modal_release_capture();
     if(!is_open) ui_nav_restore(ui_overlay_context(), &modals_view->g_modal_states[i]);
     return;
   }
@@ -113,7 +121,7 @@ bool ui_modal_begin(const char *id, const char *title, Font *font,
       modalState->submittedThisFrame = false;
     }
     if (!ui_any_modal_open() && !ui_file_picker_capture_active())
-      ui_release_input_capture();
+      ui_modal_release_capture();
     if(modalState) ui_nav_restore(ui_overlay_context(), modalState);
     return false;
   }
@@ -192,7 +200,7 @@ bool ui_modal_begin(const char *id, const char *title, Font *font,
       modalState->submittedThisFrame = false;
     }
     if (!ui_any_modal_open() && !ui_file_picker_capture_active())
-      ui_release_input_capture();
+      ui_modal_release_capture();
     if(modalState) ui_nav_restore(ui_overlay_context(), modalState);
     return false;
   }

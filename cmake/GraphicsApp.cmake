@@ -1,5 +1,5 @@
 # Optional complete application SDK. UIFramework alone has no Vulkan/host dependency.
-set(GRAPHICS_APP_VERSION 0.3.1)
+set(GRAPHICS_APP_VERSION 0.4.0)
 set(GRAPHICS_APP_PLATFORM "glfw" CACHE STRING "GraphicsApp window host: glfw or sdl2")
 set_property(CACHE GRAPHICS_APP_PLATFORM PROPERTY STRINGS glfw sdl2)
 if(NOT GRAPHICS_APP_PLATFORM MATCHES "^(glfw|sdl2)$")
@@ -102,7 +102,7 @@ install(FILES examples/config_editor/CMakeLists.txt examples/config_editor/vulka
   examples/config_editor/view.c examples/config_editor/view.h examples/config_editor/example.cfgapp
   DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app/examples/config_editor)
 install(FILES docs/GRAPHICS_APP_SDK.md DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app)
-install(FILES docs/GRAPHICS_APP_API.md docs/CONFIG_EDITOR_GUIDE.md docs/CONFIG_EDITOR.md DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app)
+install(FILES docs/GRAPHICS_APP_API.md docs/UI_INTEGRATION_BEHAVIOR.md docs/CONFIG_EDITOR_GUIDE.md docs/CONFIG_EDITOR.md DESTINATION ${CMAKE_INSTALL_DATADIR}/graphics-app)
 configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GraphicsAppConfig.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/GraphicsAppConfig.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GraphicsApp

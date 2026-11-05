@@ -394,7 +394,11 @@ bool ui_clip_push(UIRect rect);
 bool ui_clip_pop(void);
 int ui_clip_depth(void);
 
-/* Shared label formatting used by UI controls and editor-generated labels. */
+/* Per-current-context ASCII sentence case for all-caps widget labels. Default
+ * false: preserve caller text. Mixed-case labels are preserved even when true.
+ * Reset restores false; text input buffers are never normalized. */
+void ui_set_sentence_case(bool enabled);
+/* Shared label formatting; bounded UTF-8 copy when normalization is disabled. */
 void ui_humanize_label(const char *in, char *out, size_t out_size);
 
 // Come ui_button_styled, ma 'id' è stabile (usato per lo stato interno)

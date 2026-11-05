@@ -68,7 +68,7 @@ interrotti per focus esterno restano conservati. La prova automatizzata X11/i3
 
 ## SDK di riferimento
 
-La versione 0.1.0 è centralizzata in `include/ui/version.h`, condivisa da
+La versione UI è centralizzata in `include/ui/version.h`, condivisa da
 CMake, API pubblica e packager. Un'applicazione può confrontare
 `UI_VERSION_STRING` con `ui_version_string()` del core collegato.
 Changelog, regole di compatibilità e riproduzione sono in `CHANGELOG.md`,

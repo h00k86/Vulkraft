@@ -24,6 +24,5 @@ bool ui_nav_activate(UIContext *c, const char *id);
 bool ui_nav_register(UIContext *c, const char *id,UIRect rect,int kind,bool enabled,bool hover);
 void ui_nav_restore(UIContext *c, UIModalOpenState *modal);
 void ui_nav_modal_enter(UIContext *c, UIModalOpenState *modal);
-bool ui_nav_editor_escape(UIContext *c);
 void ui_nav_end(UIContext *c);
 void ui_nav_clear_editor_focus(UIContext *c);

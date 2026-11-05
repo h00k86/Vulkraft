@@ -1,5 +1,17 @@
 # Changelog UI Framework
 
+## 0.2.0 — comportamento di integrazione UI
+
+- Etichette conservate come fornite; nuova opzione per contesto
+  `ui_set_sentence_case`, disattivata per default.
+- Esc chiude direttamente la modale attiva anche con un editor focalizzato;
+  popup e menu conservano la priorità e consumano l'evento.
+- Anello di focus solo per navigazione da tastiera: autofocus, ripristino
+  e sostituzione di controlli non promuovono il mouse a tastiera.
+- Prove permanenti per input misto, ripristino focus, annullamento modale,
+  etichette effettivamente disegnate e isolamento/reset dei contesti.
+- GraphicsApp 0.4.0 richiede UIFramework 0.2.0; ricompilazione necessaria.
+
 ## 0.1.0 — versione di riferimento, 4 novembre 2026
 
 Prima base documentata del pacchetto UI standalone. Le copie di sviluppo che

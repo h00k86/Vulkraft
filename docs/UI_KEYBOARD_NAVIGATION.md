@@ -11,13 +11,16 @@ assenza di un controllo selezionato.
 | --- | --- |
 | Tutti i controlli registrati | Tab / Shift+Tab: successivo / precedente, con ritorno all'inizio/fine |
 | Pulsante, checkbox, toggle | Invio, Invio del tastierino o Spazio: attivazione; il repeat non ripete il click |
-| Campo di testo | Digitazione e frecce dell'editor esistente; Invio conferma, Escape ripristina lo snapshot; Tab conserva il testo e passa oltre |
+| Campo di testo | Digitazione e frecce dell'editor esistente; Invio conferma, Escape ripristina lo snapshot fuori dalle modali; Tab conserva il testo e passa oltre |
 | Campo numerico | Invio valida e applica, Escape annulla; Tab abbandona il valore ancora non confermato |
 | Slider | Frecce: un centesimo dell'intervallo; Home/End: minimo/massimo; il campo numerico esatto è una tappa distinta |
 | Dropdown | Invio/Spazio apre; frecce scorrono il candidato; Home/End selezionano il primo/ultimo candidato; Invio/Spazio conferma; Escape o Tab chiude senza applicare il candidato |
-| Dialogo modale | Tab resta nel dialogo attivo; Escape chiude prima l'editor/dropdown attivo, poi il dialogo più interno |
+| Dialogo modale | Tab resta nel dialogo attivo; Escape chiude il dialogo attivo anche durante l'editing; dropdown/menu aperti hanno priorità |
 
-L'indicatore di focus usa il colore accent del tema. Un click seleziona anche il
+L'indicatore di focus usa il colore accent del tema e compare durante la
+navigazione da tastiera. Movimento, click o rotella del mouse lo nascondono
+senza eliminare il controllo selezionato. Autofocus e ritorno da una modale
+conservano il metodo di input attivo. Un click seleziona anche il
 controllo per il successivo Tab; un click sullo sfondo rilascia il focus. La
 perdita del focus della finestra annulla navigazione, editor e gesti pendenti.
 `ui_has_keyboard_capture()` include il controllo selezionato dalla navigazione.
@@ -109,3 +112,7 @@ proprietà degli eventi prima/dopo Tab, consumo singolo dell'attivazione,
 cattura del menu, cancellazione e rilascio degli snapshot del solo contesto
 richiesto. È incluso in Make, CTest e nel pacchetto SDK; Make dispone anche
 del target `build/ui_navigation_module_test_sanitize` con ASan/UBSan.
+
+Esc nella modale segnala l’annullamento al chiamante, che gestisce i dati
+del dialogo: non ripristina automaticamente buffer già modificati. I contratti
+di integrazione sono riassunti in [UI_INTEGRATION_BEHAVIOR.md](UI_INTEGRATION_BEHAVIOR.md).

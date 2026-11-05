@@ -6,7 +6,6 @@
 #include "ui_state_modals_internal.h"
 #include "ui_state_menu_internal.h"
 #include "ui_state_frame_internal.h"
-#include "ui_state_dropdowns_internal.h"
 #include "ui_navigation_internal.h"
 #include "ui_capture_internal.h"
 #include <stdio.h>
@@ -112,7 +111,7 @@ bool ui_nav_key(UIContext *c, const char *id,int key,bool repeat) {
     InputKeyEvent *e=&frame_view->key_events[n];
     if(!e->consumed && e->kind==INPUT_KEY && e->key==key &&
        (e->action==PLATFORM_PRESS || (repeat && e->action==PLATFORM_REPEAT)) &&
-       ui_state_navigation(c)->nav_enabled && ui_nav_event(c, id,n)) { e->consumed=true; return true; }
+       ui_state_navigation(c)->nav_enabled && ui_nav_event(c, id,n)) { e->consumed=true; ui_state_navigation(c)->nav_keyboard=true; return true; }
   }
   return false;
 }
@@ -138,7 +137,7 @@ bool ui_nav_register(UIContext *c, const char *id,UIRect rect,int kind,bool enab
     }
   }
   if(!ui_nav_allowed(c)) return false;
-  if(navigation_view->nav_auto) { ui_nav_set(c, id,true); navigation_view->nav_auto=false; }
+  if(navigation_view->nav_auto) { ui_nav_set(c, id,navigation_view->nav_keyboard); navigation_view->nav_auto=false; }
   if(hover && ui_capture_widget_press(c)) {
     navigation_view->nav_pointer_claimed=true;
     ui_nav_set(c, id,false);
@@ -154,7 +153,7 @@ void ui_nav_restore(UIContext *c, UIModalOpenState *modal) {
   if(strcmp(navigation_view->nav_modal,modal->id)) return;
 
   snprintf(navigation_view->nav_modal,sizeof(navigation_view->nav_modal),"%s",modal->return_modal);
-  if(!navigation_view->nav_cancelled) ui_nav_set(c, modal->return_focus,true);
+  if(!navigation_view->nav_cancelled) ui_nav_set(c, modal->return_focus,navigation_view->nav_keyboard);
   else { navigation_view->nav_focus[0]=0; navigation_view->nav_enabled=false; }
   navigation_view->nav_auto=false;
 }
@@ -170,21 +169,6 @@ void ui_nav_modal_enter(UIContext *c, UIModalOpenState *modal) {
   }
   if(navigation_view->nav_scope_depth<MAX_UI_MODALS)
     snprintf(navigation_view->nav_scopes[navigation_view->nav_scope_depth++],UI_ID_CAPACITY,"%s",modal->id);
-}
-bool ui_nav_editor_escape(UIContext *c) {
-  UITextFieldsState *text_fields_view=ui_state_text_fields(c);
-  UINavigationState *navigation_view=ui_state_navigation(c);
-  UINumericState *numeric_view=ui_state_numeric(c);
-  UIDropdownsState *dropdowns_view=ui_state_dropdowns(c);
-
-  for(int n=0;n<text_fields_view->text_input_state_count;++n)
-    if(text_fields_view->text_input_states[n].focused && (!navigation_view->nav_enabled || !strcmp(navigation_view->nav_focus,text_fields_view->text_input_states[n].id))) return true;
-  for(int n=0;n<numeric_view->float_field_state_count;++n)
-    if(numeric_view->float_field_states[n].focused && (!navigation_view->nav_enabled || !strcmp(navigation_view->nav_focus,numeric_view->float_field_states[n].id))) return true;
-  int at=ui_nav_find(c, navigation_view->nav_previous,navigation_view->nav_previous_count,navigation_view->nav_focus);
-  if(navigation_view->nav_edit && at>=0 && (navigation_view->nav_previous[at].kind==UI_NAV_TEXT || navigation_view->nav_previous[at].kind==UI_NAV_NUMBER)) return true;
-  for(int n=0;n<dropdowns_view->dropdown_state_count;++n) if(dropdowns_view->dropdown_states[n].open) return true;
-  return false;
 }
 void ui_nav_end(UIContext *c) {
   UINavigationState *navigation_view=ui_state_navigation(c);
@@ -210,13 +194,15 @@ void ui_nav_end(UIContext *c) {
   if(navigation_view->nav_pending_step) ui_nav_step(c, navigation_view->nav_current,navigation_view->nav_count,navigation_view->nav_pending_step);
   if(navigation_view->nav_focus[0] && ui_nav_find(c, navigation_view->nav_current,navigation_view->nav_count,navigation_view->nav_focus)<0) {
     /* Preserve position when a focused widget disappears or becomes disabled. */
+    bool keyboard=navigation_view->nav_keyboard;
     int old=ui_nav_find(c, navigation_view->nav_previous,navigation_view->nav_previous_count,navigation_view->nav_focus);
     navigation_view->nav_focus[0]=0;
     for(int n=old+1;n<navigation_view->nav_previous_count;++n) {
       int at=ui_nav_find(c, navigation_view->nav_current,navigation_view->nav_count,navigation_view->nav_previous[n].id);
-      if(at>=0) { ui_nav_set(c, navigation_view->nav_current[at].id,true); break; }
+      if(at>=0) { ui_nav_set(c, navigation_view->nav_current[at].id,keyboard); break; }
     }
     if(!navigation_view->nav_focus[0]) ui_nav_step(c, navigation_view->nav_current,navigation_view->nav_count,1);
+    navigation_view->nav_keyboard=keyboard;
   }
   if(navigation_view->nav_enabled) {
     for(int n=0;n<text_fields_view->text_input_state_count;++n) {
