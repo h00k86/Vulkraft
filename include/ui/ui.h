@@ -109,7 +109,8 @@ typedef struct {
  * borrows a renderer texture slot and UV rectangle for this call. */
 typedef enum { UI_ICON_NONE, UI_ICON_CAMERA, UI_ICON_EYE, UI_ICON_LOCK,
   UI_ICON_UNLOCK, UI_ICON_FOLDER, UI_ICON_FILE, UI_ICON_PLUS, UI_ICON_MINUS,
-  UI_ICON_CLOSE, UI_ICON_PLAY, UI_ICON_PAUSE, UI_ICON_TEXTURE } UIIconKind;
+  UI_ICON_CLOSE, UI_ICON_PLAY, UI_ICON_PAUSE, UI_ICON_TEXTURE,
+  UI_ICON_MOVE, UI_ICON_ROTATE, UI_ICON_SCALE, UI_ICON_COUNT } UIIconKind;
 typedef struct { UIIconKind kind; int texture_slot; float u0,v0,u1,v1; } UIIcon;
 /* Absolute rectangle; label NULL/empty means icon only. Font is needed only
  * for a label. Style colors/selected/disabled apply; geometry comes from bounds.
@@ -127,11 +128,36 @@ bool ui_icon_button(const char *id,Font *font,UIRect bounds,const UIIcon *icon,
  * Invalid input is ignored; count 0 accepts NULL rows and clears selection. */
 typedef struct { const char *id,*label; bool disabled; } UIListItem;
 typedef struct { const char *id,*label; int depth; bool expanded,disabled; } UITreeNode;
-typedef struct { bool selection_changed,expansion_changed; int activated_index; } UICollectionResult;
+/* Row click is distinct from selection change (including repeat clicks).
+ * clicked_index excludes expand toggles/accessories. All indices default -1.
+ * accessory_index refers to the supplied accessory array, for mouse or keyboard. */
+typedef struct {
+  bool selection_changed,expansion_changed;
+  int activated_index,clicked_index,accessory_index;
+} UICollectionResult;
+/* Right-aligned row actions, in supplied order. IDs must be unique per node.
+ * Buttons never select/activate/expand the row. A disabled row disables actions.
+ * Arrays/strings are borrowed for the call; host handles results after return.
+ * Only visible row actions are registered as additional Tab stops. */
+typedef struct {
+  int node_index;
+  const char *id;
+  UIIcon icon;
+  const char *label,*tooltip;
+  bool selected,disabled;
+} UITreeAccessory;
+typedef struct {
+  const UITreeAccessory *accessories;
+  int accessory_count;
+  float accessory_width; /* 0: row height; shrinks to fit narrow rows. */
+} UITreeOptions;
 UICollectionResult ui_list(const char *id,Font *font,UIRect bounds,
                             const UIListItem *items,int count,int *selected);
 UICollectionResult ui_tree(const char *id,Font *font,UIRect bounds,
                             UITreeNode *nodes,int count,int *selected);
+UICollectionResult ui_tree_ex(const char *id,Font *font,UIRect bounds,
+                               UITreeNode *nodes,int count,int *selected,
+                               const UITreeOptions *options);
 
 /* Equal-width tabs; one Tab focus stop, arrows/Home/End select enabled tabs.
  * Caller owns selection and draws only the selected page. Invalid selection

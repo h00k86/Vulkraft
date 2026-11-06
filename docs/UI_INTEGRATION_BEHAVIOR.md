@@ -1,6 +1,6 @@
 # Comportamento UI per l’integrazione host
 
-Versioni: UIFramework 0.5.0 e GraphicsApp 0.7.0. Il codice dell’host non viene
+Versioni: UIFramework 0.6.0 e GraphicsApp 0.8.0. Il codice dell’host non viene
 modificato in questo repository. Il commit preciso da importare accompagna
 questa consegna; aggiornare la copia locale in modo esplicito.
 
@@ -171,3 +171,27 @@ Dopo l'importazione provare ricerca vuota/focus/undo, camera e lock con mouse e
 Tab, selezione/espansione dell'albero, cambio di selezione con scroll e undo del
 colore dopo drag SV/H/alfa. La demo rende questi controlli ispezionabili, ma non
 sostituisce il collaudo nell'editor del motore.
+
+## Clic ripetuti e azioni dell'albero (0.6.0)
+
+`UICollectionResult.clicked_index` segnala ogni clic primario completato sul
+corpo di una riga, anche già selezionata. Non confonderlo con `selection_changed`
+o con `activated_index` (tastiera). Un clic sul +/- o su un accessorio non
+produce il clic sul corpo.
+
+Per le colonne occhio/lucchetto usare `ui_tree_ex` con `UITreeOptions` e un
+array di `UITreeAccessory`. `accessory_index` identifica la voce dell'array;
+il relativo `node_index` identifica il nodo. L'host applica l'azione dopo la
+chiamata. Gli accessori non cambiano selezione/espansione/attivazione della
+riga, hanno ID stabili e non richiedono di conoscere ID interni del toolkit.
+
+Gli accessori visibili aggiungono stop Tab dopo la vista, nell'ordine di
+rendering. Il testo della riga riserva lo spazio a destra e viene abbreviato.
+Lo stato disabled della riga disabilita anche le sue azioni. Nascondendo un ramo,
+le azioni dei figli non vengono disegnate né registrate per input.
+
+Per i gizmo sono disponibili `UI_ICON_MOVE`, `UI_ICON_ROTATE`, `UI_ICON_SCALE`;
+`UI_ICON_TEXTURE` resta la via per asset personalizzati. L'alfa con
+`integer_channels=true` usa il formato compatto (`1`, `0.6`) senza quantizzare
+le frazioni o cambiare il modello. Ripetere nel motore clic su riga selezionata,
+eye/lock senza cambio selezione, Tab/Invio sulle azioni, clipping e alfa.

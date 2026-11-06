@@ -36,14 +36,26 @@ static void neighbors(UICollectionRows rows,int selected,int *first,int *last,in
   }
 }
 static UICollectionResult collection(const char *id,Font *font,UIRect bounds,
-                                      UICollectionRows rows,int *selected) {
-  UICollectionResult result={.activated_index=-1};
+                                      UICollectionRows rows,int *selected,const UITreeOptions *options) {
+  UICollectionResult result={.activated_index=-1,.clicked_index=-1,.accessory_index=-1};
   if(!font||!selected||!ui_valid_id(id)||!ui_layout_rect_valid(bounds)||rows.count<0||
      (rows.count&&!rows.list&&!rows.tree)) return result;
   for(int i=0;i<rows.count;++i) {
     if(!row_id(rows,i)||!row_label(rows,i)||!ui_valid_id(row_id(rows,i))) return result;
     int depth=row_depth(rows,i);
     if(depth<0||depth>64||(i==0&&depth!=0)||(i&&depth>row_depth(rows,i-1)+1)) return result;
+  }
+  if(options) {
+    if(options->accessory_count<0||(options->accessory_count&&!options->accessories)||
+       !isfinite(options->accessory_width)||options->accessory_width<0) return result;
+    for(int i=0;i<options->accessory_count;++i) {
+      const UITreeAccessory *a=&options->accessories[i];
+      if(a->node_index<0||a->node_index>=rows.count||!ui_valid_id(a->id)||
+         a->icon.kind<UI_ICON_NONE||a->icon.kind>=UI_ICON_COUNT) return result;
+      if(a->icon.kind==UI_ICON_TEXTURE&&(a->icon.texture_slot<0||
+         !isfinite(a->icon.u0)||!isfinite(a->icon.v0)||!isfinite(a->icon.u1)||!isfinite(a->icon.v1)||
+         a->icon.u0<0||a->icon.v0<0||a->icon.u1>1||a->icon.v1>1||a->icon.u1<=a->icon.u0||a->icon.v1<=a->icon.v0)) return result;
+    }
   }
   if(!ui_push_id(id)) return result;
   char view_id[UI_ID_CAPACITY]; snprintf(view_id,sizeof(view_id),"%s",ui_scoped_id("view"));
@@ -138,7 +150,14 @@ static UICollectionResult collection(const char *id,Font *font,UIRect bounds,
     float indent=fminf(row_depth(rows,i)*theme.indent,fmaxf(0,r.w-24));
     UIRect arrow={r.x+indent,r.y,fminf(20,r.w),r.h};
     bool over=enabled&&ui_pointer_hit(r.x,r.y,r.w,r.h)&&ui_nav_allowed(ctx);
-    bool over_arrow=over&&branch&&ui_pointer_hit(arrow.x,arrow.y,arrow.w,arrow.h);
+    int action_count=0;
+    if(options) for(int a=0;a<options->accessory_count;++a)
+      if(options->accessories[a].node_index==i) ++action_count;
+    float action_width=options&&options->accessory_width>0?options->accessory_width:height;
+    if(action_count) action_width=fminf(action_width,r.w/action_count);
+    float action_left=r.x+r.w-action_count*action_width;
+    bool over_body=over&&ui_state_frame(ctx)->g_mouse_x<action_left;
+    bool over_arrow=over_body&&branch&&ui_pointer_hit(arrow.x,arrow.y,arrow.w,arrow.h);
     UIState *body=ui_button_state(ui_scoped_id("body"));
     UIState *toggle=branch?ui_button_state(ui_scoped_id("toggle")):NULL;
     if(over) ui_state_frame(ctx)->g_any_hover=true;
@@ -149,19 +168,39 @@ static UICollectionResult collection(const char *id,Font *font,UIRect bounds,
         if(*selected<j) *selected=i;
       }
     }
-    if(body&&ui_pointer_activate(&body->is_pressed,over&&!over_arrow,enabled)) *selected=i;
+    if(body&&ui_pointer_activate(&body->is_pressed,over_body&&!over_arrow,enabled)) {
+      *selected=i; result.clicked_index=i;
+    }
     UIColor bg=i==*selected?theme.selected:over?theme.button_hover:theme.panel;
     ui_paint_draw_quad(r.x,r.y,r.w,r.h,bg.r,bg.g,bg.b);
     UIColor fg=enabled?theme.text:theme.text_muted;
-    if(branch) {
+    UIRect body_clip={r.x,r.y,fmaxf(0,action_left-r.x),r.h};
+    bool body_visible=ui_clip_push(body_clip);
+    if(branch&&body_visible) {
       float cx=arrow.x+arrow.w*.5f,cy=r.y+r.h*.5f;
       ui_paint_draw_quad(cx-4,cy-1,8,2,fg.r,fg.g,fg.b);
       if(!rows.tree[i].expanded) ui_paint_draw_quad(cx-1,cy-4,2,8,fg.r,fg.g,fg.b);
     }
-    float tx=r.x+indent+(rows.tree?22:6),available=fmaxf(0,r.x+r.w-tx-6);
+    float tx=r.x+indent+(rows.tree?22:6),available=fmaxf(0,action_left-tx-6);
     char label[512]={0};
     if(available>0) ui_ellipsize_right(font,row_label(rows,i),14,available,label,sizeof(label));
-    ui_paint_draw_text_colored(font,label,tx,r.y+(r.h+ui_paint_font_ascent(font,14))*.5f,14,fg.r,fg.g,fg.b);
+    if(body_visible) {
+      ui_paint_draw_text_colored(font,label,tx,r.y+(r.h+ui_paint_font_ascent(font,14))*.5f,14,fg.r,fg.g,fg.b);
+      ui_clip_pop();
+    }
+    if(options&&action_count&&ui_push_id("actions")) {
+      int position=0;
+      for(int a=0;a<options->accessory_count;++a) {
+        const UITreeAccessory *accessory=&options->accessories[a];
+        if(accessory->node_index!=i) continue;
+        UIRect button={action_left+(position++)*action_width,r.y,action_width,r.h};
+        UIButtonStyle style={.disabled=!enabled||accessory->disabled,.selected=accessory->selected};
+        char action_id[UI_ID_CAPACITY]; snprintf(action_id,sizeof(action_id),"%s",ui_scoped_id(accessory->id));
+        if(ui_icon_button(action_id,font,button,&accessory->icon,accessory->label,&style)) result.accessory_index=a;
+        if(accessory->tooltip&&!style.disabled) ui_tooltip(action_id,font,button,accessory->tooltip,.5f);
+      }
+      ui_pop_id();
+    }
     ui_pop_id();
     /* Expansion may change during drawing; update hiding immediately. */
     if(branch) hidden=rows.tree[i].expanded?-1:rows.tree[i].depth;
@@ -172,9 +211,15 @@ static UICollectionResult collection(const char *id,Font *font,UIRect bounds,
 }
 UICollectionResult ui_list(const char *id,Font *font,UIRect bounds,
                             const UIListItem *items,int count,int *selected) {
-  return collection(id,font,bounds,(UICollectionRows){.list=items,.count=count},selected);
+  return collection(id,font,bounds,(UICollectionRows){.list=items,.count=count},selected,NULL);
 }
 UICollectionResult ui_tree(const char *id,Font *font,UIRect bounds,
                             UITreeNode *nodes,int count,int *selected) {
-  return collection(id,font,bounds,(UICollectionRows){.tree=nodes,.count=count},selected);
+  return collection(id,font,bounds,(UICollectionRows){.tree=nodes,.count=count},selected,NULL);
+}
+
+UICollectionResult ui_tree_ex(const char *id,Font *font,UIRect bounds,
+                               UITreeNode *nodes,int count,int *selected,
+                               const UITreeOptions *options) {
+  return collection(id,font,bounds,(UICollectionRows){.tree=nodes,.count=count},selected,options);
 }

@@ -252,7 +252,7 @@ ui_tooltip("lock", font, bounds, "Blocca il layer", 0.4f);
 ```
 
 Camera, occhio, lucchetto aperto/chiuso, cartella, file, più, meno, chiusura,
-play e pausa sono sagome geometriche: non richiedono glifi né asset aggiuntivi.
+play, pausa, sposta, ruota e scala sono sagome geometriche: non richiedono glifi né asset aggiuntivi.
 Un'etichetta facoltativa appare accanto all'icona. I bottoni supportano
 mouse, Tab/Invio/Spazio, selected e disabled; si disegnano nel rettangolo dato.
 Le metriche min/max dello stile non ridimensionano quel rettangolo.
@@ -295,13 +295,47 @@ Ogni vista occupa un solo stop Tab. Su/Giù e Home/End selezionano righe
 abilitate, Invio/Spazio restituiscono `activated_index`. Nell'albero Destra
 espande o entra nei figli, Sinistra chiude o risale. Il clic su una riga la
 seleziona; il clic sul simbolo +/- espande senza attivare la riga. I risultati
-separano `selection_changed` ed `expansion_changed`.
+separano `selection_changed` ed `expansion_changed`. `clicked_index` segnala il
+clic primario completato sul corpo, anche se la riga era già selezionata; resta
+-1 per tastiera, toggle di espansione e bottoni accessori.
 
 La rotella e la scrollbar usano il contesto UI; la selezione da tastiera viene
 portata nel viewport. Vengono disegnate solo le righe visibili, con clipping e
 abbreviazione UTF-8. L'attraversamento del modello rimane O(n) per frame;
 non è un indice virtuale per milioni di nodi. Questa prima API usa selezione
 singola; multiselezione e drag/reparenting non sono inclusi.
+
+### Accessori dell'albero
+
+```c
+UITreeAccessory actions[] = {
+    { .node_index = 0, .id = "visible", .icon = { .kind = UI_ICON_EYE },
+      .selected = visible, .tooltip = "Visibile" },
+    { .node_index = 0, .id = "lock", .icon = { .kind = UI_ICON_LOCK },
+      .selected = locked, .tooltip = "Bloccato" }
+};
+UITreeOptions options = { .accessories = actions, .accessory_count = 2 };
+UICollectionResult result = ui_tree_ex("scene", font, viewport, nodes, count,
+                                       &selected_node, &options);
+if (result.accessory_index == 0) visible = !visible;
+if (result.accessory_index == 1) locked = !locked;
+```
+
+L'array descrive le azioni per tutte le righe con `node_index`; i bottoni sono
+allineati a destra nell'ordine dell'array. `accessory_width=0` usa l'altezza della
+riga; un valore positivo sceglie la larghezza. Le azioni si restringono su righe
+molto strette. Il testo riserva lo spazio dei bottoni e viene troncato, senza
+sovrapposizioni. Etichetta e tooltip sono opzionali, selected e disabled hanno
+lo stesso significato dei normali bottoni con icona.
+
+Un clic o Invio/Spazio su un accessorio restituisce l'indice dell'array in
+`accessory_index`; tutti gli indici non attivati sono -1. Non cambia la selezione
+e non attiva o espande il nodo. Le azioni sono gestite dall'host dopo la chiamata,
+senza callback durante l'attraversamento. La riga disabled disabilita tutti i
+suoi bottoni. Le azioni di righe nascoste o fuori viewport non ricevono input.
+I bottoni visibili sono stop Tab aggiuntivi; gli ID devono essere univoci per
+nodo e stabili tra frame. I puntatori sono presi in prestito solo per la chiamata.
+Le azioni sono facoltative: `ui_tree` conserva il comportamento precedente.
 
 ## RGBA e HSV (SDR)
 
@@ -325,8 +359,9 @@ Home sceglie S=0,V=1, End S=1,V=1. Si può scorrere fuori dal riquadro durante
 un trascinamento: i valori sono limitati ai bordi. Per RGB senza alfa usare
 `ui_property_color_ex` con `.mode=UI_COLOR_HSV`.
 
-A riposo H usa un decimale, S/V e alfa tre; i campi attivi conservano il testo
-float preciso. Questa presentazione non arrotonda il modello.
+A riposo H usa un decimale e S/V tre. L'alfa usa tre decimali per default;
+con `integer_channels=true` usa una forma compatta (`1`, `0.6`, `0.625`),
+conservando le frazioni. I campi attivi conservano il testo float preciso. Questa presentazione non arrotonda il modello.
 
 La tonalità dei grigi e la saturazione del nero vengono ricordate per ID nel
 contesto; reset/distruzione le eliminano. La cache usa 64 slot riutilizzabili,

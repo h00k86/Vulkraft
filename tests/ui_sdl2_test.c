@@ -46,18 +46,22 @@ static void scene(const UIRenderer *r,void *u,Font *font) {
 static int component_scene(Font *font) {
   char search[64]=""; UITextInputOptions hint={.placeholder="Cerca nella scena..."};
   ui_text_input_ex("search",font,ANCHOR_TOP_LEFT,0,16,20,20,210,search,sizeof(search),&hint);
-  const UIIconKind kinds[]={UI_ICON_CAMERA,UI_ICON_EYE,UI_ICON_LOCK,UI_ICON_UNLOCK,UI_ICON_FOLDER};
-  for(int i=0;i<5;++i) {
+  const UIIconKind kinds[]={UI_ICON_CAMERA,UI_ICON_EYE,UI_ICON_LOCK,UI_ICON_UNLOCK,UI_ICON_FOLDER,UI_ICON_MOVE,UI_ICON_ROTATE,UI_ICON_SCALE};
+  for(int i=0;i<8;++i) {
     UIIcon icon={.kind=kinds[i]}; char id[32]; snprintf(id,sizeof(id),"icon%d",i);
-    ui_icon_button(id,font,(UIRect){20+i*40,65,32,30},&icon,NULL,NULL);
+    ui_icon_button(id,font,(UIRect){20+(i%5)*40,65+(i/5)*40,32,30},&icon,NULL,NULL);
   }
   UIListItem items[]={{"box","Box",false},{"light","Luce",false},{"disabled","Disabilitato",true}};
-  int selected=0; ui_list("list",font,(UIRect){20,120,210,110},items,3,&selected);
+  int selected=0; ui_list("list",font,(UIRect){20,160,210,110},items,3,&selected);
   UITreeNode nodes[]={{"scene","Scena",0,true,false},{"objects","Oggetti",1,true,false},
                       {"box","Box",2,false,false},{"bone","Osso è",2,false,false}};
-  ui_tree("tree",font,(UIRect){20,250,210,170},nodes,4,&selected);
+  UITreeAccessory actions[]={
+    {.node_index=0,.id="eye",.icon={.kind=UI_ICON_EYE},.selected=true},
+    {.node_index=0,.id="lock",.icon={.kind=UI_ICON_LOCK}}};
+  UITreeOptions options={.accessories=actions,.accessory_count=2};
+  ui_tree_ex("tree",font,(UIRect){20,290,210,170},nodes,4,&selected,&options);
   UIPropertyLayout layout=ui_property_layout_begin(270,20,430,1);
-  UIColorPickerOptions hsv={.mode=UI_COLOR_HSV}; UIColorRGBA color={.2f,.4f,.8f,.6f},before=color;
+  UIColorPickerOptions hsv={.integer_channels=true,.mode=UI_COLOR_HSV}; UIColorRGBA color={.2f,.4f,.8f,.6f},before=color;
   CHECK(!ui_property_color_rgba(&layout,"rgba",font,"Colore RGBA",&color,&hsv,NULL));
   CHECK(!memcmp(&before,&color,sizeof(color))&&!search[0]);
   return 0;

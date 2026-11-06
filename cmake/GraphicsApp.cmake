@@ -1,5 +1,5 @@
 # Optional complete application SDK. UIFramework alone has no Vulkan/host dependency.
-set(GRAPHICS_APP_VERSION 0.7.0)
+set(GRAPHICS_APP_VERSION 0.8.0)
 set(GRAPHICS_APP_PLATFORM "glfw" CACHE STRING "GraphicsApp window host: glfw or sdl2")
 set_property(CACHE GRAPHICS_APP_PLATFORM PROPERTY STRINGS glfw sdl2)
 if(NOT GRAPHICS_APP_PLATFORM MATCHES "^(glfw|sdl2)$")

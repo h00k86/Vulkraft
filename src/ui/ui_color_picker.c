@@ -117,7 +117,7 @@ static bool picker(UIPropertyLayout *layout,const char *id,Font *font,
     changed|=channel(layout,"blue",font,"Blu",&rgb[2],0,255,idle_decimals,&started);
     if(changed) working=ui_color_srgb(((uint32_t)lroundf(rgb[0])<<16)|((uint32_t)lroundf(rgb[1])<<8)|(uint32_t)lroundf(rgb[2]));
   }
-  if(alpha) channel(layout,"alpha",font,"Alpha",&a,0,1,3,&started);
+  if(alpha) channel(layout,"alpha",font,"Alpha",&a,0,1,options&&options->integer_channels?-1:3,&started);
   if(out_drag_started) *out_drag_started=started;
   *color=working; if(alpha) *alpha=a;
   uint32_t hex=((uint32_t)lroundf(rgb[0])<<16)|((uint32_t)lroundf(rgb[1])<<8)|(uint32_t)lroundf(rgb[2]);

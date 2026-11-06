@@ -101,3 +101,13 @@ Le firme delle funzioni precedenti non cambiano. `UIColor` rimane RGB;
 o usare inizializzatori designati: il nuovo membro `mode` a zero mantiene RGB.
 Header e librerie vanno ricompilati insieme. Dettagli d'uso e limiti SDR,
 selezione singola e cache HSV sono in [UI_API.md](UI_API.md).
+
+## Migrazione a 0.6.0
+
+`UICollectionResult` aggiunge `clicked_index` e `accessory_index`, entrambi -1
+quando non attivati. Ricompilare libreria e host: la struttura di ritorno cambia.
+`ui_tree` mantiene firma e semantica; per i bottoni di riga usare `ui_tree_ex`,
+`UITreeOptions` e `UITreeAccessory`. I nodi esistenti non cambiano struttura.
+Le icone dei gizmo sono aggiunte dopo `UI_ICON_TEXTURE`, il cui valore rimane
+invariato. `UI_ICON_COUNT` è una sentinella e non un'icona disegnabile.
+Con integer_channels l'alfa a riposo diventa compatta, senza arrotondare il valore.

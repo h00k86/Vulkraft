@@ -41,7 +41,8 @@ static void icons(void) {
   f.mouse_down=true; CHECK(ui_begin_frame_input(&f)); CHECK(!ui_icon_button("camera",font,r,&icon,"Camera",NULL)); ui_end_frame();
   f.mouse_down=false; CHECK(ui_begin_frame_input(&f)); CHECK(ui_icon_button("camera",font,r,&icon,"Camera",NULL)); ui_end_frame();
   CHECK(!ui_has_input_capture());
-  begin(NULL,0); for(int i=UI_ICON_NONE;i<UI_ICON_TEXTURE;++i) {
+  begin(NULL,0); for(int i=UI_ICON_NONE;i<UI_ICON_COUNT;++i) {
+    if(i==UI_ICON_TEXTURE) continue;
     icon.kind=(UIIconKind)i; ui_icon_button("glyph",NULL,r,&icon,NULL,NULL);
   } ui_end_frame();
   UIRenderer custom=renderer; custom.draw_textured_quad=icon_image;
@@ -81,11 +82,66 @@ static void collections(void) {
   result=ui_list("empty",font,bounds,NULL,0,&selected); CHECK(result.selection_changed&&selected==-1); ui_end_frame();
   CHECK(ui_context_destroy(c));
 }
+static UICollectionResult tree_frame(UITreeNode *nodes,int *selected,const UITreeOptions *options,
+                                      float x,float y,bool down,const InputKeyEvent *event) {
+  UIFrameInput f={.width=640,.height=480,.mouse_x=x,.mouse_y=y,.mouse_down=down,
+                 .events=event,.event_count=event?1:0};
+  CHECK(ui_begin_frame_input(&f)); label_count=0;
+  UICollectionResult result=ui_tree_ex("actions",font,(UIRect){20,20,240,78},nodes,2,selected,options);
+  ui_end_frame(); return result;
+}
+static void row_actions(void) {
+  UIContext *c=context(); int selected=0;
+  UITreeNode nodes[]={{"root","Scena con etichetta lunga",0,true,false},{"child","Figlio",1,false,false}};
+  UITreeAccessory actions[]={
+    {.node_index=0,.id="visible",.icon={.kind=UI_ICON_EYE},.tooltip="Visibile",.selected=true},
+    {.node_index=0,.id="lock",.icon={.kind=UI_ICON_LOCK},.tooltip="Blocca"}};
+  UITreeOptions options={.accessories=actions,.accessory_count=2};
+  tree_frame(nodes,&selected,&options,80,30,false,NULL);
+  tree_frame(nodes,&selected,&options,80,30,true,NULL);
+  UICollectionResult r=tree_frame(nodes,&selected,&options,80,30,false,NULL);
+  CHECK(r.clicked_index==0&&!r.selection_changed&&r.accessory_index==-1&&r.activated_index==-1);
+  tree_frame(nodes,&selected,&options,80,30,true,NULL);
+  r=tree_frame(nodes,&selected,&options,80,30,false,NULL); CHECK(r.clicked_index==0&&!r.selection_changed);
+  tree_frame(nodes,&selected,&options,25,30,true,NULL);
+  r=tree_frame(nodes,&selected,&options,25,30,false,NULL);
+  CHECK(r.expansion_changed&&!nodes[0].expanded&&r.clicked_index==-1&&r.accessory_index==-1);
+  nodes[0].expanded=true; selected=1;
+  float right=20+240-ui_get_theme().scrollbar_width-2;
+  tree_frame(nodes,&selected,&options,right-39,30,true,NULL);
+  r=tree_frame(nodes,&selected,&options,right-39,30,false,NULL);
+  CHECK(r.accessory_index==0&&r.clicked_index==-1&&!r.selection_changed&&!r.expansion_changed&&selected==1);
+  CHECK(strstr(label_trace[0],"..."));
+  InputKeyEvent enter=key(PLATFORM_KEY_ENTER,0),tab=key(PLATFORM_KEY_TAB,0);
+  r=tree_frame(nodes,&selected,&options,-20,-20,false,&enter);
+  CHECK(r.accessory_index==0&&r.activated_index==-1&&r.clicked_index==-1);
+  tree_frame(nodes,&selected,&options,-20,-20,false,&tab);
+  r=tree_frame(nodes,&selected,&options,-20,-20,false,&enter); CHECK(r.accessory_index==1&&selected==1);
+  actions[1].disabled=true;
+  tree_frame(nodes,&selected,&options,right-13,30,true,NULL);
+  r=tree_frame(nodes,&selected,&options,right-13,30,false,NULL);
+  CHECK(r.accessory_index==-1&&r.clicked_index==-1&&selected==1);
+  actions[1].disabled=false;
+  tree_frame(nodes,&selected,&options,80,30,true,NULL);
+  r=tree_frame(nodes,&selected,&options,right-13,30,false,NULL);
+  CHECK(r.clicked_index==-1&&r.accessory_index==-1&&selected==1);
+  actions[0].node_index=10; selected=99;
+  r=tree_frame(nodes,&selected,&options,80,30,false,NULL);
+  CHECK(!r.selection_changed&&r.clicked_index==-1&&r.accessory_index==-1&&selected==99);
+  CHECK(ui_context_reset(c));
+  UIListItem item={"a","Riga",false}; selected=0;
+  UIFrameInput f={.width=640,.height=480,.mouse_x=80,.mouse_y=30,.mouse_down=true};
+  CHECK(ui_begin_frame_input(&f)); ui_list("repeat",font,(UIRect){20,20,240,78},&item,1,&selected); ui_end_frame();
+  f.mouse_down=false; CHECK(ui_begin_frame_input(&f));
+  r=ui_list("repeat",font,(UIRect){20,20,240,78},&item,1,&selected); ui_end_frame();
+  CHECK(r.clicked_index==0&&!r.selection_changed&&r.accessory_index==-1);
+  CHECK(ui_context_destroy(c));
+}
 static bool near_color(UIColor a,UIColor b) { return fabsf(a.r-b.r)<.00001f&&fabsf(a.g-b.g)<.00001f&&fabsf(a.b-b.b)<.00001f; }
 static bool rgba_frame(UIColorRGBA *value,UIColorPickerMode mode,bool *started,
                         float x,float y,bool down,const InputKeyEvent *event) {
   UIFrameInput f={.width=640,.height=800,.mouse_x=x,.mouse_y=y,.mouse_down=down,.events=event,.event_count=event?1:0};
-  CHECK(ui_begin_frame_input(&f));
+  CHECK(ui_begin_frame_input(&f)); label_count=0;
   UIColorPickerOptions options={.mode=mode,.integer_channels=true};
   UIPropertyLayout layout=ui_property_layout_begin(20,20,500,1);
   bool changed=ui_property_color_rgba(&layout,"rgba",font,"RGBA",value,&options,started);
@@ -103,6 +159,9 @@ static void colors(void) {
   UIColorRGBA value={.1234567f,.2345678f,.3456789f,.54321f},original=value;
   CHECK(!rgba_frame(&value,UI_COLOR_RGB,&started,-20,-20,false,NULL)&&!started);
   CHECK(!memcmp(&value,&original,sizeof(value)));
+  value.a=1; rgba_frame(&value,UI_COLOR_RGB,&started,-20,-20,false,NULL); CHECK(!strcmp(label_trace[15],"1"));
+  value.a=.625f; rgba_frame(&value,UI_COLOR_RGB,&started,-20,-20,false,NULL); CHECK(!strcmp(label_trace[15],"0.625")&&value.a==.625f);
+  value=original;
   float alpha_y=20+4*(ui_get_theme().field_height+ui_get_theme().row_spacing)+ui_get_theme().field_height+2;
   CHECK(rgba_frame(&value,UI_COLOR_RGB,&started,100,alpha_y,true,NULL)&&started);
   CHECK(value.r==original.r&&value.g==original.g&&value.b==original.b&&value.a!=original.a);
@@ -133,6 +192,6 @@ static void colors(void) {
   CHECK(ui_context_destroy(c));
 }
 int main(void) {
-  placeholders(); icons(); collections(); colors(); CHECK(clips==0);
+  placeholders(); icons(); collections(); row_actions(); colors(); CHECK(clips==0);
   puts("Components: PASS (placeholder/history, geometric/texture icons, selection/tree/scroll, RGBA precision, HSV conversion/pad/context memory)");
 }

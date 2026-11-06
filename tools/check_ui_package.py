@@ -98,6 +98,10 @@ int main(void) {
   if(ui_icon_button("icon",NULL,(UIRect){0},&icon,NULL,NULL)) return 10;
   if(ui_list("list",NULL,(UIRect){0},NULL,0,&selected).activated_index!=-1) return 11;
   if(ui_tree("tree",NULL,(UIRect){0},NULL,0,&selected).activated_index!=-1) return 12;
+  UITreeAccessory action={.node_index=0,.id="move",.icon={.kind=UI_ICON_MOVE}};
+  UITreeOptions tree_options={.accessories=&action,.accessory_count=1};
+  UICollectionResult event=ui_tree_ex("tree",NULL,(UIRect){0},NULL,0,&selected,&tree_options);
+  if(event.clicked_index!=-1||event.accessory_index!=-1) return 15;
   UITextInputOptions input={.placeholder="Search"};
   if(ui_text_input_ex("search",NULL,ANCHOR_TOP_LEFT,0,14,0,0,100,NULL,0,&input)) return 13;
   UIColorHSV hsv=ui_color_to_hsv((UIColor){1,0,0});

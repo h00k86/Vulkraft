@@ -7,6 +7,7 @@ typedef struct {
   char search[128];
   UIColorRGBA rgba;
   UITreeNode nodes[5];
+  bool node_hidden[5],node_locked[5];
   float value,split_ratio;
   int layout_tab;
   int choice,clicks;

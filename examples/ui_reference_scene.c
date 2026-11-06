@@ -164,10 +164,10 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
           UITextInputOptions options={.placeholder="Cerca nella scena..."};
           ui_text_input_ex("reference/search",font,ANCHOR_TOP_LEFT,0,14,p.x,ui_property_layout_next_row(&p),
                             p.width,s->search,sizeof(s->search),&options);
-          UIIconKind kinds[]={UI_ICON_CAMERA,UI_ICON_EYE,UI_ICON_LOCK,UI_ICON_UNLOCK,UI_ICON_FOLDER};
-          const char *names[]={"Camera","Visibile","Blocca","Sblocca","Cartella"};
+          UIIconKind kinds[]={UI_ICON_CAMERA,UI_ICON_EYE,UI_ICON_LOCK,UI_ICON_UNLOCK,UI_ICON_FOLDER,UI_ICON_MOVE,UI_ICON_ROTATE,UI_ICON_SCALE};
+          const char *names[]={"Camera","Visibile","Blocca","Sblocca","Cartella","Sposta","Ruota","Scala"};
           float row=ui_property_layout_next_row(&p);
-          for(int i=0;i<5;++i) {
+          for(int i=0;i<8;++i) {
             UIIcon icon={.kind=kinds[i]}; char id[64]; snprintf(id,sizeof(id),"reference/icon/%d",i);
             UIRect r={p.x+i*40,row,32,28};
             ui_icon_button(id,font,r,&icon,NULL,NULL); ui_tooltip(id,font,r,names[i],.4f);
@@ -176,7 +176,20 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
           const UIListItem items[]={{"box","Box",false},{"light","Luce",false},{"disabled","Non disponibile",true}};
           ui_list("reference/list",font,(UIRect){p.x,p.cursor_y,p.width,100},items,3,&s->list_selection);
           p.cursor_y+=108;
-          ui_tree("reference/tree",font,(UIRect){p.x,p.cursor_y,p.width,150},s->nodes,5,&s->tree_selection);
+          UITreeAccessory actions[10];
+          for(int i=0;i<5;++i) {
+            actions[2*i]=(UITreeAccessory){.node_index=i,.id="visible",.icon={.kind=UI_ICON_EYE},
+              .tooltip="Visibile",.selected=!s->node_hidden[i]};
+            actions[2*i+1]=(UITreeAccessory){.node_index=i,.id="lock",.icon={.kind=s->node_locked[i]?UI_ICON_LOCK:UI_ICON_UNLOCK},
+              .tooltip="Bloccato",.selected=s->node_locked[i]};
+          }
+          UITreeOptions tree_options={.accessories=actions,.accessory_count=10};
+          UICollectionResult event=ui_tree_ex("reference/tree",font,(UIRect){p.x,p.cursor_y,p.width,150},s->nodes,5,&s->tree_selection,&tree_options);
+          if(event.accessory_index>=0) {
+            int node=actions[event.accessory_index].node_index;
+            if(event.accessory_index%2) s->node_locked[node]=!s->node_locked[node];
+            else s->node_hidden[node]=!s->node_hidden[node];
+          }
           p.cursor_y+=158;
         } else {
           const char *modes[]={"RGB","HSV"};

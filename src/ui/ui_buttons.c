@@ -473,7 +473,7 @@ void ui_tooltip_draw_pending(void) {
 
 /* Eight-pixel silhouettes avoid a dependency on icon fonts or texture atlases. */
 static void ui_builtin_icon(UIIconKind kind,UIRect r,UIColor color) {
-  static const char *const masks[]={
+  static const char *const masks[UI_ICON_COUNT]={
     "        " "        " "        " "        " "        " "        " "        " "        ",
     "  ####  " " ###### " "##    ##" "## ## ##" "## ## ##" "##    ##" "########" "        ",
     "        " "  ####  " " ##  ## " "## ## ##" "## ## ##" " ##  ## " "  ####  " "        ",
@@ -485,9 +485,15 @@ static void ui_builtin_icon(UIIconKind kind,UIRect r,UIColor color) {
     "        " "        " "        " "########" "########" "        " "        " "        ",
     "##    ##" " ##  ## " "  ####  " "   ##   " "  ####  " " ##  ## " "##    ##" "        ",
     " ##     " " ###    " " ####   " " #####  " " ####   " " ###    " " ##     " "        ",
-    " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " "        "
+    " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " " ##  ## " "        ",
+    [UI_ICON_MOVE]=
+    "   ##   " "  ####  " "#  ##  #" "########" "########" "#  ##  #" "  ####  " "   ##   ",
+    [UI_ICON_ROTATE]=
+    "  ####  " " ##  ## " "##    ##" "##    ##" "##   ###" " ##   ##" "  ######" "      ##",
+    [UI_ICON_SCALE]=
+    "#   ####" " #   ###" "  #   ##" "   #   #" "#   #   " "##   #  " "###   # " "####   #"
   };
-  if(kind<UI_ICON_NONE||kind>=UI_ICON_TEXTURE) return;
+  if(kind<UI_ICON_NONE||kind>=UI_ICON_COUNT||!masks[kind]) return;
   const char *mask=masks[kind]; float px=r.w/8,py=r.h/8;
   for(int y=0;y<8;++y) for(int x=0;x<8;) {
     if(mask[y*8+x]!='#') { ++x; continue; }
@@ -499,7 +505,7 @@ bool ui_icon_button(const char *id,Font *font,UIRect r,const UIIcon *icon,
                     const char *label,const UIButtonStyle *style) {
   bool has_label=label&&label[0];
   if(!ui_valid_id(id)||!ui_layout_rect_valid(r)||!icon||
-     icon->kind<UI_ICON_NONE||icon->kind>UI_ICON_TEXTURE||(has_label&&!font)) return false;
+     icon->kind<UI_ICON_NONE||icon->kind>=UI_ICON_COUNT||(has_label&&!font)) return false;
   if(icon->kind==UI_ICON_TEXTURE && (icon->texture_slot<0||
      !isfinite(icon->u0)||!isfinite(icon->v0)||!isfinite(icon->u1)||!isfinite(icon->v1)||
      icon->u0<0||icon->v0<0||icon->u1>1||icon->v1>1||icon->u1<=icon->u0||icon->v1<=icon->v0)) return false;

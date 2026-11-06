@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(ExternalConfigurationEditor LANGUAGES C)
-find_package(GraphicsApp 0.7.0 EXACT REQUIRED COMPONENTS application)
+find_package(GraphicsApp 0.8.0 EXACT REQUIRED COMPONENTS application)
 add_executable(config_editor vulkan_main.c document.c editor.c view.c)
 target_link_libraries(config_editor PRIVATE GraphicsApp::application)
 target_compile_definitions(config_editor PRIVATE CONFIG_EDITOR_DEFAULT_RESOURCES="resources")

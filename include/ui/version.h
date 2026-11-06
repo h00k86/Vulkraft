@@ -3,7 +3,7 @@
 /* Single source of the SDK version. CMake and packaging read these definitions.
  * Change decimal components here; see docs/UI_COMPATIBILITY.md. */
 #define UI_VERSION_MAJOR 0
-#define UI_VERSION_MINOR 5
+#define UI_VERSION_MINOR 6
 #define UI_VERSION_PATCH 0
 
 #define UI_VERSION_DETAIL_STRINGIFY_(value) #value

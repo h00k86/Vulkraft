@@ -1,5 +1,20 @@
 # Changelog UI Framework
 
+## 0.6.0 — eventi e accessori delle righe
+
+- `UICollectionResult.clicked_index` segnala anche clic su righe già selezionate,
+  distinguendoli da selezione, espansione e attivazione da tastiera.
+- `ui_tree_ex` aggiunge accessori di riga con icona, testo facoltativo, tooltip,
+  selected/disabled e navigazione Tab. `accessory_index` segnala l'azione
+  senza cambiare selezione, espansione o attivazione del nodo.
+- Icone geometriche `UI_ICON_MOVE`, `UI_ICON_ROTATE`, `UI_ICON_SCALE`;
+  l'icona texture conserva il suo valore e supporta gli asset dell'host.
+- Alfa compatta con integer_channels: `1`, `0.6`, mantenendo precisione e frazioni.
+- Demo aggiornata con azioni occhio/lucchetto; test per mouse, tastiera,
+  clic ripetuti, annullamento del click e spazio riservato ai bottoni.
+- GraphicsApp 0.8.0 richiede UIFramework 0.6.0. Ricompilare l'host per la nuova
+  dimensione di UICollectionResult; le chiamate esistenti restano valide.
+
 ## 0.5.0 — campi, icone, liste e colore RGBA/HSV
 
 - `ui_text_input_ex` con segnaposto disegnato separatamente dal buffer e dalla
