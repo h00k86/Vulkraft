@@ -1,6 +1,6 @@
 # Comportamento UI per l’integrazione host
 
-Versioni: UIFramework 0.6.0 e GraphicsApp 0.8.0. Il codice dell’host non viene
+Versioni: UIFramework 0.8.0 e GraphicsApp 0.10.0. Il codice dell’host non viene
 modificato in questo repository. Il commit preciso da importare accompagna
 questa consegna; aggiornare la copia locale in modo esplicito.
 
@@ -195,3 +195,19 @@ Per i gizmo sono disponibili `UI_ICON_MOVE`, `UI_ICON_ROTATE`, `UI_ICON_SCALE`;
 `integer_channels=true` usa il formato compatto (`1`, `0.6`) senza quantizzare
 le frazioni o cambiare il modello. Ripetere nel motore clic su riga selezionata,
 eye/lock senza cambio selezione, Tab/Invio sulle azioni, clipping e alfa.
+
+## Editor multilinea (0.7.0)
+
+`ui_text_editor` condivide la cattura dei campi, ma Invio inserisce una riga,
+Tab inserisce un tab, Shift+Tab cambia widget ed Esc lascia il testo intatto.
+Ctrl+S restituisce `save_requested`; il salvataggio è dell'host. Buffer, righe,
+limiti e contratto completo: [UI_TEXT_EDITOR.md](UI_TEXT_EDITOR.md).
+
+## Sospensione dell'editing e filtro multiplo (0.8.0)
+
+Una modale conserva le sessioni in modifica e le riprende alla chiusura, inclusi
+selezione, cursore e bozze numeriche; gli eventi della modale restano suoi.
+Il ritorno al pulsante che ha aperto una modale resta il default se quel pulsante
+aveva il focus. L'host può scegliere un documento con
+`ui_modal_set_return_focus` o `UIFilePickerRequest.return_focus`.
+Dettagli, cancellazione e filtri: [UI_PICKER_FOCUS.md](UI_PICKER_FOCUS.md).

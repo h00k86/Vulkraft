@@ -64,6 +64,10 @@ static int component_scene(Font *font) {
   UIColorPickerOptions hsv={.integer_channels=true,.mode=UI_COLOR_HSV}; UIColorRGBA color={.2f,.4f,.8f,.6f},before=color;
   CHECK(!ui_property_color_rgba(&layout,"rgba",font,"Colore RGBA",&color,&hsv,NULL));
   CHECK(!memcmp(&before,&color,sizeof(color))&&!search[0]);
+  char source[256]="// città è prova\nvoid main() {\n\tfloat x = 1.0;\n}\n";
+  UITextEditorOptions editor={.scale=16,.line_numbers=true,.highlight_line=3};
+  UITextEditorResult edit=ui_text_editor("source",font,(UIRect){270,350,430,130},source,sizeof(source),&editor);
+  CHECK(!edit.changed&&edit.line_count==5&&!strcmp(source,"// città è prova\nvoid main() {\n\tfloat x = 1.0;\n}\n"));
   return 0;
 }
 int main(void) {
@@ -266,6 +270,13 @@ int main(void) {
     if(deferred) CHECK(ui_draw_list_replay(list));
     CHECK(ui_sdl2_end(b)); s=ui_sdl2_surface(b);
     if(!deferred) component_hash=hash(s); else CHECK(component_hash==hash(s));
+    unsigned source_ink=0;
+    for(int py=355;py<470;++py) for(int px=315;px<695;++px) {
+      Uint32 pixel=*(Uint32 *)((char *)s->pixels+py*s->pitch+px*4);
+      SDL_GetRGBA(pixel,s->format,&red,&green,&blue,&alpha);
+      if(red>150 && green>150 && blue>150) ++source_ink;
+    }
+    CHECK(source_ink>100); /* Multiline body is actually painted, including UTF-8. */
     /* The blue HSV pad must cover every pixel: fractional cells used to
      * leave black grid seams despite immediate/deferred equality. */
     for(int py=55;py<90;++py) for(int px=275;px<695;++px) {

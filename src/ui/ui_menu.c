@@ -115,9 +115,28 @@ static void ui_menu_open_root(const char *id, UIRect anchor, float width,
   menu_view->g_menu.root_submitted_this_frame = true;
 }
 
+/* A submission is a declaration, not a registration: it lives while the host
+ * keeps declaring it and while the hierarchy it was declared for stays open.
+ * With no hierarchy open, whatever the previous frame did not declare cannot
+ * be reached any more and is retired; its slot moves past the live range and
+ * keeps its item storage, so declaring it again allocates nothing. */
+static void ui_menu_retire_undeclared_submissions(UIMenuHierarchy *menu) {
+  if (menu->depth <= 0) {
+    for (int i = 0; i < menu->submission_count;) {
+      if (menu->submissions[i].declared) { ++i; continue; }
+      UIMenuSubmission retired = menu->submissions[i];
+      menu->submissions[i] = menu->submissions[--menu->submission_count];
+      menu->submissions[menu->submission_count] = retired;
+    }
+  }
+  for (int i = 0; i < menu->submission_count; ++i)
+    menu->submissions[i].declared = false;
+}
+
 void ui_menu_begin_frame(void) {
   UIMenuState *menu_view=ui_state_menu(ui_overlay_context());
 
+  ui_menu_retire_undeclared_submissions(&menu_view->g_menu);
   menu_view->g_menu.hovered_depth = -1;
   menu_view->g_menu.owning_depth = -1;
   menu_view->g_menu.escape_consumed = false;
@@ -161,6 +180,7 @@ bool ui_menu_submit_submenu(const char *parent_popup_id,
   UIStoredMenuItem *storage=submission->items; int capacity=submission->item_capacity;
   memset(submission, 0, sizeof(*submission));
   submission->items=storage; submission->item_capacity=capacity; submission->item_count=copied_count;
+  submission->declared=true;
   if(added) ++menu_view->g_menu.submission_count;
   snprintf(submission->parent_id, sizeof(submission->parent_id), "%s",
            parent_popup_id);

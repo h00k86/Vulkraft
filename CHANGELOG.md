@@ -1,5 +1,43 @@
 # Changelog UI Framework
 
+## Non rilasciato
+
+- I sottomenu inviati con `ui_menu_submit_submenu` sono dichiarazioni: restano
+  validi finché l'host li ripete a ogni frame o finché la gerarchia per cui
+  sono stati inviati è aperta; a menu chiusi quelli non ripetuti nell'ultimo
+  frame vengono ritirati a inizio frame e la loro memoria è riusata. Prima la
+  tabella non si svuotava mai: un host i cui identificatori cambiavano col
+  contesto la riempiva e i sottomenu nuovi non si aprivano più.
+- Sottomenu vivi contemporaneamente: da 16 a 64.
+
+## UIFramework 0.8.0 / GraphicsApp 0.10.0
+
+- Il file picker accetta fino a 16 estensioni copiate dalla richiesta. Il filtro
+  singolo resta disponibile. Il salvataggio con lista conserva i suffissi ammessi
+  e aggiunge solo l'estensione predefinita esplicitamente indicata; suffissi
+  estranei e filtri malformati sono rifiutati.
+- Le modali sospendono e riprendono l'editing attivo, conservando cursore,
+  selezione, storia, baseline Esc dei campi monoriga e bozze numeriche.
+- `ui_modal_set_return_focus` permette all'host di scegliere un widget del padre;
+  il picker espone `return_focus`/`resume_editing` anche per apertura da menu.
+- Rilascio esplicito cattura e perdita focus finestra cancellano la ripresa;
+  gli eventi della chiusura non vengono inoltrati al widget ripristinato.
+- Ricompilare core, picker e consumatori con gli header dello stesso snapshot.
+
+
+## UIFramework 0.7.0 / GraphicsApp 0.9.0
+
+- Aggiunto `ui_text_editor`: buffer UTF-8 multilinea dell'host, editing LF/tab,
+  clipboard con normalizzazione CRLF/CR, undo/redo condiviso, selezione con
+  mouse/tastiera, scorrimento verticale/orizzontale e scrollbar, numeri di riga.
+- Aggiunti modalità sola lettura, richiesta Ctrl+S, posizione cursore e comandi
+  dell'host per raggiungere/evidenziare una riga. Esc lascia il testo intatto.
+- Dentro il nuovo editor Tab inserisce un tab; Shift+Tab cambia focus. Il
+  comportamento dei campi monoriga resta invariato. Ricompilare core e host.
+- Limite esplicito del buffer: 32768 byte incluso NUL. Nessun filesystem,
+  compilatore, evidenziazione sintattica o runtime di scripting nel componente.
+
+
 ## 0.6.0 — eventi e accessori delle righe
 
 - `UICollectionResult.clicked_index` segnala anche clic su righe già selezionate,

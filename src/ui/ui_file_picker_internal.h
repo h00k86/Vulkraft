@@ -13,6 +13,11 @@ typedef struct {
   char id[UI_ID_CAPACITY], title[96];
   UIFilePickerMode mode;
   char root[APP_PATH_MAX], current[APP_PATH_MAX];
+  char extensions[UI_FILE_PICKER_MAX_EXTENSIONS][UI_FILE_PICKER_EXTENSION_CAPACITY];
+  int extension_count;
+  char default_extension[UI_FILE_PICKER_EXTENSION_CAPACITY];
+  char return_focus[UI_ID_CAPACITY];
+  bool resume_editing, return_focus_applied;
   char extension[24], filename[128], search[96], selected[APP_PATH_MAX], error[128];
   UIFilePickerEntry entries[MAX_UI_FILE_PICKER_ENTRIES];
   bool image_preview;

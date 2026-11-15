@@ -77,6 +77,15 @@ bool ui_nav_begin(UIContext *c, bool cancelled, bool menu_open) {
        (e->action==PLATFORM_PRESS || e->action==PLATFORM_REPEAT) &&
        !(e->mods&(PLATFORM_MOD_CONTROL|PLATFORM_MOD_ALT|PLATFORM_MOD_SUPER)) &&
        !menu_open) {
+      int focused=ui_nav_find(c,navigation_view->nav_previous,navigation_view->nav_previous_count,navigation_view->nav_focus);
+      /* Inside an active multiline editor plain Tab inserts indentation.
+       * Shift+Tab always leaves it. Escape also restores ordinary traversal. */
+      bool editor=focused>=0 && navigation_view->nav_previous[focused].kind==UI_NAV_TEXT_EDITOR &&
+                  !navigation_view->nav_editor_finished;
+      if(editor && !(e->mods&PLATFORM_MOD_SHIFT)) {
+        snprintf(navigation_view->nav_event_owner[n],sizeof(navigation_view->nav_event_owner[n]),"%s",navigation_view->nav_focus);
+        continue;
+      }
       e->consumed=true;
       ui_nav_step(c, navigation_view->nav_previous,navigation_view->nav_previous_count,(e->mods&PLATFORM_MOD_SHIFT)?-1:1);
     }
@@ -157,28 +166,113 @@ bool ui_nav_register(UIContext *c, const char *id,UIRect rect,int kind,bool enab
   }
   return ui_nav_focused(c, id);
 }
+/* Suspended sessions keep their caret, draft and Escape baseline while another
+ * modal owns input. They are not keyboard capture until explicitly restored. */
+static void ui_nav_suspend(UIContext *c,UIModalOpenState *modal) {
+  modal->return_editing=false;
+  UITextFieldsState *texts=ui_state_text_fields(c);
+  for(int i=0;i<texts->text_input_state_count;++i) {
+    UITextInputState *s=&texts->text_input_states[i];
+    if(s->focused && !strcmp(s->id,modal->return_focus)) {
+      s->suspended=true; modal->return_editing=true;
+    }
+    s->focused=false; s->editor_selecting=false; s->editor_scrollbar_drag=0;
+  }
+  UINumericState *numbers=ui_state_numeric(c);
+  for(int i=0;i<numbers->float_field_state_count;++i) {
+    UIFloatFieldState *s=&numbers->float_field_states[i];
+    if(s->focused && !strcmp(s->id,modal->return_focus)) {
+      s->suspended=true; modal->return_editing=true;
+    }
+    s->focused=false;
+  }
+}
 void ui_nav_restore(UIContext *c, UIModalOpenState *modal) {
-  UINavigationState *navigation_view=ui_state_navigation(c);
-
-  if(strcmp(navigation_view->nav_modal,modal->id)) return;
-
-  snprintf(navigation_view->nav_modal,sizeof(navigation_view->nav_modal),"%s",modal->return_modal);
-  if(!navigation_view->nav_cancelled) ui_nav_set(c, modal->return_focus,navigation_view->nav_keyboard);
-  else { navigation_view->nav_focus[0]=0; navigation_view->nav_enabled=false; }
-  navigation_view->nav_auto=false;
+  UINavigationState *nav=ui_state_navigation(c);
+  if(strcmp(nav->nav_modal,modal->id)) return;
+  snprintf(nav->nav_modal,sizeof(nav->nav_modal),"%s",modal->return_modal);
+  if(!nav->nav_cancelled) {
+    ui_nav_set(c,modal->return_focus,nav->nav_keyboard);
+    nav->nav_editor_finished=modal->return_finished;
+  } else { nav->nav_focus[0]=0; nav->nav_enabled=false; }
+  bool resumed=false;
+  UITextFieldsState *texts=ui_state_text_fields(c);
+  for(int i=0;i<texts->text_input_state_count;++i) {
+    UITextInputState *s=&texts->text_input_states[i];
+    if(!strcmp(s->id,modal->return_focus) && s->suspended) {
+      s->suspended=false;
+      s->focused=modal->return_editing && !nav->nav_cancelled;
+      s->resume_caret=s->focused; resumed|=s->focused;
+    }
+  }
+  UINumericState *numbers=ui_state_numeric(c);
+  for(int i=0;i<numbers->float_field_state_count;++i) {
+    UIFloatFieldState *s=&numbers->float_field_states[i];
+    if(!strcmp(s->id,modal->return_focus) && s->suspended) {
+      s->suspended=false; s->focused=modal->return_editing && !nav->nav_cancelled; resumed|=s->focused;
+    }
+  }
+  if(modal->return_editing && !resumed) nav->nav_editor_finished=true;
+  nav->nav_auto=false;
 }
 void ui_nav_modal_enter(UIContext *c, UIModalOpenState *modal) {
-  UINavigationState *navigation_view=ui_state_navigation(c);
-
+  UINavigationState *nav=ui_state_navigation(c);
   if(!modal->wasOpen) {
-    snprintf(modal->return_focus,sizeof(modal->return_focus),"%s",navigation_view->nav_focus);
-    snprintf(modal->return_modal,sizeof(modal->return_modal),"%s",navigation_view->nav_modal);
-    snprintf(navigation_view->nav_modal,sizeof(navigation_view->nav_modal),"%s",modal->id);
-    navigation_view->nav_focus[0]=0; navigation_view->nav_auto=!navigation_view->nav_cancelled;
-    ui_nav_clear_editor_focus(c);
+    snprintf(modal->return_focus,sizeof(modal->return_focus),"%s",nav->nav_focus);
+    snprintf(modal->return_modal,sizeof(modal->return_modal),"%s",nav->nav_modal);
+    modal->return_finished=nav->nav_editor_finished;
+    ui_nav_suspend(c,modal);
+    snprintf(nav->nav_modal,sizeof(nav->nav_modal),"%s",modal->id);
+    nav->nav_focus[0]=0; nav->nav_auto=!nav->nav_cancelled;
   }
-  if(navigation_view->nav_scope_depth<MAX_UI_MODALS)
-    snprintf(navigation_view->nav_scopes[navigation_view->nav_scope_depth++],UI_ID_CAPACITY,"%s",modal->id);
+  if(nav->nav_scope_depth<MAX_UI_MODALS)
+    snprintf(nav->nav_scopes[nav->nav_scope_depth++],UI_ID_CAPACITY,"%s",modal->id);
+}
+bool ui_nav_modal_set_return_focus(UIContext *c,const char *modal_id,const char *widget_id,bool resume_editing) {
+  if(!ui_valid_id(modal_id) || !ui_valid_id(widget_id)) return false;
+  UIModalsState *modals=ui_state_modals(c); UIModalOpenState *modal=NULL;
+  for(int i=0;i<modals->g_modal_state_count;++i)
+    if(modals->g_modal_states[i].wasOpen && !strcmp(modals->g_modal_states[i].id,modal_id))
+      modal=&modals->g_modal_states[i];
+  if(!modal) return false;
+  /* Require a registered target in the parent scope, never an arbitrary ID or
+   * a child inside the dialog that is about to disappear. */
+  UINavigationState *nav=ui_state_navigation(c); bool found=false; int kind=-1;
+  for(int pass=0;pass<2;++pass) {
+    const UINavigationEntry *entries=pass?nav->nav_previous:nav->nav_current;
+    int count=pass?nav->nav_previous_count:nav->nav_count;
+    for(int i=0;i<count;++i)
+      if(!strcmp(entries[i].id,widget_id) && !strcmp(entries[i].modal,modal->return_modal)) { found=true; kind=entries[i].kind; }
+  }
+  if(!found || (resume_editing && kind!=UI_NAV_TEXT && kind!=UI_NAV_TEXT_EDITOR && kind!=UI_NAV_NUMBER)) return false;
+  if(resume_editing && kind==UI_NAV_NUMBER) {
+    bool active=false; UINumericState *numbers=ui_state_numeric(c);
+    for(int i=0;i<numbers->float_field_state_count;++i) {
+      UIFloatFieldState *s=&numbers->float_field_states[i];
+      if(!strcmp(s->id,widget_id) && (s->focused || s->suspended)) active=true;
+    }
+    if(!active) return false; /* No numeric draft/original value to resume. */
+  }
+  UITextFieldsState *texts=ui_state_text_fields(c);
+  for(int i=0;i<texts->text_input_state_count;++i) {
+    UITextInputState *s=&texts->text_input_states[i];
+    if(!strcmp(s->id,modal->return_focus) && strcmp(widget_id,modal->return_focus)) {
+      s->suspended=false; free(s->original_long); s->original_long=NULL;
+    }
+    if(!strcmp(s->id,widget_id)) {
+      if(resume_editing && !s->suspended) { s->needs_snapshot=true; s->resume_caret=true; }
+      s->suspended=resume_editing;
+    }
+  }
+  UINumericState *numbers=ui_state_numeric(c);
+  for(int i=0;i<numbers->float_field_state_count;++i) {
+    UIFloatFieldState *s=&numbers->float_field_states[i];
+    if(!strcmp(s->id,modal->return_focus) && strcmp(widget_id,modal->return_focus)) s->suspended=false;
+    if(!strcmp(s->id,widget_id)) s->suspended=resume_editing;
+  }
+  snprintf(modal->return_focus,sizeof(modal->return_focus),"%s",widget_id);
+  modal->return_editing=resume_editing; modal->return_finished=!resume_editing;
+  return true;
 }
 void ui_nav_end(UIContext *c) {
   UINavigationState *navigation_view=ui_state_navigation(c);
@@ -218,7 +312,7 @@ void ui_nav_end(UIContext *c) {
     for(int n=0;n<text_fields_view->text_input_state_count;++n) {
       UITextInputState *s=&text_fields_view->text_input_states[n];
       if(strcmp(s->id,navigation_view->nav_focus)) {
-        s->focused=false; free(s->original_long); s->original_long=NULL;
+        s->focused=false; if(!s->suspended) { free(s->original_long); s->original_long=NULL; }
       }
     }
     for(int n=0;n<numeric_view->float_field_state_count;++n)
@@ -232,9 +326,12 @@ void ui_nav_clear_editor_focus(UIContext *c) {
   UINumericState *numeric_view=ui_state_numeric(c);
   UITextFieldsState *text_fields_view=ui_state_text_fields(c);
 
-  for (int i=0;i<numeric_view->float_field_state_count;++i) numeric_view->float_field_states[i].focused=false;
+  for (int i=0;i<numeric_view->float_field_state_count;++i) {
+    numeric_view->float_field_states[i].focused=false; numeric_view->float_field_states[i].suspended=false;
+  }
   for (int i=0;i<text_fields_view->text_input_state_count;++i) {
     text_fields_view->text_input_states[i].focused=false;
+    text_fields_view->text_input_states[i].suspended=false;
     free(text_fields_view->text_input_states[i].original_long); text_fields_view->text_input_states[i].original_long=NULL;
   }
 }

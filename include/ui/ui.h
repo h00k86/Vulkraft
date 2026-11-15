@@ -543,6 +543,27 @@ bool ui_text_input_ex(const char *id,Font *font,TextAnchor anchor,
                       float margin,float scale,float x,float y,float width,
                       char *buffer,int capacity,const UITextInputOptions *options);
 
+/* Small multiline source editor. Caller owns a NUL-terminated UTF-8/LF buffer;
+ * capacity includes NUL and must be 1..UI_TEXT_EDITOR_MAX_CAPACITY. No wrapping.
+ * Zero options: theme scale, editable, no gutter. reveal_line/highlight_line are
+ * 1-based (0 disabled); reveal_line is a host pulse, reset to 0 next frame.
+ * Enter inserts LF, Tab inserts a literal tab (4-space tab stops); Shift+Tab
+ * traverses focus. Escape leaves editing, preserving text; Ctrl+S requests save.
+ * Cursor offsets are UTF-8 bytes; line/column are 1-based Unicode scalar counts.
+ * Shares focus/reset/capture APIs with ui_text_input. See UI_TEXT_EDITOR.md. */
+#define UI_TEXT_EDITOR_MAX_CAPACITY 32768
+typedef struct {
+    float scale;
+    bool line_numbers, read_only;
+    int reveal_line, highlight_line;
+} UITextEditorOptions;
+typedef struct {
+    bool changed, focused, save_requested;
+    int caret, selection_anchor, line, column, line_count;
+} UITextEditorResult;
+UITextEditorResult ui_text_editor(const char *id,Font *font,UIRect bounds,
+                                  char *buffer,int capacity,const UITextEditorOptions *options);
+
 /* Integer property row for values where a continuous slider is misleading.
  * The value can be nudged with -/+ or entered directly; ENTER commits and
  * ESC abandons the in-progress text.  The implementation deliberately
@@ -621,6 +642,10 @@ bool ui_modal_begin(const char *id, const char *title, Font *font,
                     float *out_content_w, float *out_content_h);
 /* Completes modal ownership after the caller has processed its action row. */
 void ui_modal_end(const char *id, bool is_open);
+/* Override an open modal's return target, already registered in its parent
+ * scope. resume_editing restores a text/numeric session; false returns only
+ * navigation focus. Call after begin and before close. No focus change now. */
+bool ui_modal_set_return_focus(const char *modal_id,const char *widget_id,bool resume_editing);
 
 #if 1 /* Generic menu API, extracted from the editor guard. */
 /* One bounded menu hierarchy serves menu bars and context menus.  Callers
@@ -628,7 +653,13 @@ void ui_modal_end(const char *id, bool is_open);
  * performs the single top-layer render and hit-test pass. Item strings are
  * copied into storage allocated on demand and retained until context reset or
  * destroy. Allocation failure closes the affected menu/branch and sets the
- * overflowed diagnostic; submenu submission also returns false. */
+ * overflowed diagnostic; submenu submission also returns false.
+ * A submenu submission is a declaration keyed by (parent popup, parent item,
+ * submenu id). It stays valid while it is declared again every frame, as menu
+ * bars do, and while the hierarchy it was declared for is open, so a context
+ * menu declares its submenus once when it opens. Once no hierarchy is open, a
+ * submission the last frame did not declare is retired at the next frame
+ * start. At most 64 can be live at once; one more reports UI_ERROR_LIMIT. */
 typedef enum {
   UI_MENU_ITEM_ACTION = 0,
   UI_MENU_ITEM_SUBMENU,

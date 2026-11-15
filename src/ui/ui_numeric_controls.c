@@ -35,7 +35,7 @@ UIFloatFieldState *ui_numeric_state(const char *id) {
   } else {
     for (int i = 0; i < numeric_view->float_field_state_count; ++i) {
       UIFloatFieldState *candidate = &numeric_view->float_field_states[i];
-      if (candidate->focused ||
+      if (candidate->focused || candidate->suspended ||
           candidate->last_seen_frame == frame_view->g_ui_frame_serial)
         continue;
       if (!state || candidate->last_seen_frame < state->last_seen_frame)
@@ -168,7 +168,7 @@ static bool ui_number_field_format(const char *id, Font *font, float x, float y,
     }
   }
   if(navigation_view->nav_enabled && !ui_nav_focused(ui_overlay_context(), id)) state->focused=false;
-  if (!state->focused) {
+  if (!state->focused && !state->suspended) {
     if (integer) snprintf(state->buffer, sizeof(state->buffer), "%d", *integer);
     else if (idle_decimals>=0) snprintf(state->buffer,sizeof(state->buffer),"%.*f",idle_decimals>9?9:idle_decimals,(double)*value);
     else ui_format_float(state->buffer, sizeof(state->buffer), *value);
@@ -330,7 +330,7 @@ bool ui_slider_format(const char *id, Font *font, TextAnchor anchor,
   float trackY = y + labelHeight;
 
   char labelBuf[64];
-  snprintf(labelBuf, sizeof(labelBuf), "%s", label ? label : "VALUE");
+  snprintf(labelBuf, sizeof(labelBuf), "%s", label ? label : "Valore");
   char displaySliderLabel[64];
   ui_humanize_label(labelBuf, displaySliderLabel, sizeof(displaySliderLabel));
   float labelAvailable = trackW - sliderTheme.label_value_gap * scale;

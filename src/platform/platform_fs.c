@@ -21,6 +21,7 @@
 #include "platform/platform_fs.h"
 
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 
 #if defined(_WIN32)
@@ -472,6 +473,9 @@ bool platform_write_file_atomic(const char *path,const void *data,size_t size) {
 #else
   struct stat st; bool exists=lstat(path,&st)==0;
   if(exists && !S_ISREG(st.st_mode)) return false;
+  /* Respect an explicitly read-only document even when its directory permits
+   * rename-over replacement (same contract as FILE_ATTRIBUTE_READONLY above). */
+  if(exists && (!(st.st_mode & 0222) || access(path,W_OK)!=0)) { errno=EACCES; return false; }
   int n=snprintf(temp,sizeof(temp),"%s.tmp.XXXXXX",path);
   if(n<0 || (size_t)n>=sizeof(temp)) return false;
   int fd=mkstemp(temp);

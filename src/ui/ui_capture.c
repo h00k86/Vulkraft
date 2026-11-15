@@ -23,7 +23,7 @@
 static bool point_in_rect(float px,float py,float x,float y,float w,float h) {
   return px>=x && px<=x+w && py>=y && py<=y+h;
 }
-bool ui_pointer_hit(float x, float y, float w, float h) {
+bool ui_pointer_hit_overlay(float x, float y, float w, float h) {
   UIModalsState *modals_view=ui_state_modals(ui_overlay_context());
   UIFrameState *frame_view=ui_state_frame(ui_overlay_context());
 
@@ -31,6 +31,11 @@ bool ui_pointer_hit(float x, float y, float w, float h) {
     return false;
   if(!isfinite(x)||!isfinite(y)||!isfinite(w)||!isfinite(h)||w<=0||h<=0) return false;
   if(!point_in_rect(frame_view->g_mouse_x,frame_view->g_mouse_y,x,y,w,h)) return false;
+  return true;
+}
+bool ui_pointer_hit(float x, float y, float w, float h) {
+  if (!ui_pointer_hit_overlay(x,y,w,h)) return false;
+  UIFrameState *frame_view=ui_state_frame(ui_overlay_context());
   for(int i=0;i<frame_view->layout_input_clip_count;++i) {
     UIRect clip=frame_view->layout_input_clips[i];
     if(!point_in_rect(frame_view->g_mouse_x,frame_view->g_mouse_y,clip.x,clip.y,clip.w,clip.h)) return false;
@@ -126,7 +131,7 @@ bool ui_scroll_wheel_blocked(void) {
   return ui_any_slider_dragging() || ui_any_dropdown_is_open() || ui_menu_hierarchy_is_open();
 }
 
-void ui_release_input_capture(void) {
+static void ui_release_capture(bool keep_suspended) {
   UINavigationState *navigation_view=ui_state_navigation(ui_overlay_context());
   UIButtonsState *buttons_view=ui_state_buttons(ui_overlay_context());
   UISlidersState *sliders_view=ui_state_sliders(ui_overlay_context());
@@ -144,13 +149,20 @@ void ui_release_input_capture(void) {
   for (int i = 0; i < panels_view->g_scroll_state_count; ++i)
     panels_view->g_scroll_states[i].dragging = false;
   for (int i = 0; i < text_fields_view->text_input_state_count; ++i) {
-    text_fields_view->text_input_states[i].focused = false;
-    free(text_fields_view->text_input_states[i].original_long); text_fields_view->text_input_states[i].original_long=NULL;
+    UITextInputState *s=&text_fields_view->text_input_states[i];
+    s->focused=false;
+    if(!keep_suspended || !s->suspended) {
+      s->suspended=false; free(s->original_long); s->original_long=NULL;
+    }
   }
-  for (int i = 0; i < numeric_view->float_field_state_count; ++i)
+  for (int i = 0; i < numeric_view->float_field_state_count; ++i) {
     numeric_view->float_field_states[i].focused = false;
+    if(!keep_suspended) numeric_view->float_field_states[i].suspended=false;
+  }
   ui_close_all_dropdowns();
 }
+void ui_release_input_capture(void) { ui_release_capture(false); }
+void ui_capture_release_modal(void) { ui_release_capture(true); }
 
 /* Dropdown e campi editabili sono capture transitorie, non dialoghi: F1/F2
  * e Ctrl+S/Ctrl+L possono chiuderli in modo esplicito. Questi tre sistemi,

@@ -9,7 +9,7 @@
 typedef struct { char *text; int caret, anchor; } UITextRevision;
 typedef struct {
   char id[UI_ID_CAPACITY];
-  bool focused;
+  bool focused, suspended, resume_caret;
   int caret, selection_anchor;
   UITextRevision history[UI_TEXT_HISTORY_COUNT];
   int history_count, history_position;
@@ -20,6 +20,13 @@ typedef struct {
   char original[256];
   char *original_long;
   bool needs_snapshot;
+  /* Multiline viewport and gesture state shares the same context lifetime. */
+  float editor_scroll_x, editor_scroll_y;
+  bool editor_selecting;
+  int editor_scrollbar_drag;
+  float editor_drag_offset;
+  int preferred_column;
+  bool preferred_column_valid;
   unsigned long long last_seen_frame;
 } UITextInputState;
 
@@ -37,3 +44,13 @@ void ui_text_edit_event(UITextInputState *state,char *buffer,int capacity,const 
                         const UIClipboard *clipboard,void *user);
 void ui_text_edit_cancel(UITextInputState *state,char *buffer,int capacity);
 void ui_text_edit_observe(UITextInputState *state,const char *buffer);
+
+/* Multiline mode accepts LF/tab; CRLF and CR clipboard lines normalize to LF.
+ * page_lines is at least one. Single-line entry point keeps its old contract. */
+void ui_text_edit_multiline_event(UITextInputState *state,char *buffer,int capacity,
+                        const InputKeyEvent *event,const UIClipboard *clipboard,
+                        void *user,int page_lines);
+int ui_text_line_start(const char *text,int offset);
+int ui_text_line_end(const char *text,int offset);
+int ui_text_line_column(const char *text,int offset);
+int ui_text_line_at_column(const char *text,int start,int column);

@@ -316,13 +316,13 @@ bool ui_dropdown(const char *id, Font *font, TextAnchor anchor,
   bool listHover = false;
   bool upArrowHover = false, downArrowHover = false;
   if (state->open) {
-    listHover = ui_pointer_hit(x, listTop, w, fullListH);
+    listHover = ui_pointer_hit_overlay(x, listTop, w, fullListH);
     if (listHover)
       frame_view->g_any_hover = true;
     if (needsScroll) {
-      upArrowHover = ui_pointer_hit(x, listTop, w,
+      upArrowHover = ui_pointer_hit_overlay(x, listTop, w,
                                    UI_DROPDOWN_SCROLL_ARROW_H);
-      downArrowHover = ui_pointer_hit(x,
+      downArrowHover = ui_pointer_hit_overlay(x,
                                      listTop + fullListH - UI_DROPDOWN_SCROLL_ARROW_H,
                                      w, UI_DROPDOWN_SCROLL_ARROW_H);
     }
@@ -516,10 +516,10 @@ static void ui_draw_one_dropdown_popup(const UIDropdownState *state) {
   const UITheme theme = ui_get_theme();
 
   if (state->popupNeedsScroll) {
-    bool upHover = ui_pointer_hit(x, listTop, w,
+    bool upHover = ui_pointer_hit_overlay(x, listTop, w,
                                  UI_DROPDOWN_SCROLL_ARROW_H);
     float downY = listTop + listH - UI_DROPDOWN_SCROLL_ARROW_H;
-    bool downHover = ui_pointer_hit(x, downY, w,
+    bool downHover = ui_pointer_hit_overlay(x, downY, w,
                                    UI_DROPDOWN_SCROLL_ARROW_H);
     UIColor upFill = !state->popupCanScrollUp
                           ? state->popupPressed
@@ -546,7 +546,7 @@ static void ui_draw_one_dropdown_popup(const UIDropdownState *state) {
 
   for (int i = 0; i < state->popupVisibleRows; ++i) {
     float rowY = rowsTop + (float)i * rowH;
-    bool rowHover = ui_pointer_hit(x, rowY, w, rowH);
+    bool rowHover = ui_pointer_hit_overlay(x, rowY, w, rowH);
     UIColor rowFill =
         (state->popupHasRealSelection &&
          state->scrollOffset + i == state->popupSelectedIndex)

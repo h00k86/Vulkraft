@@ -93,7 +93,45 @@ static void bounds_and_bar_growth(void) {
   CHECK(menu->submission_count==MAX_UI_SUBMENU_SUBMISSIONS&&storage_live==bytes);
   CHECK(ui_context_destroy(ctx)&&!storage_live);
 }
+static void declarations_expire(void) {
+  UIContext *ctx=context(); UIMenuHierarchy *menu=&ui_state_menu(ctx)->g_menu;
+  UIMenuItem leaf={.id="leaf",.label="Foglia"};
+  /* A bar whose submenu ids change from frame to frame never fills the table
+   * and keeps reusing the storage of the retired declarations. */
+  size_t warm=0;
+  for(int f=0;f<MAX_UI_SUBMENU_SUBMISSIONS*3;++f) {
+    char child[32]; snprintf(child,sizeof(child),"child-%d",f);
+    frame(-20,-20,false);
+    CHECK(ui_menu_submit_submenu("bar","branch",child,&leaf,1));
+    CHECK(ui_menu_submit_submenu("bar","steady","steady",&leaf,1));
+    ui_menu_render_overlay(font); ui_end_frame();
+    CHECK(menu->submission_count<=3&&!menu->overflowed);
+    if(f==4) warm=storage_live;
+  }
+  CHECK(warm&&storage_live==warm);
+  /* A context menu declares once: valid while open, retired once closed. */
+  frame(-20,-20,false);
+  ui_menu_open_context("ctx",100,80,220,&root_item,1);
+  CHECK(ui_menu_submit_submenu("ctx","branch","child",&leaf,1));
+  ui_menu_render_overlay(font); ui_end_frame();
+  for(int f=0;f<3;++f) { frame(-20,-20,false); ui_menu_render_overlay(font); ui_end_frame(); }
+  /* Nothing is retired while a hierarchy is open, the bar leftovers included. */
+  CHECK(menu->depth==1&&menu->submission_count==3);
+  UIMenuLevel *root=&menu->levels[0];
+  frame(root->popup.x+10,root->popup.y+10,false); ui_menu_render_overlay(font); ui_end_frame();
+  CHECK(menu->depth==2&&!strcmp(menu->levels[1].id,"child"));
+  ui_menu_close_hierarchy();
+  frame(-20,-20,false); CHECK(!menu->submission_count&&storage_live>=warm); ui_end_frame();
+  /* Declared the frame before the root opens: still there when it does. */
+  frame(-20,-20,false); CHECK(ui_menu_submit_submenu("late","branch","child",&leaf,1)); ui_end_frame();
+  frame(-20,-20,false); ui_menu_open_context("late",100,80,220,&root_item,1);
+  ui_menu_render_overlay(font); ui_end_frame();
+  frame(-20,-20,false); ui_menu_render_overlay(font); ui_end_frame();
+  frame(root->popup.x+10,root->popup.y+10,false); ui_menu_render_overlay(font); ui_end_frame();
+  CHECK(menu->depth==2&&!menu->overflowed);
+  CHECK(ui_context_destroy(ctx)&&!storage_live);
+}
 int main(void) {
-  copies_and_children(); failures(); bounds_and_bar_growth(); CHECK(!clips&&!ui_context_get_current());
-  puts("Menu storage: PASS (lazy root/submissions/children, copies, warm reuse, OOM, stable levels, contexts, cleanup)");
+  copies_and_children(); failures(); bounds_and_bar_growth(); declarations_expire(); CHECK(!clips&&!ui_context_get_current());
+  puts("Menu storage: PASS (lazy root/submissions/children, copies, warm reuse, OOM, stable levels, declaration expiry, contexts, cleanup)");
 }

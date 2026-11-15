@@ -42,7 +42,7 @@ UITextInputState *ui_text_field_state(const char *id) {
   UITextInputState *reuse = NULL;
   for (int i = 0; i < text_fields_view->text_input_state_count; ++i) {
     UITextInputState *candidate = &text_fields_view->text_input_states[i];
-    if (candidate->focused ||
+    if (candidate->focused || candidate->suspended ||
         candidate->last_seen_frame == frame_view->g_ui_frame_serial)
       continue;
     if (!reuse || candidate->last_seen_frame < reuse->last_seen_frame)
@@ -110,6 +110,7 @@ void ui_text_input_focus(const char *id) {
   if (state && !state->focused) {
     state->focused = true;
     state->needs_snapshot = true;
+    state->resume_caret = false;
   }
 }
 
@@ -208,7 +209,8 @@ static bool ui_text_input_options(const char *id, Font *font, TextAnchor anchor,
   bool confirmed = false;
   if (state->focused && state->needs_snapshot) {
     state->focused=ui_text_snapshot(state,buffer);
-    state->caret=state->selection_anchor=(int)strlen(buffer);
+    if(!state->resume_caret) state->caret=state->selection_anchor=(int)strlen(buffer);
+    state->resume_caret=false;
   }
 
   if (state->focused) {
@@ -314,7 +316,7 @@ static bool ui_text_input_options(const char *id, Font *font, TextAnchor anchor,
   }
 
   free(mask);
-  if (!state->focused) { free(state->original_long); state->original_long=NULL; }
+  if (!state->focused && !state->suspended) { free(state->original_long); state->original_long=NULL; }
   ui_nav_ring(id,(UIRect){x,y,w,h});
   return confirmed;
 }

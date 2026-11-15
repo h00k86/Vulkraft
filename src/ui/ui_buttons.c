@@ -382,9 +382,9 @@ bool ui_toggle(const char *id, const char *label, Font *font,
   /* Etichetta vuota (righe di proprieta': l'etichetta sta nella colonna
      sinistra) -> solo lo stato, mai ": ON". */
   if (label && label[0])
-    snprintf(shown, sizeof(shown), "%s: %s", label, *value ? "ON" : "OFF");
+    snprintf(shown, sizeof(shown), "%s: %s", label, *value ? "On" : "Off");
   else
-    snprintf(shown, sizeof(shown), "%s", *value ? "ON" : "OFF");
+    snprintf(shown, sizeof(shown), "%s", *value ? "On" : "Off");
   UIButtonStyle style = {.min_width = width,
                          .min_height = ui_get_theme().button_height * scale,
                          .selected = *value};

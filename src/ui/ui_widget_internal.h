@@ -7,6 +7,8 @@
  * property widgets and records hover feedback. No state pointers escape. */
 bool ui_valid_id(const char *id);
 bool ui_pointer_hit(float x,float y,float w,float h);
+/* Popup content escapes layout clips, while retaining modal priority. */
+bool ui_pointer_hit_overlay(float x,float y,float w,float h);
 bool ui_pointer_drag(bool *dragging,bool hover,bool enabled);
 bool ui_input_hover_click(UIRect rect,bool *clicked);
 bool ui_scroll_wheel_blocked(void);

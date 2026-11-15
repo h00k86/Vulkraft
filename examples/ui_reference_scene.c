@@ -27,6 +27,7 @@ void ui_reference_init(UIReferenceScene *s) {
   *s=(UIReferenceScene){.value=.5f,.checked=true};
   s->split_ratio=.5f; s->accent=ui_theme_dark().accent;
   s->list_selection=s->tree_selection=-1;
+  snprintf(s->source,sizeof(s->source),"// Sorgente UTF-8: città è prova\nvoid main() {\n\t// Modifica questo testo\n}\n");
   s->rgba=(UIColorRGBA){.2f,.4f,.8f,.65f};
   s->nodes[0]=(UITreeNode){"scene","Scena",0,true,false};
   s->nodes[1]=(UITreeNode){"objects","Oggetti",1,true,false};
@@ -157,8 +158,8 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
       UIScrollScope content=ui_scroll_begin("reference/components-scroll",(UIRect){x+12,y+12,w-24,h-24},1);
       if(content.clip_pushed) {
         UIPropertyLayout p=ui_property_layout_begin(content.layout.bounds.x,content.layout.cursor_y,content.layout.bounds.w,1);
-        const UITab tabs[]={{"Campi, icone, lista e albero",false},{"RGBA e HSV",false}};
-        ui_tabs("reference/component-tabs",font,(UIRect){p.x,p.cursor_y,p.width,32},tabs,2,&s->component_tab);
+        const UITab tabs[]={{"Campi, icone, lista e albero",false},{"RGBA e HSV",false},{"Editor testo",false}};
+        ui_tabs("reference/component-tabs",font,(UIRect){p.x,p.cursor_y,p.width,32},tabs,3,&s->component_tab);
         p.cursor_y+=40;
         if(s->component_tab==0) {
           UITextInputOptions options={.placeholder="Cerca nella scena..."};
@@ -191,11 +192,21 @@ void ui_reference_draw(UIReferenceScene *s,Font *font,float width,float height,c
             else s->node_hidden[node]=!s->node_hidden[node];
           }
           p.cursor_y+=158;
-        } else {
+        } else if(s->component_tab==1) {
           const char *modes[]={"RGB","HSV"};
           ui_property_dropdown(&p,"reference/color-mode",font,"Spazio",modes,2,&s->color_mode);
           UIColorPickerOptions options={.integer_channels=true,.mode=s->color_mode?UI_COLOR_HSV:UI_COLOR_RGB};
           ui_property_color_rgba(&p,"reference/rgba",font,"Colore RGBA",&s->rgba,&options,NULL);
+        } else {
+          ui_property_note(&p,font,"Invio: nuova riga. Tab: indentazione. Shift+Tab: esci.");
+          UITextEditorOptions options={.scale=14,.line_numbers=true};
+          UITextEditorResult edit=ui_text_editor("reference/source",font,
+            (UIRect){p.x,p.cursor_y,p.width,280},s->source,sizeof(s->source),&options);
+          p.cursor_y+=288;
+          if(edit.save_requested) s->source_save_requested=true;
+          char status[128]; snprintf(status,sizeof(status),"Riga %d, colonna %d%s",edit.line,edit.column,
+            s->source_save_requested?" - Ctrl+S ricevuto (demo senza file)":"");
+          ui_property_note(&p,font,status);
         }
         ui_property_layout_commit(&content.layout,&p);
       }

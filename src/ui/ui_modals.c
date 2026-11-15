@@ -16,7 +16,7 @@
 static void ui_modal_release_capture(void) {
   UINavigationState *nav=ui_state_navigation(ui_overlay_context());
   bool keyboard=nav->nav_keyboard;
-  ui_release_input_capture();
+  ui_capture_release_modal();
   nav->nav_keyboard=keyboard && !nav->nav_cancelled;
 }
 
@@ -210,4 +210,8 @@ bool ui_modal_begin(const char *id, const char *title, Font *font,
   *out_content_w = width - theme.modal_padding * 2.0f;
   *out_content_h = height - titleBarH - theme.modal_padding * 2.0f;
   return true;
+}
+
+bool ui_modal_set_return_focus(const char *modal_id,const char *widget_id,bool resume_editing) {
+  return ui_nav_modal_set_return_focus(ui_overlay_context(),modal_id,widget_id,resume_editing);
 }

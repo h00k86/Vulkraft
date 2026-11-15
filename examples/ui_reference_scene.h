@@ -5,6 +5,8 @@ typedef struct {
   bool components;
   int component_tab,color_mode,list_selection,tree_selection;
   char search[128];
+  char source[4096];
+  bool source_save_requested;
   UIColorRGBA rgba;
   UITreeNode nodes[5];
   bool node_hidden[5],node_locked[5];

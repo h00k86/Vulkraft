@@ -12,6 +12,9 @@ typedef enum {
   UI_FILE_PICKER_DIRECTORY,
 } UIFilePickerMode;
 
+#define UI_FILE_PICKER_MAX_EXTENSIONS 16
+#define UI_FILE_PICKER_EXTENSION_CAPACITY 24
+
 typedef struct {
     UIFilePickerMode mode;
     const char *root_directory;
@@ -23,6 +26,19 @@ typedef struct {
      * (es. "models"): NULL = nessuna palette. I percorsi sono salvati
      * relativi a root_directory in <config utente>/picker_<chiave>.txt. */
     const char *favorites_key;
+    /* Optional list overrides extension. 0 preserves the legacy filter.
+     * 1..16 suffixes, each starting with '.', max 23 bytes, case-sensitive.
+     * Copied during open; directories remain visible. No globs/separators.
+     * In SAVE, an accepted suffix is preserved; a missing suffix is appended
+     * only when default_extension is provided and belongs to this list.
+     * An explicit unaccepted suffix is rejected, never silently replaced. */
+    const char *const *extensions;
+    int extension_count;
+    const char *default_extension;
+    /* Optional registered widget in the picker parent's scope. Set when a
+     * toolbar/menu opens the picker but editing should return to a document. */
+    const char *return_focus;
+    bool resume_editing;
 } UIFilePickerRequest;
 
 void ui_file_picker_open(const char *id, const char *title,

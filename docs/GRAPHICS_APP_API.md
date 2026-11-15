@@ -5,7 +5,8 @@ Il consumatore include solo gli header installati e collega il target CMake;
 non aggiunge `src/` o directory private del checkout agli include o ai sorgenti.
 Un'installazione sceglie un solo host (`GraphicsApp_PLATFORM`): GLFW o SDL2.
 
-L'SDK applicativo è ora **0.8.0**, con UIFramework **0.6.0**. Aggiunge
+L'SDK applicativo è ora **0.10.0**, con UIFramework **0.8.0**. Include l'editor
+multilinea documentato in [UI_TEXT_EDITOR.md](UI_TEXT_EDITOR.md). Le API precedenti includono
 clic espliciti sulle righe, accessori dell’albero e icone dei gizmo. Il contratto
 di callback e proprietà di APP rimane disponibile. In questa
 fase pre-1.0, aggiunte all'API pubblica incrementano la minor dell'SDK interessato;
@@ -103,7 +104,7 @@ l'editor usa `AppCallbacks.close_requested`: non sostituisce gli handler piattaf
 ## Risorse del consumatore CMake
 
 ```cmake
-find_package(GraphicsApp 0.8.0 EXACT REQUIRED COMPONENTS application)
+find_package(GraphicsApp 0.10.0 EXACT REQUIRED COMPONENTS application)
 add_executable(my_app main.c)
 target_link_libraries(my_app PRIVATE GraphicsApp::application)
 graphics_app_deploy_resources(my_app)

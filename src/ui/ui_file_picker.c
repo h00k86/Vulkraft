@@ -186,19 +186,48 @@ void ui_file_picker_cancel(void) {
    * Clearing it again here would erase the restored keyboard target. */
 }
 
-static bool ui_file_picker_accepts(const UIFilePickerState *picker,
-                                   const char *name, bool directory) {
-  if (directory)
-    return true;
-  if (picker->extension[0]) {
-    size_t name_len = strlen(name), ext_len = strlen(picker->extension);
-    if (name_len < ext_len || strcmp(name + name_len - ext_len,
-                                     picker->extension) != 0)
-      return false;
-  }
-  if (picker->search[0] && !strstr(name, picker->search))
+static bool ui_picker_suffix(const char *name,const char *suffix) {
+  size_t n=strlen(name),k=strlen(suffix);
+  return n>=k && !strcmp(name+n-k,suffix);
+}
+static bool ui_picker_extension_matches(const UIFilePickerState *picker,const char *name) {
+  if(picker->extension_count) {
+    for(int i=0;i<picker->extension_count;++i)
+      if(ui_picker_suffix(name,picker->extensions[i])) return true;
     return false;
-  return true;
+  }
+  return !picker->extension[0] || ui_picker_suffix(name,picker->extension);
+}
+static bool ui_picker_valid_suffix(const char *suffix,bool legacy) {
+  if(!suffix) return false;
+  size_t n=0;
+  while(n<UI_FILE_PICKER_EXTENSION_CAPACITY && suffix[n]) {
+    unsigned char c=(unsigned char)suffix[n++];
+    if(c<=32 || c=='/' || c=='\\' || c=='*' || c=='?' || c==';') return false;
+  }
+  return n<UI_FILE_PICKER_EXTENSION_CAPACITY && (legacy || (n>1 && suffix[0]=='.'));
+}
+static bool ui_picker_valid_request(const UIFilePickerRequest *request) {
+  if(request->extension_count<0 || request->extension_count>UI_FILE_PICKER_MAX_EXTENSIONS ||
+     (request->extension_count && !request->extensions)) return false;
+  if(request->extension_count) {
+    for(int i=0;i<request->extension_count;++i)
+      if(!ui_picker_valid_suffix(request->extensions[i],false)) return false;
+  } else if(request->extension && !ui_picker_valid_suffix(request->extension,true)) return false;
+  if(request->default_extension && request->default_extension[0]) {
+    if(!ui_picker_valid_suffix(request->default_extension,false)) return false;
+    bool accepted=!request->extension_count && (!request->extension || !request->extension[0] ||
+                               !strcmp(request->extension,request->default_extension));
+    for(int i=0;i<request->extension_count;++i)
+      if(!strcmp(request->extensions[i],request->default_extension)) accepted=true;
+    if(!accepted) return false;
+  }
+  return !request->return_focus || !request->return_focus[0] || ui_valid_id(request->return_focus);
+}
+static bool ui_file_picker_accepts(const UIFilePickerState *picker,const char *name,bool directory) {
+  if(directory) return true;
+  if(!ui_picker_extension_matches(picker,name)) return false;
+  return !picker->search[0] || strstr(name,picker->search);
 }
 
 static int ui_file_picker_entry_compare(const void *left, const void *right) {
@@ -288,6 +317,8 @@ void ui_file_picker_open(const char *id, const char *title,
   if (!ui_valid_id(id)) return ;
   if (!id || !request || !request->root_directory || !request->root_directory[0])
     return;
+  /* Invalid new filters leave an already open picker intact. */
+  if(!ui_picker_valid_request(request)) return;
   if (ui_file_picker_capture_active())
     ui_file_picker_cancel();
   if (!picker_view->file_picker_state) {
@@ -297,7 +328,7 @@ void ui_file_picker_open(const char *id, const char *title,
   memset(picker_state(), 0, sizeof(*picker_state()));
   snprintf(picker_state()->id, sizeof(picker_state()->id), "%s", id);
   snprintf(picker_state()->title, sizeof(picker_state()->title), "%s",
-           title ? title : "FILE");
+           title ? title : "File");
   if (!platform_real_path(request->root_directory, picker_state()->root, sizeof(picker_state()->root)) ||
       !platform_dir_exists(picker_state()->root)) return;
   const char *initial = request->initial_directory && request->initial_directory[0]
@@ -307,7 +338,15 @@ void ui_file_picker_open(const char *id, const char *title,
       !platform_dir_exists(picker_state()->current))
     snprintf(picker_state()->current, sizeof(picker_state()->current), "%s", picker_state()->root);
   snprintf(picker_state()->extension, sizeof(picker_state()->extension), "%s",
-           request->extension ? request->extension : "");
+           request->extension_count?"":request->extension ? request->extension : "");
+  picker_state()->extension_count=request->extension_count;
+  for(int i=0;i<request->extension_count;++i)
+    snprintf(picker_state()->extensions[i],sizeof(picker_state()->extensions[i]),"%s",request->extensions[i]);
+  snprintf(picker_state()->default_extension,sizeof(picker_state()->default_extension),"%s",
+           request->default_extension?request->default_extension:"");
+  snprintf(picker_state()->return_focus,sizeof(picker_state()->return_focus),"%s",
+           request->return_focus?request->return_focus:"");
+  picker_state()->resume_editing=request->resume_editing;
   utf8_copy(picker_state()->filename, sizeof(picker_state()->filename),
            request->initial_name ? request->initial_name : "");
   picker_state()->mode = request->mode;
@@ -363,11 +402,11 @@ static bool ui_file_picker_confirm_overwrite(Font *font,
                                    .min_height = overwrite.h,
                                    .danger = true};
   unsigned action = 0;
-  if (ui_button_labeled("overwrite_cancel", "ANNULLA", font,
+  if (ui_button_labeled("overwrite_cancel", "Annulla", font,
                         ANCHOR_TOP_LEFT, 0, 14.0f, cancel.x, cancel.y,
                         &cancel_style))
     action |= 1u;
-  if (ui_button_labeled("overwrite_confirm", "SOVRASCRIVI", font,
+  if (ui_button_labeled("overwrite_confirm", "Sovrascrivi", font,
                         ANCHOR_TOP_LEFT, 0, 14.0f, overwrite.x, overwrite.y,
                         &overwrite_style))
     action |= 2u;
@@ -387,10 +426,7 @@ bool ui_file_picker_draw(Font *font, char *out_path,
                          size_t out_path_size) {
   if (!ui_state_picker(picker_context())->file_picker_state || !picker_state()->open || !out_path || out_path_size == 0)
     return false;
-  if (picker_state()->overwrite_pending)
-    return ui_file_picker_confirm_overwrite(font, out_path,
-                                            out_path_size);
-
+  /* Keep the parent modal submitted while the overwrite child is open. */
   bool open = true;
   float x, y, width, height;
   if (!ui_modal_begin(picker_state()->id, picker_state()->title, font,
@@ -398,6 +434,9 @@ bool ui_file_picker_draw(Font *font, char *out_path,
     ui_file_picker_cancel();
     return false;
   }
+  if(picker_state()->return_focus[0] && !picker_state()->return_focus_applied)
+    picker_state()->return_focus_applied=ui_modal_set_return_focus(picker_state()->id,
+      picker_state()->return_focus,picker_state()->resume_editing);
   UIPanel panel = ui_panel_begin("file_picker_panel", "", font,
                                  (UIRect){x, y, width, height}, 1.0f);
   if (!panel.clip_pushed) {
@@ -409,7 +448,7 @@ bool ui_file_picker_draw(Font *font, char *out_path,
   UITheme theme = ui_get_theme();
   UIPropertyLayout properties = ui_property_layout_begin(
       top.bounds.x, top.cursor_y, top.bounds.w, 1.0f);
-  const char *navigation[] = {"ROOT", "SU", "AGGIORNA"};
+  const char *navigation[] = {"Radice", "Su", "Aggiorna"};
   unsigned navigation_action = ui_property_action_row(&properties, "navigation", font, navigation, 3);
   if (navigation_action & 1u) {
     snprintf(picker_state()->current, sizeof(picker_state()->current), "%s",
@@ -430,7 +469,7 @@ bool ui_file_picker_draw(Font *font, char *out_path,
   if (navigation_action & 4u)
     ui_file_picker_refresh(picker_state());
   bool path_changed = ui_property_text(&properties, "directory", font,
-                                       "PERCORSO", picker_state()->current,
+                                       "Percorso", picker_state()->current,
                                        sizeof(picker_state()->current));
   if (path_changed) {
     if (!ui_file_picker_path_is_inside_root(picker_state(),
@@ -439,18 +478,27 @@ bool ui_file_picker_draw(Font *font, char *out_path,
                picker_state()->root);
     ui_file_picker_refresh(picker_state());
   }
-  if (ui_property_text(&properties, "search", font, "CERCA",
+  if (ui_property_text(&properties, "search", font, "Cerca",
                        picker_state()->search, sizeof(picker_state()->search)))
     ui_file_picker_refresh(picker_state());
   ui_property_layout_commit(&top, &properties);
 
-  char filter_label[96];
+  char filter_label[128],suffixes[96]="";
+  for(int i=0;i<picker_state()->extension_count;++i) {
+    size_t used=strlen(suffixes);
+    int written=snprintf(suffixes+used,sizeof(suffixes)-used,"%s%s",i?", ":"",picker_state()->extensions[i]);
+    if(written<0 || (size_t)written>=sizeof(suffixes)-used) {
+      memcpy(suffixes+sizeof(suffixes)-4,"...",4); break;
+    }
+  }
   snprintf(filter_label, sizeof(filter_label), "%d elementi  |  filtro: %s",
-           picker_state()->entry_count,
+           picker_state()->entry_count, picker_state()->extension_count?suffixes:
            picker_state()->extension[0] ? picker_state()->extension : "tutti i file");
   float filter_scale = 12.0f;
-  float filter_width = ui_paint_measure_text_width(font, filter_label, filter_scale);
-  ui_paint_draw_text_colored(font, filter_label,
+  char filter_shown[128];
+  ui_ellipsize_right(font,filter_label,filter_scale,top.bounds.w,filter_shown,sizeof(filter_shown));
+  float filter_width = ui_paint_measure_text_width(font, filter_shown, filter_scale);
+  ui_paint_draw_text_colored(font, filter_shown,
                     top.bounds.x + top.bounds.w - filter_width,
                     top.cursor_y + ui_paint_font_ascent(font, filter_scale),
                     filter_scale, theme.text_muted.r,
@@ -558,7 +606,7 @@ bool ui_file_picker_draw(Font *font, char *out_path,
     ui_paint_draw_quad(preview.x, preview.y, preview.w, preview.h,
               theme.field.r, theme.field.g, theme.field.b);
     float title_scale = 13.0f * theme.secondary_text_scale;
-    ui_paint_draw_text_colored(font, "ANTEPRIMA", preview.x + theme.row_spacing,
+    ui_paint_draw_text_colored(font, "Anteprima", preview.x + theme.row_spacing,
                       preview.y + theme.row_spacing + ui_paint_font_ascent(font, title_scale),
                       title_scale, theme.text_muted.r, theme.text_muted.g,
                       theme.text_muted.b);
@@ -639,7 +687,7 @@ bool ui_file_picker_draw(Font *font, char *out_path,
       int count = section == 0 ? picker_state()->favorite_count : picker_state()->recent_count;
       float hy = ui_property_layout_next_row(&prow);
       char head[48];
-      snprintf(head, sizeof(head), "%s (%d)", section == 0 ? "PREFERITI" : "RECENTI", count);
+      snprintf(head, sizeof(head), "%s (%d)", section == 0 ? "Preferiti" : "Recenti", count);
       ui_paint_draw_text_colored(font, head, prow.x, hy + ui_paint_font_ascent(font, 13.0f) + 4.0f, 13.0f,
                         theme.text_muted.r, theme.text_muted.g, theme.text_muted.b);
       for (int i = 0; i < count; ++i) {
@@ -678,7 +726,7 @@ bool ui_file_picker_draw(Font *font, char *out_path,
   UIPropertyLayout actions = ui_property_layout_begin(
       top.bounds.x, list_bounds.y + list_bounds.h, top.bounds.w, 1.0f);
   if (picker_state()->mode == UI_FILE_PICKER_SAVE)
-    ui_property_text(&actions, "filename", font, "NOME FILE",
+    ui_property_text(&actions, "filename", font, "Nome file",
                      picker_state()->filename, sizeof(picker_state()->filename));
   float action_y = ui_property_layout_next_row(&actions);
   float action_gap = theme.row_spacing;
@@ -691,15 +739,15 @@ bool ui_file_picker_draw(Font *font, char *out_path,
                                  .min_height = actions.row_height,
                                  .selected = true};
   unsigned action = 0;
-  if (ui_button_labeled(ui_scoped_id("actions/cancel"), "ANNULLA", font,
+  if (ui_button_labeled(ui_scoped_id("actions/cancel"), "Annulla", font,
                         ANCHOR_TOP_LEFT, 0, 14.0f, actions.x, action_y,
                         &cancel_style))
     action |= 1u;
   const char *confirm_label = picker_state()->mode == UI_FILE_PICKER_SAVE
-                                  ? "SALVA"
+                                  ? "Salva"
                                   : (picker_state()->mode == UI_FILE_PICKER_DIRECTORY
-                                         ? "SELEZIONA CARTELLA"
-                                         : "APRI");
+                                         ? "Seleziona cartella"
+                                         : "Apri");
   if (ui_button_labeled(ui_scoped_id("actions/confirm"), confirm_label,
                         font, ANCHOR_TOP_LEFT, 0, 14.0f,
                         actions.x + action_w + action_gap, action_y,
@@ -717,13 +765,25 @@ bool ui_file_picker_draw(Font *font, char *out_path,
       snprintf(picker_state()->error, sizeof(picker_state()->error), "Cartella non valida o percorso troppo lungo");
     } else if (picker_state()->mode == UI_FILE_PICKER_SAVE) {
       snprintf(selected, sizeof(selected), "%s", picker_state()->filename);
-      size_t name_length = strlen(selected), extension_length = strlen(picker_state()->extension);
-      if (picker_state()->extension[0] &&
-          (name_length < extension_length ||
-           strcmp(selected + name_length - extension_length,
-                  picker_state()->extension) != 0))
-        strncat(selected, picker_state()->extension,
-                sizeof(selected) - strlen(selected) - 1);
+      bool suffix_ok=selected[0]!=0;
+      if(picker_state()->extension_count || picker_state()->default_extension[0]) {
+        if(!ui_picker_extension_matches(picker_state(),selected) ||
+           (!picker_state()->extension_count && !strrchr(selected,'.'))) {
+          const char *suffix=picker_state()->default_extension;
+          size_t n=strlen(selected),k=strlen(suffix);
+          if(!strrchr(selected,'.') && suffix[0] && n+k<sizeof(selected))
+            memcpy(selected+n,suffix,k+1);
+          else suffix_ok=false;
+        }
+      } else if(picker_state()->extension[0] && !ui_picker_suffix(selected,picker_state()->extension)) {
+        size_t n=strlen(selected),k=strlen(picker_state()->extension);
+        if(n+k<sizeof(selected)) memcpy(selected+n,picker_state()->extension,k+1);
+        else suffix_ok=false;
+      }
+      if(!suffix_ok) {
+        snprintf(picker_state()->error,sizeof(picker_state()->error),"Estensione non ammessa o nome troppo lungo");
+        ui_panel_end(&panel); ui_modal_end(picker_state()->id,picker_state()->open); return false;
+      }
       if (!ui_file_picker_build_path(picker_state(), selected,
                                      picker_state()->selected,
                                      sizeof(picker_state()->selected)))
@@ -742,6 +802,10 @@ bool ui_file_picker_draw(Font *font, char *out_path,
         }
       }
     } else if (picker_state()->selected[0]) {
+      if(!ui_picker_extension_matches(picker_state(),picker_state()->selected)) {
+        snprintf(picker_state()->error,sizeof(picker_state()->error),"Estensione non ammessa");
+        ui_panel_end(&panel); ui_modal_end(picker_state()->id,picker_state()->open); return false;
+      }
       if (!ui_file_picker_selected_path(picker_state()->id, out_path, out_path_size)) {
         ui_panel_end(&panel); return false;
       }
@@ -758,6 +822,8 @@ bool ui_file_picker_draw(Font *font, char *out_path,
                       13.0f, theme.error.r, theme.error.g, theme.error.b);
   }
   ui_panel_end(&panel);
+  bool confirmed=picker_state()->overwrite_pending &&
+                 ui_file_picker_confirm_overwrite(font,out_path,out_path_size);
   ui_modal_end(picker_state()->id, picker_state()->open);
-  return false;
+  return confirmed;
 }

@@ -21,3 +21,6 @@ bool ui_key_pressed(int key);
 bool ui_any_dropdown_is_open(void);
 bool ui_any_slider_dragging(void);
 bool ui_file_picker_capture_active(void);
+
+/* Modal teardown keeps suspended editor sessions; explicit release cancels them. */
+void ui_capture_release_modal(void);

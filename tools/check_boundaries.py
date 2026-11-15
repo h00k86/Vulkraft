@@ -35,6 +35,7 @@ ui_state_access = {'ui_buttons.c': {'frame', 'navigation', 'buttons', 'tooltip'}
                      'text_fields'},
  'ui_numeric_controls.c': {'frame', 'sliders', 'navigation', 'numeric'},
  'ui_panels.c': {'frame', 'navigation', 'ids', 'panels'},
+ 'ui_text_editor.c': {'frame', 'text_fields', 'navigation', 'clipboard'},
  'ui_text_field.c': {'frame', 'text_fields', 'navigation', 'clipboard'}}
 for subtree in ('src', 'include', 'examples', 'backends'):
     for path in (root / subtree).rglob('*'):
@@ -106,7 +107,7 @@ for subtree in ('src', 'include', 'examples', 'backends'):
         if rel in ('src/ui/ui_text_edit.c', 'src/ui/ui_text_edit_internal.h', 'src/ui/ui_theme.c', 'src/ui/ui_color_picker.c', 'src/ui/ui_progress.c', 'src/ui/ui_layout.c', 'src/ui/ui_properties.c'):
             if re.search(r'ui_context_internal\.h|\bui_ctx\s*\(|\bUIContext\b', code):
                 issues.append(f'{rel}: UI module accesses context internals')
-        if rel in ('src/ui/ui.c', 'src/ui/ui_buttons.c', 'src/ui/ui_numeric_controls.c', 'src/ui/ui_text_field.c', 'src/ui/ui_capture.c', 'src/ui/ui_menu.c', 'src/ui/ui_dropdown.c', 'src/ui/ui_modals.c', 'src/ui/ui_panels.c', 'src/ui/ui_navigation.c', 'src/ui/ui_text_edit.c', 'src/ui/ui_theme.c', 'src/ui/ui_color_picker.c', 'src/ui/ui_progress.c', 'src/ui/ui_layout.c', 'src/ui/ui_properties.c'):
+        if rel in ('src/ui/ui.c', 'src/ui/ui_buttons.c', 'src/ui/ui_numeric_controls.c', 'src/ui/ui_text_field.c', 'src/ui/ui_text_editor.c', 'src/ui/ui_capture.c', 'src/ui/ui_menu.c', 'src/ui/ui_dropdown.c', 'src/ui/ui_modals.c', 'src/ui/ui_panels.c', 'src/ui/ui_navigation.c', 'src/ui/ui_text_edit.c', 'src/ui/ui_theme.c', 'src/ui/ui_color_picker.c', 'src/ui/ui_progress.c', 'src/ui/ui_layout.c', 'src/ui/ui_properties.c'):
             if re.search(r'#\s*include\s*"render/(?:text_renderer|texture_manager)\.h"|(?<![.\w])(?:draw_quad(?:_alpha)?|draw_text_colored|draw_textured_quad|draw_hud_paper_panel|draw_hud_trash_swipe|measure_text_width|text_clip_\w+|texture_manager_\w+)\s*\(', code):
                 issues.append(f'{rel}: concrete rendering dependency in UI core')
             if re.search(r'#\s*include\s*"(?:app/application|platform/window|input/keyboard)\.h"|\binput_keyboard_\w+\s*\(|\bplatform_key_state\s*\(|\bapp\s*->|\bg_virtual(?:Width|Height)\b|\bVIRTUAL_[WH]\b', code):
@@ -132,7 +133,7 @@ def test_includes_core(path, seen=None):
     return False
 
 for name in ('ui_navigation_test', 'ui_interaction_test', 'ui_tabs_splitter_test',
-             'ui_basic_widgets_test', 'ui_text_edit_test', 'ui_text_edit_app_test',
+             'ui_basic_widgets_test', 'ui_modal_focus_test', 'ui_text_edit_test', 'ui_text_editor_test', 'ui_text_edit_app_test',
              'ui_renderer_test', 'ui_frame_input_test', 'ui_draw_list_test',
              'config_editor_ui_test', 'config_editor_session_test', 'ui_color_picker_test', 'ui_state_contract_test',
              'ui_dropdown_storage_test', 'ui_navigation_batch_test', 'ui_menu_storage_test', 'ui_error_test', 'ui_session_test'):

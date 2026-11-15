@@ -49,8 +49,28 @@ static void ui_text_history_move(UITextInputState *s,char *buffer,int capacity,i
 }
 static int ui_text_low(const UITextInputState *s) { return s->caret<s->selection_anchor?s->caret:s->selection_anchor; }
 static int ui_text_high(const UITextInputState *s) { return s->caret>s->selection_anchor?s->caret:s->selection_anchor; }
-static bool ui_text_scalar_allowed(uint32_t cp) {
-  return cp>=32 && !(cp>=127 && cp<=159) && cp!=0x2028 && cp!=0x2029;
+static bool ui_text_scalar_allowed(uint32_t cp,bool multiline) {
+  return (multiline && (cp=='\n' || cp=='\t')) ||
+    (cp>=32 && !(cp>=127 && cp<=159) && cp!=0x2028 && cp!=0x2029);
+}
+int ui_text_line_start(const char *text,int offset) {
+  while(offset>0 && text[offset-1]!='\n') --offset;
+  return offset;
+}
+int ui_text_line_end(const char *text,int offset) {
+  while(text[offset] && text[offset]!='\n') ++offset;
+  return offset;
+}
+int ui_text_line_column(const char *text,int offset) {
+  int column=0;
+  for(int at=ui_text_line_start(text,offset);at<offset;++column)
+    at=(int)utf8_next(text,(size_t)offset,(size_t)at);
+  return column;
+}
+int ui_text_line_at_column(const char *text,int start,int column) {
+  int end=ui_text_line_end(text,start);
+  while(column-->0 && start<end) start=(int)utf8_next(text,(size_t)end,(size_t)start);
+  return start;
 }
 static void ui_text_replace(UITextInputState *s,char *buffer,int capacity,const char *text,size_t n) {
   int lo=ui_text_low(s),hi=ui_text_high(s); size_t len=strlen(buffer);
@@ -67,7 +87,7 @@ static bool ui_text_copy_selection(UITextInputState *s,const char *buffer,const 
   memcpy(copy,buffer+lo,n); copy[n]=0;
   bool ok=clipboard->write(user,copy); free(copy); return ok;
 }
-static void ui_text_paste(UITextInputState *s,char *buffer,int capacity,const UIClipboard *clipboard,void *user) {
+static void ui_text_paste(UITextInputState *s,char *buffer,int capacity,const UIClipboard *clipboard,void *user,bool multiline) {
   const char *source=NULL; size_t n=0;
   if(!clipboard->read || !clipboard->read(user,&source,&n)) return;
   /* Bound work on external data. Reject malformed UTF-8 before changing anything. */
@@ -78,7 +98,14 @@ static void ui_text_paste(UITextInputState *s,char *buffer,int capacity,const UI
       size_t used=0;
       for(size_t p=0;p<n;) {
         uint32_t cp; size_t k=utf8_decode(source+p,n-p,&cp);
-        if(ui_text_scalar_allowed(cp)) {
+        /* Normalize platform line endings before filtering clipboard text. */
+        if(multiline && cp=='\r') {
+          cp='\n'; k=1;
+          if(p+1<n && source[p+1]=='\n') ++p;
+          if(used==limit) break;
+          copy[used++]='\n'; p+=k; continue;
+        }
+        if(ui_text_scalar_allowed(cp,multiline)) {
           if(k>limit-used) break;
           memcpy(copy+used,source+p,k); used+=k;
         }
@@ -91,16 +118,20 @@ static void ui_text_paste(UITextInputState *s,char *buffer,int capacity,const UI
   }
   if(clipboard->release) clipboard->release(user,source);
 }
-void ui_text_edit_event(UITextInputState *s,char *buffer,int capacity,const InputKeyEvent *e,
-                        const UIClipboard *clipboard,void *user) {
+static void ui_text_event(UITextInputState *s,char *buffer,int capacity,const InputKeyEvent *e,
+                        const UIClipboard *clipboard,void *user,bool multiline,int page_lines) {
   /* AltGr may be reported as Ctrl+Alt: do not turn character composition into
    * select-all/cut/undo shortcuts. Character events remain authoritative. */
   bool ctrl=(e->mods&PLATFORM_MOD_CONTROL)!=0 && !(e->mods&PLATFORM_MOD_ALT);
   bool shift=(e->mods&PLATFORM_MOD_SHIFT)!=0;
+  if(e->kind==INPUT_CHARACTER || (e->kind==INPUT_KEY &&
+      e->key!=PLATFORM_KEY_UP && e->key!=PLATFORM_KEY_DOWN &&
+      e->key!=PLATFORM_KEY_PAGE_UP && e->key!=PLATFORM_KEY_PAGE_DOWN))
+    s->preferred_column_valid=false;
   ui_text_history_save(s,buffer); /* Retain selection immediately before the edit. */
   if(e->kind==INPUT_CHARACTER) {
     char encoded[4]; size_t n=utf8_encode(e->codepoint,encoded);
-    if(n && ui_text_scalar_allowed(e->codepoint)) ui_text_replace(s,buffer,capacity,encoded,n);
+    if(n && ui_text_scalar_allowed(e->codepoint,multiline)) ui_text_replace(s,buffer,capacity,encoded,n);
   } else if(e->action==PLATFORM_PRESS || e->action==PLATFORM_REPEAT) {
     int len=(int)strlen(buffer);
     if(ctrl && (e->key==PLATFORM_KEY_Z || e->key==PLATFORM_KEY_Y)) {
@@ -110,8 +141,24 @@ void ui_text_edit_event(UITextInputState *s,char *buffer,int capacity,const Inpu
     else if(ctrl && e->key==PLATFORM_KEY_C) { ui_text_copy_selection(s,buffer,clipboard,user); }
     else if(ctrl && e->key==PLATFORM_KEY_X) {
       if(ui_text_copy_selection(s,buffer,clipboard,user)) ui_text_replace(s,buffer,capacity,"",0);
-    } else if(ctrl && e->key==PLATFORM_KEY_V) ui_text_paste(s,buffer,capacity,clipboard,user);
-    else if(e->key==PLATFORM_KEY_BACKSPACE || e->key==PLATFORM_KEY_DELETE) {
+    } else if(ctrl && e->key==PLATFORM_KEY_V) ui_text_paste(s,buffer,capacity,clipboard,user,multiline);
+    else if(multiline && (e->key==PLATFORM_KEY_ENTER || e->key==PLATFORM_KEY_KP_ENTER || e->key==PLATFORM_KEY_TAB)) {
+      ui_text_replace(s,buffer,capacity,e->key==PLATFORM_KEY_TAB?"\t":"\n",1);
+    } else if(multiline && (e->key==PLATFORM_KEY_UP || e->key==PLATFORM_KEY_DOWN ||
+                           e->key==PLATFORM_KEY_PAGE_UP || e->key==PLATFORM_KEY_PAGE_DOWN)) {
+      if(!s->preferred_column_valid) {
+        s->preferred_column=ui_text_line_column(buffer,s->caret); s->preferred_column_valid=true;
+      }
+      int start=ui_text_line_start(buffer,s->caret);
+      int steps=(e->key==PLATFORM_KEY_PAGE_UP || e->key==PLATFORM_KEY_PAGE_DOWN)?page_lines:1;
+      bool up=e->key==PLATFORM_KEY_UP || e->key==PLATFORM_KEY_PAGE_UP;
+      while(steps-->0) {
+        if(up) { if(start==0) break; start=ui_text_line_start(buffer,start-1); }
+        else { int end=ui_text_line_end(buffer,start); if(!buffer[end]) break; start=end+1; }
+      }
+      s->caret=ui_text_line_at_column(buffer,start,s->preferred_column);
+      if(!shift) s->selection_anchor=s->caret;
+    } else if(e->key==PLATFORM_KEY_BACKSPACE || e->key==PLATFORM_KEY_DELETE) {
       if(s->caret==s->selection_anchor) {
         if(e->key==PLATFORM_KEY_BACKSPACE) s->selection_anchor=(int)utf8_prev(buffer,(size_t)s->caret);
         else s->selection_anchor=(int)utf8_next(buffer,(size_t)len,(size_t)s->caret);
@@ -119,8 +166,8 @@ void ui_text_edit_event(UITextInputState *s,char *buffer,int capacity,const Inpu
       ui_text_replace(s,buffer,capacity,"",0);
     } else if(e->key==PLATFORM_KEY_LEFT || e->key==PLATFORM_KEY_RIGHT ||
               e->key==PLATFORM_KEY_HOME || e->key==PLATFORM_KEY_END) {
-      if(e->key==PLATFORM_KEY_HOME) s->caret=0;
-      else if(e->key==PLATFORM_KEY_END) s->caret=len;
+      if(e->key==PLATFORM_KEY_HOME) s->caret=multiline&&!ctrl?ui_text_line_start(buffer,s->caret):0;
+      else if(e->key==PLATFORM_KEY_END) s->caret=multiline&&!ctrl?ui_text_line_end(buffer,s->caret):len;
       else if(!shift && s->caret!=s->selection_anchor)
         s->caret=e->key==PLATFORM_KEY_LEFT?ui_text_low(s):ui_text_high(s);
       else s->caret=(int)(e->key==PLATFORM_KEY_LEFT?utf8_prev(buffer,(size_t)s->caret):utf8_next(buffer,(size_t)len,(size_t)s->caret));
@@ -128,6 +175,15 @@ void ui_text_edit_event(UITextInputState *s,char *buffer,int capacity,const Inpu
     }
   }
   ui_text_history_save(s,buffer);
+}
+
+void ui_text_edit_event(UITextInputState *s,char *buffer,int capacity,const InputKeyEvent *e,
+                        const UIClipboard *clipboard,void *user) {
+  ui_text_event(s,buffer,capacity,e,clipboard,user,false,1);
+}
+void ui_text_edit_multiline_event(UITextInputState *s,char *buffer,int capacity,const InputKeyEvent *e,
+                        const UIClipboard *clipboard,void *user,int page_lines) {
+  ui_text_event(s,buffer,capacity,e,clipboard,user,true,page_lines>0?page_lines:1);
 }
 
 /* Escape ripristina il valore all'inizio della modifica. I testi brevi usano
@@ -161,7 +217,9 @@ bool ui_text_edit_prepare(UITextInputState *state,const char *buffer,int capacit
   if(state->observed && (state->observed_length!=(size_t)length || state->observed_hash!=ui_text_hash(buffer))) {
     ui_text_history_clear(state); /* Caller replaced the document. */
     state->selection_anchor=state->caret;
+    state->preferred_column_valid=false;
     if(state->focused && !state->needs_snapshot) state->focused=ui_text_snapshot(state,buffer);
+    else if(state->suspended) state->needs_snapshot=true;
   }
   if(state->selection_anchor<0) state->selection_anchor=0;
   if(state->selection_anchor>length) state->selection_anchor=length;

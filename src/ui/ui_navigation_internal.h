@@ -7,7 +7,7 @@
  * begin/end bracket widget registration in an active frame. Contexts and IDs
  * are borrowed and non-NULL; event indices must be below key_event_count.
  * menu_open is the host core's menu-capture snapshot at frame start. */
-enum { UI_NAV_BUTTON, UI_NAV_TEXT, UI_NAV_NUMBER, UI_NAV_SLIDER, UI_NAV_DROPDOWN };
+enum { UI_NAV_BUTTON, UI_NAV_TEXT, UI_NAV_NUMBER, UI_NAV_SLIDER, UI_NAV_DROPDOWN, UI_NAV_TEXT_EDITOR };
 /* Reserve before opening a public frame, so OOM leaves its input/state intact.
  * begin also reserves for direct module consumers and returns false on OOM. */
 bool ui_nav_reserve_events(UIContext *c, size_t count);
@@ -27,3 +27,5 @@ void ui_nav_restore(UIContext *c, UIModalOpenState *modal);
 void ui_nav_modal_enter(UIContext *c, UIModalOpenState *modal);
 void ui_nav_end(UIContext *c);
 void ui_nav_clear_editor_focus(UIContext *c);
+
+bool ui_nav_modal_set_return_focus(UIContext *c,const char *modal_id,const char *widget_id,bool resume_editing);

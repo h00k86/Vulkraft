@@ -111,3 +111,23 @@ quando non attivati. Ricompilare libreria e host: la struttura di ritorno cambia
 Le icone dei gizmo sono aggiunte dopo `UI_ICON_TEXTURE`, il cui valore rimane
 invariato. `UI_ICON_COUNT` è una sentinella e non un'icona disegnabile.
 Con integer_channels l'alfa a riposo diventa compatta, senza arrotondare il valore.
+
+## Migrazione a 0.7.0
+
+Aggiunta compatibile alle chiamate esistenti: `ui_text_editor`, opzioni e risultato.
+`UI_OPERATION_TEXT_EDITOR` è aggiunto in coda all'enum degli errori. Ricompilare
+core e consumatori; aggiungere `src/ui/ui_text_editor.c` agli import con liste di
+sorgenti esplicite. Il nuovo editor condivide cache/focus dei campi testo; le
+scorciatoie dei campi monoriga non cambiano. Dentro il solo editor multilinea Tab
+inserisce un tab e Shift+Tab cambia widget. Vedere [UI_TEXT_EDITOR.md](UI_TEXT_EDITOR.md).
+
+## Migrazione a 0.8.0
+
+`UIFilePickerRequest` aggiunge campi in coda: lista di suffissi, estensione
+predefinita e target di ritorno. Le richieste azzerate o con inizializzatori
+preesistenti mantengono il filtro singolo. Ricompilare core, modulo picker e host.
+Le nuove liste hanno semantica SAVE esplicita, descritta in
+[UI_PICKER_FOCUS.md](UI_PICKER_FOCUS.md); il filtro è sensibile alle maiuscole.
+Il ritorno dalle modali riprende l'editing attivo prima della loro apertura;
+le applicazioni che vogliono solo focus di navigazione possono chiamare
+`ui_modal_set_return_focus(modale, widget, false)` durante il dialogo.

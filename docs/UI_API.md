@@ -379,3 +379,19 @@ La demo SDL/Vulkan offre **Componenti e colore RGBA/HSV**, in fondo al pannello:
 la prima scheda mostra segnaposto, icone, lista e albero; la seconda RGB/HSV e
 alfa. Nessuna modifica viene salvata su disco. Le regressioni automatiche sono
 in `tests/ui_components_test.c` e nella suite del color picker.
+
+## Editor di testo multilinea
+
+`ui_text_editor()` modifica piccoli sorgenti UTF-8 in un rettangolo assoluto,
+con selezione, clipboard, undo/redo, numeri di riga opzionali e scorrimento.
+Il buffer appartiene all'host; `changed` indica variazioni nel frame,
+`save_requested` segnala Ctrl+S senza accedere ai file.
+Contratto, esempio e limiti: [UI_TEXT_EDITOR.md](UI_TEXT_EDITOR.md).
+
+## Filtri del picker e ritorno dalle modali (0.8.0)
+
+Il picker opzionale accetta `extensions`/`extension_count` e un
+`default_extension` esplicito per SAVE. Le modali riprendono l'editing del widget
+sospeso; `ui_modal_set_return_focus` e le opzioni `return_focus`/`resume_editing`
+del picker permettono all'host di scegliere il documento dopo apertura da menu.
+Contratto ed esempi: [UI_PICKER_FOCUS.md](UI_PICKER_FOCUS.md).
